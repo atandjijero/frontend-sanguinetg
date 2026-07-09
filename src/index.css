@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #faf9f7;
+  color: #1a1c1b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.soft-shadow {
+  box-shadow: 0px 4px 12px rgba(31, 41, 55, 0.05);
+}
+
+.card-hover:hover {
+  box-shadow: 0px 8px 20px rgba(31, 41, 55, 0.08);
+  transform: translateY(-2px);
+}
+
+.gradient-mesh {
+  background-color: #faf9f7;
+  background-image: radial-gradient(at 0% 0%, rgba(196, 30, 58, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(62, 180, 137, 0.05) 0px, transparent 50%);
+}
+
+@keyframes progress-grow {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width);
+  }
+}
+
+.animate-progress {
+  animation: progress-grow 1.5s ease-out forwards;
+}
+
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 3s ease-in-out infinite;
+}
+
+
+
+@layer base {
+  /* Couleurs du sidebar shadcn alignées sur la charte Sanguine TG (voir tailwind.config.js) */
+  :root {
+    --sidebar-background: 40 23% 97%;
+    --sidebar-foreground: 150 4% 11%;
+    --sidebar-primary: 345 100% 31%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 40 9% 93%;
+    --sidebar-accent-foreground: 150 4% 11%;
+    --sidebar-border: 0 15% 88%;
+    --sidebar-ring: 345 100% 31%;
+  }
+  .dark {
+    --sidebar-background: 150 4% 11%;
+    --sidebar-foreground: 40 23% 97%;
+    --sidebar-primary: 345 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 4% 18%;
+    --sidebar-accent-foreground: 40 23% 97%;
+    --sidebar-border: 150 4% 22%;
+    --sidebar-ring: 345 100% 45%;
+  }
+}
