@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { CheckIcon, MegaphoneIcon, XIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { CheckIcon, MapPinIcon, MegaphoneIcon, XIcon } from 'lucide-react'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { DataState } from '../../../components/dashboard/DataState'
 import { useApiData } from '../../../hooks/useApiData'
+import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
 import type { Alerte } from '../../../lib/types'
 
 export default function MesAlertesPage() {
+  const { user } = useAuth()
   const { data: alertes, isLoading, error, refetch } = useApiData<Alerte[]>('/alertes')
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -50,13 +53,29 @@ export default function MesAlertesPage() {
                     <Badge>{GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]}</Badge>
                     <span className="font-medium">{alerte.quartier?.nom}</span>
                   </div>
+                  {user?.groupeSanguin && user.groupeSanguin !== alerte.groupeSanguinRequis && (
+                    <p className="text-xs text-tertiary mt-1">
+                      Vous êtes {GROUPE_SANGUIN_LABELS[user.groupeSanguin]}, compatible avec les receveurs{' '}
+                      {GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]}.
+                    </p>
+                  )}
+                  {alerte.centreDon && (
+                    <Link
+                      to={`/espace-donneur/centres?centre=${alerte.centreDon.id}`}
+                      className="text-xs flex items-center gap-1 mt-1 text-primary hover:underline w-fit"
+                    >
+                      <MapPinIcon className="h-3 w-3 shrink-0" />
+                      Rendez-vous au centre <strong>{alerte.centreDon.nom}</strong>
+                      {alerte.centreDon.adresse ? ` — ${alerte.centreDon.adresse}` : ''}
+                    </Link>
+                  )}
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(alerte.dateCreation).toLocaleString('fr-FR')}
                   </p>
                 </div>
                 {alerte.maReponse ? (
                   <Badge variant={alerte.maReponse === 'JE_VIENS' ? 'default' : 'secondary'}>
-                    {alerte.maReponse === 'JE_VIENS' ? 'Vous venez' : 'Indisponible'}
+                    {alerte.maReponse === 'JE_VIENS' ? 'Répondu' : 'Refusé'}
                   </Badge>
                 ) : (
                   <div className="flex gap-2">

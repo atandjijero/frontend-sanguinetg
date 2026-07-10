@@ -3,6 +3,8 @@ import {
   Building2Icon,
   GaugeIcon,
   GiftIcon,
+  HeartHandshakeIcon,
+  MailIcon,
   MapPinIcon,
   MegaphoneIcon,
   ShieldAlertIcon,
@@ -27,6 +29,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     title: 'Alertes',
     to: '/admin/alertes',
     icon: MegaphoneIcon,
+    roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS'],
+  },
+  {
+    title: 'Donneurs',
+    to: '/admin/donneurs',
+    icon: HeartHandshakeIcon,
     roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS'],
   },
   {
@@ -60,6 +68,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     roles: ['SUPERADMIN', 'ADMIN'],
   },
   {
+    title: 'Messages',
+    to: '/admin/messages',
+    icon: MailIcon,
+    roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS'],
+  },
+  {
     title: 'Équipe CNTS',
     to: '/admin/equipe',
     icon: UsersIcon,
@@ -76,6 +90,7 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
 export const DONNEUR_NAV_ITEMS: NavItem[] = [
   { title: 'Tableau de bord', to: '/espace-donneur', icon: GaugeIcon, end: true },
   { title: 'Mes alertes', to: '/espace-donneur/alertes', icon: MegaphoneIcon },
+  { title: 'Centres de don', to: '/espace-donneur/centres', icon: Building2Icon },
   { title: 'Mon carnet de don', to: '/espace-donneur/carnet', icon: BookHeartIcon },
   { title: 'Mes récompenses', to: '/espace-donneur/recompenses', icon: GiftIcon },
   { title: 'Conseils santé', to: '/espace-donneur/conseils', icon: StethoscopeIcon },

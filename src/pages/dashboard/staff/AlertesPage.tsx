@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { Checkbox } from '../../../components/ui-shadcn/ui/checkbox'
+import { Input } from '../../../components/ui-shadcn/ui/input'
 import { Label } from '../../../components/ui-shadcn/ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui-shadcn/ui/table'
 import { DataState } from '../../../components/dashboard/DataState'
@@ -14,7 +15,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
-import type { Alerte, GroupeSanguin, Quartier } from '../../../lib/types'
+import type { Alerte, CentreDon, GroupeSanguin, Quartier } from '../../../lib/types'
 
 function toggle<T>(liste: T[], valeur: T): T[] {
   return liste.includes(valeur) ? liste.filter((v) => v !== valeur) : [...liste, valeur]
@@ -25,28 +26,45 @@ export default function AlertesPage() {
   const peutLancerAlertes = user?.role !== 'SUPERADMIN'
   const { data: alertes, isLoading, error, refetch } = useApiData<Alerte[]>('/alertes')
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
+  const { data: centres } = useApiData<CentreDon[]>('/centres-don')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(alertes ?? [], 6)
 
   const [groupes, setGroupes] = useState<GroupeSanguin[]>([])
   const [quartierIds, setQuartierIds] = useState<string[]>([])
+  const [centreDonIds, setCentreDonIds] = useState<string[]>([])
+  const [nombreDonneursMaxParQuartier, setNombreDonneursMaxParQuartier] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [succes, setSucces] = useState<string | null>(null)
 
-  const nbCombinaisons = groupes.length * quartierIds.length
+  const nbCombinaisons = groupes.length * quartierIds.length * centreDonIds.length
+  const quartiersParId = new Map((quartiers ?? []).map((q) => [q.id, q.nom]))
+  const centresParId = new Map((centres ?? []).map((c) => [c.id, c.nom]))
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
-    if (groupes.length === 0 || quartierIds.length === 0) return
+    if (groupes.length === 0 || quartierIds.length === 0 || centreDonIds.length === 0) return
     setSubmitting(true)
     setFormError(null)
     setSucces(null)
     try {
-      const crees = await api.post<Alerte[]>('/alertes', { groupesSanguinsRequis: groupes, quartierIds })
+      const nombreDonneursMaxNumerique: Record<string, number> = {}
+      for (const qId of quartierIds) {
+        const valeur = nombreDonneursMaxParQuartier[qId]
+        if (valeur) nombreDonneursMaxNumerique[qId] = Number(valeur)
+      }
+      const crees = await api.post<Alerte[]>('/alertes', {
+        groupesSanguinsRequis: groupes,
+        quartierIds,
+        centreDonIds,
+        nombreDonneursMaxParQuartier: Object.keys(nombreDonneursMaxNumerique).length ? nombreDonneursMaxNumerique : undefined,
+      })
       const totalNotifies = crees.reduce((total, a) => total + (a.donneursNotifies ?? 0), 0)
       setSucces(`${crees.length} alerte(s) créée(s), ${totalNotifies} donneur(s) notifié(s) au total.`)
       setGroupes([])
       setQuartierIds([])
+      setCentreDonIds([])
+      setNombreDonneursMaxParQuartier({})
       await refetch()
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Impossible de créer les alertes")
@@ -103,15 +121,68 @@ export default function AlertesPage() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label>Centres de collecte</Label>
+              <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3 max-h-48 overflow-y-auto sm:max-w-sm">
+                {(centres ?? []).map((c) => (
+                  <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                    <Checkbox
+                      checked={centreDonIds.includes(c.id)}
+                      onCheckedChange={() => setCentreDonIds((prev) => toggle(prev, c.id))}
+                    />
+                    {c.nom}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {quartierIds.length > 0 && (
+              <div className="space-y-2">
+                <Label>Nombre de donneurs à cibler par quartier (optionnel)</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {quartierIds.map((qId) => (
+                    <div key={qId} className="flex items-center gap-2">
+                      <span className="text-sm w-32 shrink-0 truncate">{quartiersParId.get(qId) ?? qId}</span>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={nombreDonneursMaxParQuartier[qId] ?? ''}
+                        onChange={(e) =>
+                          setNombreDonneursMaxParQuartier((prev) => ({ ...prev, [qId]: e.target.value }))
+                        }
+                        placeholder="Tous"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {nbCombinaisons > 0 && (
+              <div className="rounded-md border border-border p-3">
+                <p className="text-sm font-medium mb-2">
+                  {nbCombinaisons > 1
+                    ? `${nbCombinaisons} alertes distinctes seront créées (une par combinaison groupe × quartier × centre, pour un suivi et une fermeture indépendants) :`
+                    : "L'alerte suivante sera créée :"}
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {groupes.flatMap((g) =>
+                    quartierIds.flatMap((qId) =>
+                      centreDonIds.map((cId) => (
+                        <li key={`${g}-${qId}-${cId}`}>
+                          {GROUPE_SANGUIN_LABELS[g]} · {quartiersParId.get(qId) ?? qId} · {centresParId.get(cId) ?? cId}
+                        </li>
+                      )),
+                    ),
+                  )}
+                </ul>
+              </div>
+            )}
+
             <div className="flex items-center gap-4">
               <Button type="submit" disabled={submitting || nbCombinaisons === 0}>
                 {nbCombinaisons > 1 ? `Envoyer ${nbCombinaisons} alertes` : "Envoyer l'alerte"}
               </Button>
-              {nbCombinaisons > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  {groupes.length} groupe(s) × {quartierIds.length} quartier(s) = {nbCombinaisons} alerte(s)
-                </p>
-              )}
             </div>
             {formError && <p className="text-sm text-destructive">{formError}</p>}
             {succes && <p className="text-sm text-tertiary">{succes}</p>}
@@ -133,6 +204,7 @@ export default function AlertesPage() {
                 <TableRow>
                   <TableHead>Groupe</TableHead>
                   <TableHead>Quartier</TableHead>
+                  <TableHead>Centre</TableHead>
                   <TableHead>Statut</TableHead>
                   <TableHead>Réponses</TableHead>
                   <TableHead>Créée le</TableHead>
@@ -144,6 +216,7 @@ export default function AlertesPage() {
                   <TableRow key={alerte.id}>
                     <TableCell className="font-medium">{GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]}</TableCell>
                     <TableCell>{alerte.quartier?.nom ?? '—'}</TableCell>
+                    <TableCell>{alerte.centreDon?.nom ?? '—'}</TableCell>
                     <TableCell>
                       <Badge variant={alerte.statut === 'OUVERTE' ? 'default' : 'secondary'}>{alerte.statut}</Badge>
                     </TableCell>

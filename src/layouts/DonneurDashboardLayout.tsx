@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { AppSidebar } from '../components/dashboard/AppSidebar'
+import { NotificationBell } from '../components/dashboard/NotificationBell'
 import { DONNEUR_NAV_ITEMS } from '../components/dashboard/nav-items'
 import { SidebarInset, SidebarProvider } from '../components/ui-shadcn/ui/sidebar'
 import { SiteHeader } from '../components/ui-shadcn/site-header'
@@ -46,7 +47,7 @@ export default function DonneurDashboardLayout() {
           }
         />
         <SidebarInset>
-          <SiteHeader title="Mon espace donneur" />
+          <SiteHeader title="Mon espace donneur" actions={<NotificationBell />} />
           <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
             <Outlet />
           </div>

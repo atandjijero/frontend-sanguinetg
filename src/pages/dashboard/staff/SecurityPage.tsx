@@ -7,18 +7,21 @@ import {
   ShieldAlertIcon,
   ShieldIcon,
   SquareCodeIcon,
+  Trash2Icon,
   UserCheckIcon,
   UserRoundIcon,
 } from 'lucide-react'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
+import { Checkbox } from '../../../components/ui-shadcn/ui/checkbox'
 import { Input } from '../../../components/ui-shadcn/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui-shadcn/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui-shadcn/ui/table'
 import { DataState } from '../../../components/dashboard/DataState'
 import { StatCard } from '../../../components/dashboard/StatCard'
 import { useApiData } from '../../../hooks/useApiData'
+import { api, ApiError } from '../../../lib/api'
 import { GRAVITE_ALERTE_SECURITE_LABELS, TYPE_ALERTE_SECURITE_LABELS } from '../../../lib/constants'
 import type {
   AlerteSecurite,
@@ -39,7 +42,7 @@ const GRAVITE_VARIANT: Record<GraviteAlerteSecurite, 'default' | 'secondary' | '
 }
 
 export default function SecurityPage() {
-  const { data: stats } = useApiData<AlertesSecuriteStats>('/security/stats')
+  const { data: stats, refetch: refetchStats } = useApiData<AlertesSecuriteStats>('/security/stats')
   const { data: frequentation, refetch: refetchFrequentation } = useApiData<FrequentationStats>('/analytics/stats')
 
   useEffect(() => {
@@ -53,6 +56,9 @@ export default function SecurityPage() {
   const [recherche, setRecherche] = useState('')
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -70,7 +76,38 @@ export default function SecurityPage() {
     return `/security/alertes?${params.toString()}`
   }, [type, gravite, recherche, page])
 
-  const { data: resultat, isLoading, error } = useApiData<PageResultat<AlerteSecurite>>(path)
+  const { data: resultat, isLoading, error, refetch } = useApiData<PageResultat<AlerteSecurite>>(path)
+
+  const idsAffiches = resultat?.data.map((a) => a.id) ?? []
+  const toutSelectionne = idsAffiches.length > 0 && idsAffiches.every((id) => selectedIds.includes(id))
+
+  function toggleSelection(id: string) {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]))
+  }
+
+  function toggleSelectionTout() {
+    setSelectedIds((prev) => (toutSelectionne ? prev.filter((id) => !idsAffiches.includes(id)) : [...new Set([...prev, ...idsAffiches])]))
+  }
+
+  async function supprimer(ids: string[]) {
+    if (ids.length === 0) return
+    if (!window.confirm(`Supprimer définitivement ${ids.length > 1 ? `ces ${ids.length} alertes` : 'cette alerte'} ?`)) return
+    setDeleting(true)
+    setDeleteError(null)
+    try {
+      if (ids.length === 1) {
+        await api.delete(`/security/alertes/${ids[0]}`)
+      } else {
+        await api.delete('/security/alertes', { ids })
+      }
+      setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)))
+      await Promise.all([refetch(), refetchStats()])
+    } catch (err) {
+      setDeleteError(err instanceof ApiError ? err.message : 'Impossible de supprimer les alertes sélectionnées')
+    } finally {
+      setDeleting(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -158,6 +195,21 @@ export default function SecurityPage() {
             </Select>
           </div>
 
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <p className="text-sm text-muted-foreground">{selectedIds.length} sélectionnée(s)</p>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={deleting}
+                onClick={() => supprimer(selectedIds)}
+              >
+                <Trash2Icon className="h-4 w-4" /> Supprimer la sélection
+              </Button>
+            </div>
+          )}
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+
           <DataState
             isLoading={isLoading}
             error={error}
@@ -167,12 +219,20 @@ export default function SecurityPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10">
+                    <Checkbox
+                      checked={toutSelectionne}
+                      onCheckedChange={toggleSelectionTout}
+                      aria-label="Tout sélectionner"
+                    />
+                  </TableHead>
                   <TableHead>Gravité</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Message</TableHead>
                   <TableHead>IP Source</TableHead>
                   <TableHead>URI</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -180,6 +240,13 @@ export default function SecurityPage() {
                   const estOuvert = expandedId === alerte.id
                   return (
                     <TableRow key={alerte.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.includes(alerte.id)}
+                          onCheckedChange={() => toggleSelection(alerte.id)}
+                          aria-label="Sélectionner cette alerte"
+                        />
+                      </TableCell>
                       <TableCell>
                         <Badge variant={GRAVITE_VARIANT[alerte.gravite]}>{GRAVITE_ALERTE_SECURITE_LABELS[alerte.gravite]}</Badge>
                       </TableCell>
@@ -200,6 +267,17 @@ export default function SecurityPage() {
                       <TableCell className="max-w-xs truncate text-muted-foreground">{alerte.uri ?? '—'}</TableCell>
                       <TableCell className="whitespace-nowrap text-muted-foreground">
                         {new Date(alerte.dateCreation).toLocaleString('fr-FR')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={deleting}
+                          onClick={() => supprimer([alerte.id])}
+                          aria-label="Supprimer cette alerte"
+                        >
+                          <Trash2Icon className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   )

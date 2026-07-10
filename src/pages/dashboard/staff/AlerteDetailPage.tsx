@@ -59,6 +59,7 @@ export default function AlerteDetailPage() {
           <CardContent className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <Badge variant={alerte.statut === 'OUVERTE' ? 'default' : 'secondary'}>{alerte.statut}</Badge>
             <span>Créée le {new Date(alerte.dateCreation).toLocaleString('fr-FR')}</span>
+            {alerte.centreDon && <span>Centre : {alerte.centreDon.nom}</span>}
           </CardContent>
         )}
       </Card>
@@ -125,6 +126,7 @@ export default function AlerteDetailPage() {
                       <EnregistrerDonForm
                         donneurId={reponse.donneur.id}
                         reponseId={reponse.id}
+                        centreDonIdParDefaut={alerte?.centreDonId ?? undefined}
                         onAnnuler={() => setFormulaire(null)}
                         onEnregistre={actualiser}
                       />
@@ -151,16 +153,18 @@ export default function AlerteDetailPage() {
 function EnregistrerDonForm({
   donneurId,
   reponseId,
+  centreDonIdParDefaut,
   onAnnuler,
   onEnregistre,
 }: {
   donneurId: string
   reponseId: string
+  centreDonIdParDefaut?: string
   onAnnuler: () => void
   onEnregistre: () => void
 }) {
   const { data: centres } = useApiData<CentreDon[]>('/centres-don')
-  const [centreDonId, setCentreDonId] = useState('')
+  const [centreDonId, setCentreDonId] = useState(centreDonIdParDefaut ?? '')
   const [dateDon, setDateDon] = useState(() => new Date().toISOString().slice(0, 10))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)

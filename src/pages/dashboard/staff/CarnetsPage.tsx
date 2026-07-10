@@ -14,7 +14,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
-import type { CarnetDigital, CentreDon, Utilisateur } from '../../../lib/types'
+import type { CarnetDigital, CentreDon, Recompense, Utilisateur } from '../../../lib/types'
 
 export default function CarnetsPage() {
   const { user } = useAuth()
@@ -24,6 +24,14 @@ export default function CarnetsPage() {
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(carnets ?? [], 6)
   const { data: donneurs } = useApiData<Utilisateur[]>(peutVoirDonneurs ? '/users?role=DONNEUR' : null)
   const { data: centres } = useApiData<CentreDon[]>('/centres-don')
+  const { data: recompenses } = useApiData<Recompense[]>('/recompenses')
+
+  const recompensesParDonneur = new Map<string, Recompense[]>()
+  for (const r of recompenses ?? []) {
+    const liste = recompensesParDonneur.get(r.donneurId) ?? []
+    liste.push(r)
+    recompensesParDonneur.set(r.donneurId, liste)
+  }
 
   const [donneurId, setDonneurId] = useState('')
   const [dateDon, setDateDon] = useState(() => new Date().toISOString().slice(0, 10))
@@ -124,25 +132,32 @@ export default function CarnetsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pageItems.map((carnet) => (
-                  <TableRow key={carnet.id}>
-                    <TableCell className="font-medium">
-                      {carnet.donneur ? `${carnet.donneur.prenom} ${carnet.donneur.nom}` : '—'}
-                    </TableCell>
-                    <TableCell>{new Date(carnet.dateDon).toLocaleDateString('fr-FR')}</TableCell>
-                    <TableCell>{carnet.centreDon?.nom ?? '—'}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {carnet.rappelProchaineDate ? new Date(carnet.rappelProchaineDate).toLocaleDateString('fr-FR') : '—'}
-                    </TableCell>
-                    <TableCell>
-                      {carnet.recompense ? (
-                        <Badge variant="outline">{TYPE_RECOMPENSE_LABELS[carnet.recompense.type]}</Badge>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {pageItems.map((carnet) => {
+                  const recompensesDonneur = recompensesParDonneur.get(carnet.donneurId) ?? []
+                  return (
+                    <TableRow key={carnet.id}>
+                      <TableCell className="font-medium">
+                        {carnet.donneur ? `${carnet.donneur.prenom} ${carnet.donneur.nom}` : '—'}
+                      </TableCell>
+                      <TableCell>{new Date(carnet.dateDon).toLocaleDateString('fr-FR')}</TableCell>
+                      <TableCell>{carnet.centreDon?.nom ?? '—'}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {carnet.rappelProchaineDate ? new Date(carnet.rappelProchaineDate).toLocaleDateString('fr-FR') : '—'}
+                      </TableCell>
+                      <TableCell className="space-x-1">
+                        {recompensesDonneur.length > 0 ? (
+                          recompensesDonneur.map((r) => (
+                            <Badge key={r.id} variant="outline">
+                              {TYPE_RECOMPENSE_LABELS[r.type]}
+                            </Badge>
+                          ))
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
             <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} total={total} label="dons" />

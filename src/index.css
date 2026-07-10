@@ -6,6 +6,143 @@
 
 :root {
   color-scheme: light;
+
+  --background: #faf9f7;
+  --foreground: #1a1c1b;
+  --surface: #faf9f7;
+  --surface-alt: #F2F2F8;
+  --surface-dim: #dadad8;
+  --surface-bright: #faf9f7;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f4f3f1;
+  --surface-container: #efeeec;
+  --surface-container-high: #e9e8e6;
+  --surface-container-highest: #e3e2e0;
+  --surface-variant: #e3e2e0;
+  --surface-tint: #ba1434;
+  --on-surface: #1a1c1b;
+  --on-background: #1a1c1b;
+  --on-surface-variant: #5b4040;
+  --outline: #8f6f6f;
+  --outline-variant: #e5dcdc;
+  --inverse-surface: #2f3130;
+  --inverse-on-surface: #f1f1ef;
+  --border: #e5dcdc;
+  --input: #e5dcdc;
+  --ring: #9e0027;
+
+  --card: #ffffff;
+  --card-foreground: #1a1c1b;
+  --popover: #ffffff;
+  --popover-foreground: #1a1c1b;
+
+  --muted: #f4f3f1;
+  --muted-foreground: #5b4040;
+  --accent: #efeeec;
+  --accent-foreground: #1a1c1b;
+
+  --primary: #9e0027;
+  --primary-foreground: #ffffff;
+  --on-primary: #ffffff;
+  --primary-container: #c41e3a;
+  --on-primary-container: #ffdada;
+  --primary-fixed: #ffdad9;
+  --primary-fixed-dim: #ffb3b4;
+  --on-primary-fixed: #40000a;
+  --on-primary-fixed-variant: #920023;
+  --inverse-primary: #ffb3b4;
+  --crimson-deep: #760200;
+
+  --secondary: #555f6f;
+  --secondary-foreground: #ffffff;
+  --on-secondary: #ffffff;
+  --secondary-container: #d6e0f3;
+  --secondary-fixed: #d9e3f6;
+  --secondary-fixed-dim: #bdc7d9;
+  --on-secondary-fixed: #121c2a;
+  --on-secondary-fixed-variant: #3d4756;
+
+  --tertiary: #00583e;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #007353;
+  --on-tertiary-container: #86f8c8;
+  --tertiary-fixed: #86f8c8;
+  --tertiary-fixed-dim: #69dbad;
+  --on-tertiary-fixed: #002115;
+
+  --error: #ba1a1a;
+  --destructive: #ba1a1a;
+  --on-error: #ffffff;
+  --destructive-foreground: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  --success-mint: #3EB489;
+  --warning-amber: #F59E0B;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: #14100d;
+  --foreground: #f1ede8;
+  --surface: #14100d;
+  --surface-alt: #1a1a24;
+  --surface-dim: #14100d;
+  --surface-bright: #3a332f;
+  --surface-container-lowest: #0e0b09;
+  --surface-container-low: #1c1713;
+  --surface-container: #201b17;
+  --surface-container-high: #2a2420;
+  --surface-container-highest: #352e29;
+  --surface-variant: #52443f;
+  --surface-tint: #ffb3b4;
+  --on-surface: #f1ede8;
+  --on-background: #f1ede8;
+  --on-surface-variant: #d8c2bf;
+  --outline: #a08c89;
+  --outline-variant: #4d3f3c;
+  --inverse-surface: #f1ede8;
+  --inverse-on-surface: #201b17;
+  --border: #4d3f3c;
+  --input: #4d3f3c;
+  --ring: #ff8a80;
+
+  --card: #1c1713;
+  --card-foreground: #f1ede8;
+  --popover: #1c1713;
+  --popover-foreground: #f1ede8;
+
+  --muted: #2a2420;
+  --muted-foreground: #d8c2bf;
+  --accent: #352e29;
+  --accent-foreground: #f1ede8;
+
+  --primary: #ff8a80;
+  --primary-foreground: #5c000f;
+  --on-primary: #5c000f;
+  --primary-container: #7d1128;
+  --inverse-primary: #9e0027;
+  --crimson-deep: #ff9e97;
+
+  --secondary: #bdc7d9;
+  --secondary-foreground: #27303f;
+  --on-secondary: #27303f;
+  --secondary-container: #3d4756;
+
+  --tertiary: #69dbad;
+  --on-tertiary: #003826;
+  --tertiary-container: #004c37;
+
+  --error: #ffb4ab;
+  --destructive: #ffb4ab;
+  --on-error: #690005;
+  --destructive-foreground: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+
+  --success-mint: #55d1a3;
+  --warning-amber: #ffb84d;
 }
 
 body {
@@ -13,8 +150,9 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #faf9f7;
-  color: #1a1c1b;
+  background-color: var(--surface);
+  color: var(--on-surface);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {
@@ -35,9 +173,9 @@ html {
 }
 
 .gradient-mesh {
-  background-color: #faf9f7;
-  background-image: radial-gradient(at 0% 0%, rgba(196, 30, 58, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(62, 180, 137, 0.05) 0px, transparent 50%);
+  background-color: var(--surface);
+  background-image: radial-gradient(at 0% 0%, rgba(196, 30, 58, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(62, 180, 137, 0.08) 0px, transparent 50%);
 }
 
 @keyframes progress-grow {

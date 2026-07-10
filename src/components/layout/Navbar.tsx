@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { Droplet, Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
+import { ModeToggle } from '../ui-shadcn/mode-toggle'
 
 const links = [
   { label: 'Accueil', to: '/' },
@@ -51,6 +52,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <ModeToggle />
           <Link
             to="/connexion"
             className="hidden sm:inline-flex text-secondary hover:text-primary transition-colors duration-200 font-label-md text-label-md"

@@ -51,6 +51,8 @@ export interface Alerte {
   groupeSanguinRequis: GroupeSanguin
   quartierId: string
   quartier?: Quartier
+  centreDonId?: string | null
+  centreDon?: CentreDon | null
   statut: StatutAlerte
   dateCreation: string
   creePar?: { id: string; nom: string; prenom: string }
@@ -139,4 +141,34 @@ export interface PageResultat<T> {
   page: number
   pageSize: number
   totalPages: number
+}
+
+export type StatutMessageContact = 'NOUVEAU' | 'REPONDU'
+
+export interface MessageContact {
+  id: string
+  nomComplet: string
+  email: string
+  sujet: string
+  message: string
+  statut: StatutMessageContact
+  dateCreation: string
+  reponse: string | null
+  dateReponse: string | null
+  repondPar?: { id: string; nom: string; prenom: string } | null
+}
+
+export type TypeNotification = 'SMS' | 'EMAIL' | 'PUSH'
+export type StatutNotification = 'ENVOYEE' | 'RECUE' | 'LUE'
+
+export interface NotificationDonneur {
+  id: string
+  type: TypeNotification
+  statut: StatutNotification
+  contenu: string | null
+  emailEnvoye: boolean
+  smsEnvoye: boolean
+  dateEnvoi: string
+  alerteId: string | null
+  alerte?: { id: string; quartier?: { nom: string } | null; centreDon?: { nom: string } | null } | null
 }

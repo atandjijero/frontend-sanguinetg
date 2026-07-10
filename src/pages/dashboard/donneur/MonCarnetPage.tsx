@@ -32,7 +32,7 @@ export default function MonCarnetPage() {
                     <Badge variant="outline">{TYPE_RECOMPENSE_LABELS[carnet.recompense.type]}</Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">{carnet.centreDon}</p>
+                <p className="text-sm text-muted-foreground mt-1">{carnet.centreDon?.nom ?? '—'}</p>
                 {carnet.messageRemerciement && (
                   <p className="text-sm mt-2 italic">"{carnet.messageRemerciement}"</p>
                 )}
