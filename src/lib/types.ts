@@ -107,6 +107,14 @@ export interface ConseilSante {
   validePar?: { id: string; nom: string; prenom: string }
 }
 
+export interface StatistiquesMobilisation {
+  nombreAlertes: number
+  nombreReponses: number
+  delaiMoyenMinutes: number | null
+  tauxCouvertureUneHeure: number | null
+  donneursMobilisesParAlerte: number | null
+}
+
 export type TypeAlerteSecurite = 'BRUTE_FORCE' | 'CSP_VIOLATION' | 'SQL_INJECTION' | 'XSS_ATTEMPT'
 export type GraviteAlerteSecurite = 'FAIBLE' | 'MOYEN' | 'ELEVE' | 'CRITIQUE'
 

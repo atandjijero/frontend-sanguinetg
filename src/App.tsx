@@ -9,6 +9,7 @@ import ReponseAlertePage from './pages/ReponseAlertePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationsProvider } from './context/NotificationsContext';
 import { HeartbeatTracker } from './components/HeartbeatTracker';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import StaffDashboardLayout from './layouts/StaffDashboardLayout';
@@ -37,53 +38,55 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <HeartbeatTracker />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="fonctionnement" element={<FonctionnementPage />} />
-            <Route path="a-propos" element={<AProposPage />} />
-            <Route path="faq" element={<FaqPage />} />
-            <Route path="contact" element={<ContactPage />} />
-            <Route path="reponse-alerte" element={<ReponseAlertePage />} />
-            <Route path="connexion" element={<LoginPage />} />
-            <Route path="inscription" element={<RegisterPage />} />
-          </Route>
+        <NotificationsProvider>
+          <HeartbeatTracker />
+          <Routes>
+            <Route element={<Layout />}>
+              <Route index element={<HomePage />} />
+              <Route path="fonctionnement" element={<FonctionnementPage />} />
+              <Route path="a-propos" element={<AProposPage />} />
+              <Route path="faq" element={<FaqPage />} />
+              <Route path="contact" element={<ContactPage />} />
+              <Route path="reponse-alerte" element={<ReponseAlertePage />} />
+              <Route path="connexion" element={<LoginPage />} />
+              <Route path="inscription" element={<RegisterPage />} />
+            </Route>
 
-          {/* Espace CNTS : SUPERADMIN, ADMIN, AGENT_CNTS, MEDECIN (navigation masquée par rôle dans le sidebar) */}
-          <Route element={<ProtectedRoute roles={['SUPERADMIN', 'ADMIN', 'AGENT_CNTS', 'MEDECIN']} />}>
-            <Route path="admin" element={<StaffDashboardLayout />}>
-              <Route index element={<StaffHomePage />} />
-              <Route path="alertes" element={<AlertesPage />} />
-              <Route path="alertes/:id" element={<AlerteDetailPage />} />
-              <Route path="donneurs" element={<DonneursPage />} />
-              <Route path="carnets" element={<CarnetsPage />} />
-              <Route path="recompenses" element={<RecompensesPage />} />
-              <Route path="conseils" element={<ConseilsPage />} />
-              <Route path="quartiers" element={<QuartiersPage />} />
-              <Route path="centres-don" element={<CentresDonPage />} />
-              <Route path="equipe" element={<EquipePage />} />
-              <Route path="messages" element={<MessagesPage />} />
-              <Route path="profil" element={<ProfilPage />} />
-              <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>
-                <Route path="securite" element={<SecurityPage />} />
+            {/* Espace CNTS : SUPERADMIN, ADMIN, AGENT_CNTS, MEDECIN (navigation masquée par rôle dans le sidebar) */}
+            <Route element={<ProtectedRoute roles={['SUPERADMIN', 'ADMIN', 'AGENT_CNTS', 'MEDECIN']} />}>
+              <Route path="admin" element={<StaffDashboardLayout />}>
+                <Route index element={<StaffHomePage />} />
+                <Route path="alertes" element={<AlertesPage />} />
+                <Route path="alertes/:id" element={<AlerteDetailPage />} />
+                <Route path="donneurs" element={<DonneursPage />} />
+                <Route path="carnets" element={<CarnetsPage />} />
+                <Route path="recompenses" element={<RecompensesPage />} />
+                <Route path="conseils" element={<ConseilsPage />} />
+                <Route path="quartiers" element={<QuartiersPage />} />
+                <Route path="centres-don" element={<CentresDonPage />} />
+                <Route path="equipe" element={<EquipePage />} />
+                <Route path="messages" element={<MessagesPage />} />
+                <Route path="profil" element={<ProfilPage />} />
+                <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>
+                  <Route path="securite" element={<SecurityPage />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
 
-          {/* Espace donneur : dashboard et sidebar distincts */}
-          <Route element={<ProtectedRoute roles={['DONNEUR']} />}>
-            <Route path="espace-donneur" element={<DonneurDashboardLayout />}>
-              <Route index element={<DonneurHomePage />} />
-              <Route path="alertes" element={<MesAlertesPage />} />
-              <Route path="centres" element={<CentresPage />} />
-              <Route path="carnet" element={<MonCarnetPage />} />
-              <Route path="recompenses" element={<MesRecompensesPage />} />
-              <Route path="conseils" element={<ConseilsSantePage />} />
-              <Route path="profil" element={<ProfilPage />} />
+            {/* Espace donneur : dashboard et sidebar distincts */}
+            <Route element={<ProtectedRoute roles={['DONNEUR']} />}>
+              <Route path="espace-donneur" element={<DonneurDashboardLayout />}>
+                <Route index element={<DonneurHomePage />} />
+                <Route path="alertes" element={<MesAlertesPage />} />
+                <Route path="centres" element={<CentresPage />} />
+                <Route path="carnet" element={<MonCarnetPage />} />
+                <Route path="recompenses" element={<MesRecompensesPage />} />
+                <Route path="conseils" element={<ConseilsSantePage />} />
+                <Route path="profil" element={<ProfilPage />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
+          </Routes>
+        </NotificationsProvider>
       </AuthProvider>
     </BrowserRouter>
   );

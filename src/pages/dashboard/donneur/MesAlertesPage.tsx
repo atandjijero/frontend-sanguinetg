@@ -10,10 +10,12 @@ import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
 import type { Alerte } from '../../../lib/types'
+import { useNotifications } from '../../../context/NotificationsContext'
 
 export default function MesAlertesPage() {
   const { user } = useAuth()
   const { data: alertes, isLoading, error, refetch } = useApiData<Alerte[]>('/alertes')
+  const { notifyRefresh } = useNotifications()
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -23,6 +25,7 @@ export default function MesAlertesPage() {
     try {
       await api.post(`/alertes/${alerteId}/reponses`, { statut })
       await refetch()
+      notifyRefresh()
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : 'Impossible d\'enregistrer votre réponse')
     } finally {

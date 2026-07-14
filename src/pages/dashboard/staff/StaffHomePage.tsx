@@ -1,10 +1,10 @@
-import { BookHeartIcon, MegaphoneIcon, UsersIcon } from 'lucide-react'
+import { BookHeartIcon, MegaphoneIcon, TimerIcon, UsersIcon } from 'lucide-react'
 import { StatCard } from '../../../components/dashboard/StatCard'
 import { DonneurGroupeDonut } from '../../../components/dashboard/DonneurGroupeDonut'
 import { DonsParMoisChart } from '../../../components/dashboard/DonsParMoisChart'
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
-import type { Alerte, CarnetDigital, Utilisateur } from '../../../lib/types'
+import type { Alerte, CarnetDigital, StatistiquesMobilisation, Utilisateur } from '../../../lib/types'
 
 export default function StaffHomePage() {
   const { user } = useAuth()
@@ -13,6 +13,7 @@ export default function StaffHomePage() {
   const { data: donneurs } = useApiData<Utilisateur[]>(peutVoirDonneurs ? '/users?role=DONNEUR' : null)
   const { data: alertesOuvertes } = useApiData<Alerte[]>('/alertes?statut=OUVERTE')
   const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
+  const { data: mobilisation } = useApiData<StatistiquesMobilisation>('/alertes/statistiques/mobilisation')
 
   const donsCeMois =
     carnets?.filter((c) => {
@@ -35,6 +36,16 @@ export default function StaffHomePage() {
         )}
         <StatCard label="Alertes ouvertes" value={alertesOuvertes?.length ?? '—'} icon={MegaphoneIcon} />
         <StatCard label="Dons enregistrés ce mois-ci" value={donsCeMois} icon={BookHeartIcon} />
+        <StatCard
+          label="Délai moyen de mobilisation"
+          value={mobilisation?.delaiMoyenMinutes != null ? `${mobilisation.delaiMoyenMinutes} min` : '—'}
+          icon={TimerIcon}
+          hint={
+            mobilisation?.tauxCouvertureUneHeure != null
+              ? `${mobilisation.tauxCouvertureUneHeure}% des alertes couvertes en moins d'1h`
+              : undefined
+          }
+        />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         {peutVoirDonneurs && <DonneurGroupeDonut donneurs={donneurs ?? []} />}

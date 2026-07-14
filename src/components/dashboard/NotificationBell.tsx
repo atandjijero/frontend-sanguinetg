@@ -11,9 +11,11 @@ import {
 import { useApiData } from '../../hooks/useApiData'
 import { api } from '../../lib/api'
 import type { NotificationDonneur } from '../../lib/types'
+import { useNotifications } from '../../context/NotificationsContext'
 
 export function NotificationBell() {
-  const { data: notifications, refetch } = useApiData<NotificationDonneur[]>('/notifications')
+  const { refreshKey } = useNotifications()
+  const { data: notifications, refetch } = useApiData<NotificationDonneur[]>('/notifications', [refreshKey])
   const nonLues = (notifications ?? []).filter((n) => n.statut !== 'LUE').length
 
   async function marquerLue(id: string) {
