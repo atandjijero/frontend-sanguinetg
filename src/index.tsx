@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { ThemeProvider } from './components/ThemeProvider';
+import { ConfirmProvider } from './context/ConfirmContext';
+import { Toaster } from './components/ui-shadcn/ui/sonner';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -11,7 +13,10 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <App />
+      <ConfirmProvider>
+        <App />
+        <Toaster position="top-right" />
+      </ConfirmProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

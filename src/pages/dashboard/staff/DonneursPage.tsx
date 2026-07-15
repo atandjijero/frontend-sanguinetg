@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { HeartHandshakeIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
@@ -52,7 +53,7 @@ export default function DonneursPage() {
       await api.patch(`/users/${u.id}/statut`, { statut: nouveauStatut })
       await refetch()
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : 'Impossible de modifier ce compte')
+      toast.error(err instanceof ApiError ? err.message : 'Impossible de modifier ce compte')
     }
   }
 

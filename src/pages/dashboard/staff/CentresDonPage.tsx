@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Building2Icon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Input } from '../../../components/ui-shadcn/ui/input'
@@ -16,6 +18,7 @@ import type { CentreDon, Quartier } from '../../../lib/types'
 const AUCUN_QUARTIER = '__aucun__'
 
 export default function CentresDonPage() {
+  const confirm = useConfirm()
   const { data: centres, isLoading, error, refetch } = useApiData<CentreDon[]>('/centres-don')
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(centres ?? [], 6)
@@ -23,12 +26,12 @@ export default function CentresDonPage() {
   const [editId, setEditId] = useState<string | null>(null)
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Supprimer ce centre de don ?')) return
+    if (!(await confirm({ description: 'Supprimer ce centre de don ?' }))) return
     try {
       await api.delete(`/centres-don/${id}`)
       await refetch()
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : 'Suppression impossible')
+      toast.error(err instanceof ApiError ? err.message : 'Suppression impossible')
     }
   }
 

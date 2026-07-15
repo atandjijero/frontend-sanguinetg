@@ -68,6 +68,28 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   return response.json() as Promise<T>
 }
 
+async function upload<T>(path: string, formData: FormData, skipAuthRetry = false): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    body: formData,
+  })
+
+  if (response.status === 401 && !skipAuthRetry) {
+    const refreshed = await tryRefresh()
+    if (refreshed) {
+      return upload<T>(path, formData, true)
+    }
+  }
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await parseError(response))
+  }
+
+  return response.json() as Promise<T>
+}
+
 async function tryRefresh(): Promise<boolean> {
   try {
     const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -88,5 +110,6 @@ export const api = {
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body }),
   delete: <T>(path: string, body?: unknown) => request<T>(path, { method: 'DELETE', body }),
+  upload: <T>(path: string, formData: FormData) => upload<T>(path, formData),
   refresh: tryRefresh,
 }

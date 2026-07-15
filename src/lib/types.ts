@@ -43,6 +43,16 @@ export interface CentreDon {
   quartier?: Quartier | null
 }
 
+export type CleImage = 'HERO' | 'INSTITUTIONAL_DOCTOR' | 'INSTITUTIONAL_VIALS' | 'ABOUT_LABORATORY'
+
+export interface ImageAccueil {
+  id: string
+  cle: CleImage
+  url: string
+  cloudinaryId: string
+  dateMiseAJour: string
+}
+
 export type StatutAlerte = 'OUVERTE' | 'FERMEE'
 export type StatutReponse = 'JE_VIENS' | 'INDISPONIBLE'
 
@@ -125,6 +135,8 @@ export interface AlerteSecurite {
   message: string
   ipSource: string | null
   uri: string | null
+  userAgent: string | null
+  payload: unknown | null
   dateCreation: string
 }
 

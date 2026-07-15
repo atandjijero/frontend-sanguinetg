@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { MapPinIcon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Input } from '../../../components/ui-shadcn/ui/input'
@@ -13,6 +15,7 @@ import { api, ApiError } from '../../../lib/api'
 import type { Quartier } from '../../../lib/types'
 
 export default function QuartiersPage() {
+  const confirm = useConfirm()
   const { data: quartiers, isLoading, error, refetch } = useApiData<Quartier[]>('/quartiers')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(quartiers ?? [], 6)
   const [nom, setNom] = useState('')
@@ -37,12 +40,12 @@ export default function QuartiersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Supprimer ce quartier ?')) return
+    if (!(await confirm({ description: 'Supprimer ce quartier ?' }))) return
     try {
       await api.delete(`/quartiers/${id}`)
       await refetch()
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : 'Suppression impossible')
+      toast.error(err instanceof ApiError ? err.message : 'Suppression impossible')
     }
   }
 

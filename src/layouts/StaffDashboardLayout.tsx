@@ -38,6 +38,7 @@ export default function StaffDashboardLayout() {
         user={user}
         profilPath="/admin/profil"
         onLogout={handleLogout}
+        compact
         roleBadge={
           <Badge variant="outline" className="mx-2 mt-1 w-fit border-primary/30 text-primary">
             {ROLE_LABELS[user.role]}
@@ -45,7 +46,7 @@ export default function StaffDashboardLayout() {
         }
       />
       <SidebarInset>
-        <SiteHeader title="Espace CNTS" />
+        <SiteHeader title={user.role === 'SUPERADMIN' ? 'Espace superadmin' : 'Espace CNTS'} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           <Outlet />
         </div>

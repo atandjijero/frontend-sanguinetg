@@ -5,6 +5,7 @@ import FonctionnementPage from './pages/FonctionnementPage';
 import AProposPage from './pages/AProposPage';
 import FaqPage from './pages/FaqPage';
 import ContactPage from './pages/ContactPage';
+import LieuxDeCollectePage from './pages/LieuxDeCollectePage';
 import ReponseAlertePage from './pages/ReponseAlertePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -27,6 +28,7 @@ import CentresDonPage from './pages/dashboard/staff/CentresDonPage';
 import EquipePage from './pages/dashboard/staff/EquipePage';
 import MessagesPage from './pages/dashboard/staff/MessagesPage';
 import SecurityPage from './pages/dashboard/staff/SecurityPage';
+import ImagesPage from './pages/dashboard/staff/ImagesPage';
 import DonneurHomePage from './pages/dashboard/donneur/DonneurHomePage';
 import MesAlertesPage from './pages/dashboard/donneur/MesAlertesPage';
 import CentresPage from './pages/dashboard/donneur/CentresPage';
@@ -47,6 +49,7 @@ function App() {
               <Route path="a-propos" element={<AProposPage />} />
               <Route path="faq" element={<FaqPage />} />
               <Route path="contact" element={<ContactPage />} />
+              <Route path="lieux-de-collecte" element={<LieuxDeCollectePage />} />
               <Route path="reponse-alerte" element={<ReponseAlertePage />} />
               <Route path="connexion" element={<LoginPage />} />
               <Route path="inscription" element={<RegisterPage />} />
@@ -65,6 +68,7 @@ function App() {
                 <Route path="quartiers" element={<QuartiersPage />} />
                 <Route path="centres-don" element={<CentresDonPage />} />
                 <Route path="equipe" element={<EquipePage />} />
+                <Route path="images" element={<ImagesPage />} />
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="profil" element={<ProfilPage />} />
                 <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>

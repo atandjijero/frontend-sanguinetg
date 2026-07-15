@@ -3,19 +3,26 @@ import { Link } from 'react-router-dom'
 import { ChevronRight, Heart, PlayCircle } from 'lucide-react'
 import Button from '../ui/Button'
 
-export function HeroSection() {
+export function HeroSection({ imageUrl }: { imageUrl?: string }) {
   return (
-    <section className="relative overflow-hidden gradient-mesh py-16 md:py-28">
-      <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary rounded-full mb-6">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+    <section className="relative overflow-hidden py-24 md:py-36 min-h-[560px] flex items-center">
+      <img
+        className="absolute inset-0 w-full h-full object-cover"
+        alt="Prise en charge d'un donneur avant son don de sang"
+        src={imageUrl ?? '/images/donor-care.jpg'}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
+
+      <div className="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop w-full">
+        <div className="max-w-xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full mb-6">
+            <span className="w-2 h-2 rounded-full bg-success-mint animate-pulse" />
             <span className="text-caption font-label-md uppercase tracking-wider">Pilotage Lomé : Projet National</span>
           </div>
-          <h1 className="font-display-lg text-display-lg text-on-surface mb-6 leading-tight">
-            Chaque seconde compte, votre <span className="text-primary">don sauve des vies</span>.
+          <h1 className="font-display-lg text-display-lg text-white mb-6 leading-tight">
+            Chaque seconde compte, votre <span className="text-primary-fixed-dim">don sauve des vies</span>.
           </h1>
-          <p className="font-body-lg text-body-lg text-secondary text-justify mb-10 max-w-lg">
+          <p className="font-body-lg text-body-lg text-white/90 text-justify mb-10 max-w-lg">
             Sanguine TG modernise la mobilisation des donneurs de sang au Togo. Recevez des alertes ciblées et agissez
             en un clic pour les urgences vitales à Lomé.
           </p>
@@ -32,32 +39,23 @@ export function HeroSection() {
             </Button>
             <Link
               to="/fonctionnement"
-              className="px-8 py-4 bg-surface-container text-on-surface font-headline-md rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors flex items-center justify-center gap-2"
+              className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-headline-md rounded-xl border border-white/30 hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
             >
               <PlayCircle size={20} aria-hidden />
               Comment ça marche
             </Link>
           </div>
         </div>
+      </div>
 
-        <div className="relative">
-          <div className="aspect-square rounded-3xl overflow-hidden soft-shadow border-4 border-surface-container-lowest">
-            <img
-              className="w-full h-full object-cover bg-surface-container"
-              alt="Prise en charge d'un donneur avant son don de sang"
-              src="/images/donor-care.jpg"
-            />
+      <div className="absolute z-10 bottom-8 right-6 md:right-16 bg-surface-container-lowest p-6 rounded-2xl soft-shadow border border-outline-variant max-w-[200px] animate-bounce-subtle hidden sm:block">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-full bg-success-mint/20 flex items-center justify-center text-success-mint">
+            <Heart size={20} aria-hidden />
           </div>
-          <div className="absolute -bottom-6 -left-6 bg-surface-container-lowest p-6 rounded-2xl soft-shadow border border-outline-variant max-w-[200px] animate-bounce-subtle">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-success-mint/20 flex items-center justify-center text-success-mint">
-                <Heart size={20} aria-hidden />
-              </div>
-              <span className="font-headline-md text-primary">+2.4k</span>
-            </div>
-            <p className="text-caption text-secondary">Vies sauvées grâce aux dons ce mois-ci à Lomé.</p>
-          </div>
+          <span className="font-headline-md text-primary">+2.4k</span>
         </div>
+        <p className="text-caption text-secondary">Vies sauvées grâce aux dons ce mois-ci à Lomé.</p>
       </div>
     </section>
   )

@@ -6,16 +6,24 @@ import { FinalCtaSection } from '../components/sections/FinalCtaSection'
 import { AboutContent } from '../components/sections/AboutContent'
 import { FaqList } from '../components/sections/FaqList'
 import { ContactSection } from '../components/sections/ContactSection'
+import { useApiData } from '../hooks/useApiData'
+import type { CleImage, ImageAccueil } from '../lib/types'
 
 export default function HomePage() {
+  const { data: images } = useApiData<ImageAccueil[]>('/images')
+  const imageUrl = (cle: CleImage) => images?.find((img) => img.cle === cle)?.url
+
   return (
     <>
-      <HeroSection />
+      <HeroSection imageUrl={imageUrl('HERO')} />
       <StatsSection />
       <HowItWorksSection />
-      <InstitutionalSection />
+      <InstitutionalSection
+        doctorImageUrl={imageUrl('INSTITUTIONAL_DOCTOR')}
+        vialsImageUrl={imageUrl('INSTITUTIONAL_VIALS')}
+      />
       <FinalCtaSection />
-      <AboutContent />
+      <AboutContent laboratoryImageUrl={imageUrl('ABOUT_LABORATORY')} />
       <section className="py-20 bg-surface-alt border-y border-outline-variant" id="faq">
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="text-center mb-12">

@@ -9,7 +9,7 @@ export function SiteHeader({ title, actions }: { title: string; actions?: ReactN
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
-        <h1 className="flex-1 text-base font-medium">{title}</h1>
+        <h1 className="min-w-0 flex-1 truncate text-base font-medium">{title}</h1>
         {actions}
         <ModeToggle />
       </div>

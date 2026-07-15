@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom'
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui-shadcn/ui/sidebar'
 import type { NavItem } from './nav-items'
 
-export function NavMain({ items }: { items: NavItem[] }) {
+export function NavMain({ items, compact = false }: { items: NavItem[]; compact?: boolean }) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -19,7 +19,7 @@ export function NavMain({ items }: { items: NavItem[] }) {
                       : undefined
                   }
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className={compact ? 'h-4 w-4' : 'h-5 w-5'} />
                   <span>{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>

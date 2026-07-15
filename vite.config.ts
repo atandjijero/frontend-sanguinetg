@@ -28,7 +28,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3001,
+    port: 5371,
     headers: {
       'Content-Security-Policy': CONTENT_SECURITY_POLICY,
     },

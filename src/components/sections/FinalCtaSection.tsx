@@ -25,9 +25,12 @@ export function FinalCtaSection() {
           >
             Créer mon compte donneur
           </Link>
-          <button className="px-10 py-5 bg-primary border-2 border-on-primary text-on-primary font-headline-md rounded-2xl hover:bg-primary/90 transition-all">
+          <Link
+            to="/lieux-de-collecte"
+            className="px-10 py-5 bg-primary border-2 border-on-primary text-on-primary font-headline-md rounded-2xl hover:bg-primary/90 transition-all"
+          >
             Consulter les lieux de collecte
-          </button>
+          </Link>
         </div>
       </div>
     </section>

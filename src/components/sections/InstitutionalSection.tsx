@@ -1,7 +1,13 @@
 import React from 'react'
 import { CheckCircle2 } from 'lucide-react'
 
-export function InstitutionalSection() {
+export function InstitutionalSection({
+  doctorImageUrl,
+  vialsImageUrl,
+}: {
+  doctorImageUrl?: string
+  vialsImageUrl?: string
+}) {
   return (
     <section className="py-24 bg-surface-alt" id="about">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
@@ -42,7 +48,7 @@ export function InstitutionalSection() {
                 <img
                   className="w-full h-full object-cover bg-surface-container"
                   alt="Médecin souriant en blouse blanche dans un laboratoire médical"
-                  src="/images/institutional-doctor.jpg"
+                  src={doctorImageUrl ?? '/images/institutional-doctor.jpg'}
                 />
               </div>
               <div className="pt-12">
@@ -50,7 +56,7 @@ export function InstitutionalSection() {
                   <img
                     className="w-full h-full object-cover bg-surface-container"
                     alt="Fioles et équipement de logistique médicale stérile"
-                    src="/images/institutional-vials.jpg"
+                    src={vialsImageUrl ?? '/images/institutional-vials.jpg'}
                   />
                 </div>
               </div>

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { PencilIcon, PlusIcon, StethoscopeIcon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
@@ -16,6 +18,7 @@ import { CATEGORIE_CONSEIL_LABELS } from '../../../lib/constants'
 import type { CategorieConseil, ConseilSante } from '../../../lib/types'
 
 export default function ConseilsPage() {
+  const confirm = useConfirm()
   const { user } = useAuth()
   const peutPublier = user?.role === 'MEDECIN'
   const peutGerer = user?.role === 'MEDECIN' || user?.role === 'ADMIN' || user?.role === 'SUPERADMIN'
@@ -48,12 +51,12 @@ export default function ConseilsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Supprimer ce conseil santé ?')) return
+    if (!(await confirm({ description: 'Supprimer ce conseil santé ?' }))) return
     try {
       await api.delete(`/conseils/${id}`)
       await refetch()
     } catch (err) {
-      window.alert(err instanceof ApiError ? err.message : 'Suppression impossible')
+      toast.error(err instanceof ApiError ? err.message : 'Suppression impossible')
     }
   }
 

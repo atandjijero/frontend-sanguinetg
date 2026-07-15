@@ -30,7 +30,7 @@ const stats = [
   { value: '100%', label: 'Don volontaire et non rémunéré' },
 ]
 
-export function AboutContent() {
+export function AboutContent({ laboratoryImageUrl }: { laboratoryImageUrl?: string }) {
   return (
     <>
       <section className="py-20" id="a-propos">
@@ -52,7 +52,7 @@ export function AboutContent() {
             <img
               className="w-full h-full object-cover bg-surface-container"
               alt="Analyse et qualification d'un échantillon au CNTS"
-              src="/images/about-laboratory.jpg"
+              src={laboratoryImageUrl ?? '/images/about-laboratory.jpg'}
             />
           </div>
         </div>

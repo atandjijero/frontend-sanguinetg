@@ -23,6 +23,8 @@ interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
   profilPath: string
   onLogout: () => void
   roleBadge?: ReactNode
+  /** Resserre l'espacement des items du menu — utile quand la liste est longue (espace CNTS). */
+  compact?: boolean
 }
 
 export function AppSidebar({
@@ -33,6 +35,7 @@ export function AppSidebar({
   profilPath,
   onLogout,
   roleBadge,
+  compact = false,
   ...props
 }: AppSidebarProps) {
   return (
@@ -51,7 +54,7 @@ export function AppSidebar({
         {roleBadge}
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={items} />
+        <NavMain items={items} compact={compact} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} profilPath={profilPath} onLogout={onLogout} />

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   AlertOctagonIcon,
   DatabaseIcon,
@@ -11,15 +12,18 @@ import {
   UserCheckIcon,
   UserRoundIcon,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Checkbox } from '../../../components/ui-shadcn/ui/checkbox'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../../components/ui-shadcn/ui/dialog'
 import { Input } from '../../../components/ui-shadcn/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui-shadcn/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui-shadcn/ui/table'
 import { DataState } from '../../../components/dashboard/DataState'
 import { StatCard } from '../../../components/dashboard/StatCard'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { useApiData } from '../../../hooks/useApiData'
 import { api, ApiError } from '../../../lib/api'
 import { GRAVITE_ALERTE_SECURITE_LABELS, TYPE_ALERTE_SECURITE_LABELS } from '../../../lib/constants'
@@ -41,7 +45,24 @@ const GRAVITE_VARIANT: Record<GraviteAlerteSecurite, 'default' | 'secondary' | '
   CRITIQUE: 'destructive',
 }
 
+const TYPE_ICONS: Record<TypeAlerteSecurite, LucideIcon> = {
+  BRUTE_FORCE: KeyRoundIcon,
+  CSP_VIOLATION: ShieldIcon,
+  SQL_INJECTION: DatabaseIcon,
+  XSS_ATTEMPT: SquareCodeIcon,
+}
+
+function Champ({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border bg-muted/40 p-3">
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
+      <div className="text-sm font-medium break-words">{children}</div>
+    </div>
+  )
+}
+
 export default function SecurityPage() {
+  const confirm = useConfirm()
   const { data: stats, refetch: refetchStats } = useApiData<AlertesSecuriteStats>('/security/stats')
   const { data: frequentation, refetch: refetchFrequentation } = useApiData<FrequentationStats>('/analytics/stats')
 
@@ -55,7 +76,7 @@ export default function SecurityPage() {
   const [rechercheInput, setRechercheInput] = useState('')
   const [recherche, setRecherche] = useState('')
   const [page, setPage] = useState(1)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [detailAlerte, setDetailAlerte] = useState<AlerteSecurite | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -89,9 +110,13 @@ export default function SecurityPage() {
     setSelectedIds((prev) => (toutSelectionne ? prev.filter((id) => !idsAffiches.includes(id)) : [...new Set([...prev, ...idsAffiches])]))
   }
 
-  async function supprimer(ids: string[]) {
-    if (ids.length === 0) return
-    if (!window.confirm(`Supprimer définitivement ${ids.length > 1 ? `ces ${ids.length} alertes` : 'cette alerte'} ?`)) return
+  async function supprimer(ids: string[]): Promise<boolean> {
+    if (ids.length === 0) return false
+    const confirme = await confirm({
+      title: 'Supprimer définitivement',
+      description: `Supprimer définitivement ${ids.length > 1 ? `ces ${ids.length} alertes` : 'cette alerte'} ?`,
+    })
+    if (!confirme) return false
     setDeleting(true)
     setDeleteError(null)
     try {
@@ -102,8 +127,10 @@ export default function SecurityPage() {
       }
       setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)))
       await Promise.all([refetch(), refetchStats()])
+      return true
     } catch (err) {
       setDeleteError(err instanceof ApiError ? err.message : 'Impossible de supprimer les alertes sélectionnées')
+      return false
     } finally {
       setDeleting(false)
     }
@@ -236,52 +263,34 @@ export default function SecurityPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {resultat?.data.map((alerte) => {
-                  const estOuvert = expandedId === alerte.id
-                  return (
-                    <TableRow key={alerte.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedIds.includes(alerte.id)}
-                          onCheckedChange={() => toggleSelection(alerte.id)}
-                          aria-label="Sélectionner cette alerte"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={GRAVITE_VARIANT[alerte.gravite]}>{GRAVITE_ALERTE_SECURITE_LABELS[alerte.gravite]}</Badge>
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap">{TYPE_ALERTE_SECURITE_LABELS[alerte.type]}</TableCell>
-                      <TableCell className="max-w-md">
-                        <p className={estOuvert ? '' : 'truncate'}>{alerte.message}</p>
-                        {alerte.message.length > 80 && (
-                          <button
-                            type="button"
-                            className="text-xs text-primary hover:underline"
-                            onClick={() => setExpandedId(estOuvert ? null : alerte.id)}
-                          >
-                            {estOuvert ? 'Voir moins' : 'Voir plus'}
-                          </button>
-                        )}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap text-muted-foreground">{alerte.ipSource ?? '—'}</TableCell>
-                      <TableCell className="max-w-xs truncate text-muted-foreground">{alerte.uri ?? '—'}</TableCell>
-                      <TableCell className="whitespace-nowrap text-muted-foreground">
-                        {new Date(alerte.dateCreation).toLocaleString('fr-FR')}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          disabled={deleting}
-                          onClick={() => supprimer([alerte.id])}
-                          aria-label="Supprimer cette alerte"
-                        >
-                          <Trash2Icon className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                {resultat?.data.map((alerte) => (
+                  <TableRow key={alerte.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.includes(alerte.id)}
+                        onCheckedChange={() => toggleSelection(alerte.id)}
+                        aria-label="Sélectionner cette alerte"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={GRAVITE_VARIANT[alerte.gravite]}>{GRAVITE_ALERTE_SECURITE_LABELS[alerte.gravite]}</Badge>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{TYPE_ALERTE_SECURITE_LABELS[alerte.type]}</TableCell>
+                    <TableCell className="max-w-md">
+                      <p className="truncate">{alerte.message}</p>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">{alerte.ipSource ?? '—'}</TableCell>
+                    <TableCell className="max-w-xs truncate text-muted-foreground">{alerte.uri ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {new Date(alerte.dateCreation).toLocaleString('fr-FR')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => setDetailAlerte(alerte)}>
+                        Voir plus
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
 
@@ -322,6 +331,76 @@ export default function SecurityPage() {
           </DataState>
         </CardContent>
       </Card>
+
+      <Dialog open={!!detailAlerte} onOpenChange={(open) => !open && setDetailAlerte(null)}>
+        <DialogContent className="max-w-xl">
+          {detailAlerte && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Détails de l'alerte</DialogTitle>
+                <DialogDescription className="font-mono text-xs">{detailAlerte.id}</DialogDescription>
+              </DialogHeader>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Champ label="Type">
+                  <span className="flex items-center gap-2">
+                    {(() => {
+                      const Icon = TYPE_ICONS[detailAlerte.type]
+                      return <Icon className="h-4 w-4 text-muted-foreground" />
+                    })()}
+                    {TYPE_ALERTE_SECURITE_LABELS[detailAlerte.type]}
+                  </span>
+                </Champ>
+                <Champ label="Gravité">
+                  <Badge variant={GRAVITE_VARIANT[detailAlerte.gravite]}>
+                    {GRAVITE_ALERTE_SECURITE_LABELS[detailAlerte.gravite]}
+                  </Badge>
+                </Champ>
+                <Champ label="IP source">
+                  <span className="font-mono">{detailAlerte.ipSource ?? '—'}</span>
+                </Champ>
+                <Champ label="Date">{new Date(detailAlerte.dateCreation).toLocaleString('fr-FR')}</Champ>
+                <Champ label="URI">
+                  <span className="font-mono break-all">{detailAlerte.uri ?? '—'}</span>
+                </Champ>
+                <Champ label="User-Agent">
+                  <span className="text-xs break-all">{detailAlerte.userAgent ?? '—'}</span>
+                </Champ>
+              </div>
+
+              <Champ label="Message">
+                <p className="font-normal">{detailAlerte.message}</p>
+              </Champ>
+
+              {detailAlerte.payload != null && (
+                <div className="rounded-lg border border-zinc-800 bg-zinc-950 p-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 mb-2">Payload</p>
+                  <pre className="text-xs font-mono text-green-400 whitespace-pre-wrap break-all">
+                    {JSON.stringify(detailAlerte.payload, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDetailAlerte(null)}>
+                  Fermer
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={deleting}
+                  onClick={async () => {
+                    if (await supprimer([detailAlerte.id])) {
+                      setDetailAlerte(null)
+                    }
+                  }}
+                >
+                  <Trash2Icon className="h-4 w-4" /> Supprimer
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

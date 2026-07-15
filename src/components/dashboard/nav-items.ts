@@ -4,6 +4,7 @@ import {
   GaugeIcon,
   GiftIcon,
   HeartHandshakeIcon,
+  ImageIcon,
   MailIcon,
   MapPinIcon,
   MegaphoneIcon,
@@ -78,6 +79,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     to: '/admin/equipe',
     icon: UsersIcon,
     roles: ['SUPERADMIN', 'ADMIN'],
+  },
+  {
+    title: "Images du site",
+    to: '/admin/images',
+    icon: ImageIcon,
+    roles: ['SUPERADMIN'],
   },
   {
     title: 'Sécurité',
