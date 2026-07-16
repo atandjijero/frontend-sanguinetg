@@ -5,6 +5,7 @@ import Button from '../ui/Button'
 import { ModeToggle } from '../ui-shadcn/mode-toggle'
 import { TogoFlag } from '../icons/TogoFlag'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { InstallAppButton } from './InstallAppButton'
 import { T } from '../../context/LanguageContext'
 
 const links = [
@@ -55,6 +56,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <InstallAppButton />
           <LanguageSwitcher />
           <ModeToggle />
           <Link
