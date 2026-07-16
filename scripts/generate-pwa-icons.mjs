@@ -30,29 +30,61 @@ function flagGroup(x, y, w) {
     </g>`
 }
 
-// Icône "any" : fond clair + coins arrondis, drapeau centré avec une marge confortable.
+// Fond "sang" : dégradé radial élégant, du rouge vif (reflet) au bordeaux profond,
+// dans les tons de la couleur de marque (#9e0027).
+function bloodBackground(size, id) {
+  return `<defs>
+    <radialGradient id="${id}" cx="35%" cy="28%" r="80%">
+      <stop offset="0%" stop-color="#d42847" />
+      <stop offset="55%" stop-color="#9e0027" />
+      <stop offset="100%" stop-color="#650018" />
+    </radialGradient>
+  </defs>`
+}
+
+// Drapeau en médaillon rond : découpé en cercle ("cover", pas "contain") sur un disque
+// clair, cerclé d'un fin liseré doré — lisible même tout petit, effet "badge" soigné.
+function flagMedallion(cx, cy, r) {
+  const flagW = r * 3
+  const x = cx - flagW / 2
+  const y = cy - r
+  const clipId = `clip-${Math.round(cx)}-${Math.round(cy)}-${Math.round(r)}`
+  return `
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#faf9f7" />
+    <clipPath id="${clipId}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" />
+    </clipPath>
+    <g clip-path="url(#${clipId})">
+      ${flagGroup(x, y, flagW)}
+    </g>
+    <circle cx="${cx}" cy="${cy}" r="${r - size_ring(r)}" fill="none" stroke="#ffce00" stroke-width="${size_ring(r)}" />`
+}
+function size_ring(r) {
+  return Math.max(r * 0.045, 1)
+}
+
+// Icône "any" : fond sang + coins arrondis, drapeau en médaillon rond centré.
 function iconAnySvg(size) {
-  const flagW = size * 0.78
-  const flagH = (flagW * 160) / 240
-  const x = (size - flagW) / 2
-  const y = (size - flagH) / 2
   const r = size * 0.18
+  const gradId = `bg-any-${size}`
+  const medR = size * 0.36
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" rx="${r}" fill="#faf9f7" />
-  ${flagGroup(x, y, flagW)}
+  ${bloodBackground(size, gradId)}
+  <rect width="${size}" height="${size}" rx="${r}" fill="url(#${gradId})" />
+  ${flagMedallion(size / 2, size / 2, medR)}
 </svg>`
 }
 
-// Icône "maskable" : le drapeau doit rester dans la zone de sécurité centrale (~80%) car
-// l'OS applique son propre masque (cercle, squircle...) qui peut rogner les bords.
+// Icône "maskable" : fond sang plein cadre, médaillon resserré dans la zone de sécurité
+// centrale (~80%) car l'OS applique son propre masque (cercle, squircle...) qui peut
+// rogner les bords.
 function iconMaskableSvg(size) {
-  const flagW = size * 0.58
-  const flagH = (flagW * 160) / 240
-  const x = (size - flagW) / 2
-  const y = (size - flagH) / 2
+  const gradId = `bg-mask-${size}`
+  const medR = size * 0.3
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <rect width="${size}" height="${size}" fill="#faf9f7" />
-  ${flagGroup(x, y, flagW)}
+  ${bloodBackground(size, gradId)}
+  <rect width="${size}" height="${size}" fill="url(#${gradId})" />
+  ${flagMedallion(size / 2, size / 2, medR)}
 </svg>`
 }
 
