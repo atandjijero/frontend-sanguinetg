@@ -1,4 +1,5 @@
-import { LogOutIcon, MoreVerticalIcon, UserCircleIcon } from 'lucide-react'
+import { useState } from 'react'
+import { KeyRoundIcon, LogOutIcon, MoreVerticalIcon, UserCircleIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { Avatar, AvatarFallback } from '@/components/ui-shadcn/ui/avatar'
@@ -11,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui-shadcn/ui/dropdown-menu'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui-shadcn/ui/sidebar'
+import { ChangePasswordDialog } from '../dashboard/ChangePasswordDialog'
+import { T } from '../../context/LanguageContext'
 
 function initiales(nom: string, prenom: string) {
   return `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase()
@@ -26,6 +29,7 @@ export function NavUser({
   onLogout: () => void
 }) {
   const { isMobile } = useSidebar()
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false)
 
   return (
     <SidebarMenu>
@@ -72,17 +76,23 @@ export function NavUser({
             <DropdownMenuItem asChild>
               <Link to={profilPath}>
                 <UserCircleIcon />
-                Mon profil
+                <T>Mon profil</T>
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setChangePasswordOpen(true)}>
+              <KeyRoundIcon />
+              <T>Changer le mot de passe</T>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={onLogout}>
               <LogOutIcon />
-              Se déconnecter
+              <T>Se déconnecter</T>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      <ChangePasswordDialog open={changePasswordOpen} onOpenChange={setChangePasswordOpen} />
     </SidebarMenu>
   )
 }

@@ -4,6 +4,7 @@ import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { DataState } from '../../../components/dashboard/DataState'
 import { useApiData } from '../../../hooks/useApiData'
 import { CATEGORIE_CONSEIL_LABELS } from '../../../lib/constants'
+import { T } from '../../../context/LanguageContext'
 import type { ConseilSante } from '../../../lib/types'
 
 export default function ConseilsSantePage() {
@@ -13,7 +14,7 @@ export default function ConseilsSantePage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <StethoscopeIcon className="h-4 w-4" /> Conseils santé du CNTS
+          <StethoscopeIcon className="h-4 w-4" /> <T>Conseils santé du CNTS</T>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -22,10 +23,16 @@ export default function ConseilsSantePage() {
             {conseils?.map((conseil) => (
               <div key={conseil.id} className="rounded-lg border border-border p-4">
                 <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-medium">{conseil.titre}</h3>
-                  <Badge variant="outline">{CATEGORIE_CONSEIL_LABELS[conseil.categorie]}</Badge>
+                  <h3 className="font-medium">
+                    <T>{conseil.titre}</T>
+                  </h3>
+                  <Badge variant="outline">
+                    <T>{CATEGORIE_CONSEIL_LABELS[conseil.categorie]}</T>
+                  </Badge>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">{conseil.contenu}</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  <T>{conseil.contenu}</T>
+                </p>
               </div>
             ))}
           </div>

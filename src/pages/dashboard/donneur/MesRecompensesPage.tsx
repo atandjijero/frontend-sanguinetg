@@ -4,6 +4,7 @@ import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { DataState } from '../../../components/dashboard/DataState'
 import { useApiData } from '../../../hooks/useApiData'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { T } from '../../../context/LanguageContext'
 import type { Recompense } from '../../../lib/types'
 
 const STATUT_VARIANT: Record<Recompense['statut'], 'default' | 'secondary' | 'destructive'> = {
@@ -19,7 +20,7 @@ export default function MesRecompensesPage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <GiftIcon className="h-4 w-4" /> Mes récompenses
+          <GiftIcon className="h-4 w-4" /> <T>Mes récompenses</T>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -33,7 +34,9 @@ export default function MesRecompensesPage() {
             {recompenses?.map((r) => (
               <div key={r.id} className="flex items-center justify-between rounded-lg border border-border p-4">
                 <div>
-                  <div className="font-medium">{TYPE_RECOMPENSE_LABELS[r.type]}</div>
+                  <div className="font-medium">
+                    <T>{TYPE_RECOMPENSE_LABELS[r.type]}</T>
+                  </div>
                   <div className="text-sm text-muted-foreground">{r.description}</div>
                 </div>
                 <Badge variant={STATUT_VARIANT[r.statut]}>{r.statut}</Badge>

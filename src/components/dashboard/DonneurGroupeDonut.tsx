@@ -9,6 +9,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
 import { CATEGORICAL_LIGHT } from '../../lib/chart-colors'
 import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../../lib/constants'
+import { T } from '../../context/LanguageContext'
 import type { Utilisateur } from '../../lib/types'
 
 export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
@@ -38,11 +39,13 @@ export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Répartition des donneurs par groupe sanguin</CardTitle>
+          <CardTitle>
+            <T>Répartition des donneurs par groupe sanguin</T>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground py-8 text-center">
-            Aucun donneur avec un groupe sanguin renseigné pour le moment.
+            <T>Aucun donneur avec un groupe sanguin renseigné pour le moment.</T>
           </p>
         </CardContent>
       </Card>
@@ -52,7 +55,9 @@ export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Répartition des donneurs par groupe sanguin</CardTitle>
+        <CardTitle>
+          <T>Répartition des donneurs par groupe sanguin</T>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -89,7 +94,7 @@ export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
                 dominantBaseline="middle"
                 className="fill-muted-foreground text-xs"
               >
-                donneurs
+                <T>donneurs</T>
               </text>
             </PieChart>
           </ChartContainer>

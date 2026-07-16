@@ -8,6 +8,7 @@ import {
   MailIcon,
   MapPinIcon,
   MegaphoneIcon,
+  RssIcon,
   ShieldAlertIcon,
   StethoscopeIcon,
   UsersIcon,
@@ -84,6 +85,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     title: "Images du site",
     to: '/admin/images',
     icon: ImageIcon,
+    roles: ['SUPERADMIN'],
+  },
+  {
+    title: 'Abonnés newsletter',
+    to: '/admin/abonnes',
+    icon: RssIcon,
     roles: ['SUPERADMIN'],
   },
   {

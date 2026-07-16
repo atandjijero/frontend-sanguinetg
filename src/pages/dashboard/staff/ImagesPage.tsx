@@ -5,6 +5,7 @@ import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { useApiData } from '../../../hooks/useApiData'
 import { api, ApiError } from '../../../lib/api'
+import { T } from '../../../context/LanguageContext'
 import type { CleImage, ImageAccueil } from '../../../lib/types'
 
 interface Emplacement {
@@ -49,15 +50,21 @@ export default function ImagesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ImageIcon className="h-4 w-4" /> Images de la page d'accueil
+            <ImageIcon className="h-4 w-4" /> <T>Images de la page d'accueil</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-6">
-            Remplacez les visuels affichés sur le site public. Les fichiers sont stockés sur Cloudinary ; tant
-            qu'aucune image n'est envoyée, le visuel par défaut du site reste affiché.
+            <T>
+              Remplacez les visuels affichés sur le site public. Les fichiers sont stockés sur Cloudinary ; tant
+              qu'aucune image n'est envoyée, le visuel par défaut du site reste affiché.
+            </T>
           </p>
-          {error && <p className="text-sm text-destructive mb-4">{error}</p>}
+          {error && (
+            <p className="text-sm text-destructive mb-4">
+              <T>{error}</T>
+            </p>
+          )}
           <div className="grid gap-6 sm:grid-cols-2">
             {EMPLACEMENTS.map((emplacement) => (
               <ImageSlot
@@ -121,15 +128,23 @@ function ImageSlot({
       </div>
       <div className="p-4 space-y-3">
         <div>
-          <p className="font-medium">{emplacement.titre}</p>
-          <p className="text-sm text-muted-foreground">{emplacement.description}</p>
+          <p className="font-medium">
+            <T>{emplacement.titre}</T>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            <T>{emplacement.description}</T>
+          </p>
         </div>
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
         <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => inputRef.current?.click()}>
           <UploadCloudIcon className="h-4 w-4" />
-          {uploading ? 'Envoi en cours...' : "Remplacer l'image"}
+          <T>{uploading ? 'Envoi en cours...' : "Remplacer l'image"}</T>
         </Button>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive">
+            <T>{error}</T>
+          </p>
+        )}
       </div>
     </div>
   )

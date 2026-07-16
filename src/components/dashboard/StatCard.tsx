@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
 
@@ -7,10 +8,10 @@ export function StatCard({
   icon: Icon,
   hint,
 }: {
-  label: string
+  label: ReactNode
   value: string | number
   icon: LucideIcon
-  hint?: string
+  hint?: ReactNode
 }) {
   return (
     <Card>

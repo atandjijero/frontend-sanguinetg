@@ -9,6 +9,7 @@ import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { MessageContact } from '../../../lib/types'
 
 export default function MessagesPage() {
@@ -23,7 +24,7 @@ export default function MessagesPage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MailIcon className="h-4 w-4" /> Messages reçus ({total})
+          <MailIcon className="h-4 w-4" /> <T>Messages reçus</T> ({total})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -44,36 +45,44 @@ export default function MessagesPage() {
                 <div key={msg.id} className="rounded-lg border border-border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <h3 className="font-medium">{msg.sujet}</h3>
+                      <h3 className="font-medium">
+                        <T>{msg.sujet}</T>
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         {msg.nomComplet} · {msg.email}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={msg.statut === 'REPONDU' ? 'secondary' : 'default'}>
-                        {msg.statut === 'REPONDU' ? 'Répondu' : 'Nouveau'}
+                        <T>{msg.statut === 'REPONDU' ? 'Répondu' : 'Nouveau'}</T>
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {new Date(msg.dateCreation).toLocaleDateString('fr-FR')}
                       </span>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm whitespace-pre-wrap">{msg.message}</p>
+                  <p className="mt-2 text-sm whitespace-pre-wrap">
+                    <T>{msg.message}</T>
+                  </p>
 
                   {msg.reponse && (
                     <div className="mt-3 rounded-md bg-muted/30 p-3">
                       <p className="text-xs font-medium text-muted-foreground mb-1">
-                        Réponse{msg.repondPar ? ` de ${msg.repondPar.prenom} ${msg.repondPar.nom}` : ''}
+                        <T>Réponse</T>
+                        {msg.repondPar ? ` de ${msg.repondPar.prenom} ${msg.repondPar.nom}` : ''}
                         {msg.dateReponse ? ` · ${new Date(msg.dateReponse).toLocaleDateString('fr-FR')}` : ''}
                       </p>
-                      <p className="text-sm whitespace-pre-wrap">{msg.reponse}</p>
+                      <p className="text-sm whitespace-pre-wrap">
+                        <T>{msg.reponse}</T>
+                      </p>
                     </div>
                   )}
 
                   {peutRepondre && (
                     <div className="mt-3">
                       <Button variant="outline" size="sm" onClick={() => setReplyId(msg.id)}>
-                        <ReplyIcon className="h-4 w-4" /> {msg.statut === 'REPONDU' ? 'Modifier la réponse' : 'Répondre'}
+                        <ReplyIcon className="h-4 w-4" />{' '}
+                        <T>{msg.statut === 'REPONDU' ? 'Modifier la réponse' : 'Répondre'}</T>
                       </Button>
                     </div>
                   )}
@@ -100,6 +109,7 @@ function ReplyForm({
   const [reponse, setReponse] = useState(message.reponse ?? '')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const placeholderReponse = useTraduction("Votre réponse — sera envoyée par email à l'expéditeur")
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -124,29 +134,37 @@ function ReplyForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3 rounded-lg border border-border bg-muted/30 p-4">
       <div>
-        <h3 className="font-medium">{message.sujet}</h3>
+        <h3 className="font-medium">
+          <T>{message.sujet}</T>
+        </h3>
         <p className="text-sm text-muted-foreground">
           {message.nomComplet} · {message.email}
         </p>
-        <p className="mt-2 text-sm whitespace-pre-wrap">{message.message}</p>
+        <p className="mt-2 text-sm whitespace-pre-wrap">
+          <T>{message.message}</T>
+        </p>
       </div>
       <textarea
         className="flex min-h-28 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         value={reponse}
         onChange={(e) => setReponse(e.target.value)}
-        placeholder="Votre réponse — sera envoyée par email à l'expéditeur"
+        placeholder={placeholderReponse}
         required
         minLength={2}
       />
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={submitting}>
-          Envoyer la réponse
+          <T>Envoyer la réponse</T>
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Annuler
+          <T>Annuler</T>
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive">
+          <T>{error}</T>
+        </p>
+      )}
     </form>
   )
 }

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { Droplet, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import Button from '../ui/Button'
 import { ModeToggle } from '../ui-shadcn/mode-toggle'
+import { TogoFlag } from '../icons/TogoFlag'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { T } from '../../context/LanguageContext'
 
 const links = [
   { label: 'Accueil', to: '/' },
@@ -30,7 +33,7 @@ export function Navbar() {
     >
       <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop h-full max-w-container-max mx-auto">
         <Link className="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2" to="/">
-          <Droplet className="fill-primary/10" size={30} aria-hidden />
+          <TogoFlag size={30} />
           Sanguine TG
         </Link>
 
@@ -46,21 +49,24 @@ export function Navbar() {
                   : 'text-secondary hover:text-primary transition-colors duration-200 font-label-md text-label-md'
               }
             >
-              {link.label}
+              <T>{link.label}</T>
             </NavLink>
           ))}
         </div>
 
         <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           <ModeToggle />
           <Link
             to="/connexion"
             className="hidden sm:inline-flex text-secondary hover:text-primary transition-colors duration-200 font-label-md text-label-md"
           >
-            Connexion
+            <T>Connexion</T>
           </Link>
           <Button variant="primary" size="sm" className="hidden sm:inline-flex rounded-lg font-label-md text-label-md" asChild>
-            <Link to="/inscription">Je m'inscris</Link>
+            <Link to="/inscription">
+              <T>Je m'inscris</T>
+            </Link>
           </Button>
           <button
             className="md:hidden p-2 text-secondary"
@@ -82,7 +88,7 @@ export function Navbar() {
               className="text-secondary hover:text-primary transition-colors font-label-md text-label-md"
               onClick={() => setMobileOpen(false)}
             >
-              {link.label}
+              <T>{link.label}</T>
             </NavLink>
           ))}
           <Link
@@ -90,11 +96,11 @@ export function Navbar() {
             className="text-secondary hover:text-primary transition-colors font-label-md text-label-md"
             onClick={() => setMobileOpen(false)}
           >
-            Connexion
+            <T>Connexion</T>
           </Link>
           <Button variant="primary" size="sm" className="rounded-lg font-label-md text-label-md w-full" asChild>
             <Link to="/inscription" onClick={() => setMobileOpen(false)}>
-              Je m'inscris
+              <T>Je m'inscris</T>
             </Link>
           </Button>
         </div>

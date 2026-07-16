@@ -4,6 +4,7 @@ import { LogIn } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../lib/api'
+import { T } from '../context/LanguageContext'
 
 export default function LoginPage() {
   const { login } = useAuth()
@@ -31,14 +32,20 @@ export default function LoginPage() {
     <>
       <section className="pt-16 pb-20">
         <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop text-center mb-10">
-          <h1 className="font-headline-lg text-headline-lg mb-3">Accédez à votre espace</h1>
-          <p className="text-secondary">Retrouvez vos alertes, votre carnet digital et vos remerciements du CNTS.</p>
+          <h1 className="font-headline-lg text-headline-lg mb-3">
+            <T>Accédez à votre espace</T>
+          </h1>
+          <p className="text-secondary">
+            <T>Retrouvez vos alertes, votre carnet digital et vos remerciements du CNTS.</T>
+          </p>
         </div>
         <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-8 soft-shadow">
             <form className="space-y-5" onSubmit={handleSubmit}>
               <label className="block">
-                <span className="text-label-md text-on-surface mb-2 block">Email ou téléphone</span>
+                <span className="text-label-md text-on-surface mb-2 block">
+                  <T>Email ou téléphone</T>
+                </span>
                 <input
                   required
                   type="text"
@@ -48,7 +55,9 @@ export default function LoginPage() {
                 />
               </label>
               <label className="block">
-                <span className="text-label-md text-on-surface mb-2 block">Mot de passe</span>
+                <span className="text-label-md text-on-surface mb-2 block">
+                  <T>Mot de passe</T>
+                </span>
                 <input
                   required
                   type="password"
@@ -56,16 +65,23 @@ export default function LoginPage() {
                   onChange={(e) => setMotDePasse(e.target.value)}
                   className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                 />
+                <Link to="/mot-de-passe-oublie" className="mt-2 inline-block text-sm text-primary hover:underline">
+                  <T>Mot de passe oublié ?</T>
+                </Link>
               </label>
-              {error && <p className="text-sm text-error">{error}</p>}
+              {error && (
+                <p className="text-sm text-error">
+                  <T>{error}</T>
+                </p>
+              )}
               <Button type="submit" variant="primary" size="lg" className="rounded-xl w-full" disabled={submitting}>
-                Se connecter
+                <T>Se connecter</T>
                 <LogIn size={16} aria-hidden />
               </Button>
               <p className="text-center text-body-md text-secondary">
-                Pas encore de compte ?{' '}
+                <T>Pas encore de compte ?</T>{' '}
                 <Link to="/inscription" className="text-primary font-semibold hover:underline">
-                  Devenir donneur
+                  <T>Devenir donneur</T>
                 </Link>
               </p>
             </form>

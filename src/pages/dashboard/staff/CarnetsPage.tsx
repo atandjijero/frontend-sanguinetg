@@ -14,6 +14,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { CarnetDigital, CentreDon, Recompense, Utilisateur } from '../../../lib/types'
 
 export default function CarnetsPage() {
@@ -38,6 +39,7 @@ export default function CarnetsPage() {
   const [centreDonId, setCentreDonId] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -61,16 +63,18 @@ export default function CarnetsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PlusIcon className="h-4 w-4" /> Enregistrer un don (sans alerte préalable)
+              <PlusIcon className="h-4 w-4" /> <T>Enregistrer un don (sans alerte préalable)</T>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-4">
               <div className="space-y-1.5">
-                <Label>Donneur</Label>
+                <Label>
+                  <T>Donneur</T>
+                </Label>
                 <Select value={donneurId} onValueChange={setDonneurId}>
                   <SelectTrigger className="w-56">
-                    <SelectValue placeholder="Sélectionner" />
+                    <SelectValue placeholder={placeholderSelectionner} />
                   </SelectTrigger>
                   <SelectContent>
                     {(donneurs ?? []).map((d) => (
@@ -82,14 +86,18 @@ export default function CarnetsPage() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Date du don</Label>
+                <Label>
+                  <T>Date du don</T>
+                </Label>
                 <Input type="date" value={dateDon} onChange={(e) => setDateDon(e.target.value)} required className="w-40" />
               </div>
               <div className="space-y-1.5">
-                <Label>Centre de don</Label>
+                <Label>
+                  <T>Centre de don</T>
+                </Label>
                 <Select value={centreDonId} onValueChange={setCentreDonId}>
                   <SelectTrigger className="w-64">
-                    <SelectValue placeholder="Sélectionner" />
+                    <SelectValue placeholder={placeholderSelectionner} />
                   </SelectTrigger>
                   <SelectContent>
                     {(centres ?? []).map((c) => (
@@ -101,13 +109,19 @@ export default function CarnetsPage() {
                 </Select>
               </div>
               <Button type="submit" disabled={submitting}>
-                Enregistrer
+                <T>Enregistrer</T>
               </Button>
-              {formError && <p className="text-sm text-destructive w-full">{formError}</p>}
+              {formError && (
+                <p className="text-sm text-destructive w-full">
+                  <T>{formError}</T>
+                </p>
+              )}
             </form>
             <p className="mt-3 text-xs text-muted-foreground">
-              Pour un don faisant suite à une alerte, préférez « Enregistrer le don » depuis le détail de l'alerte
-              (page Alertes) : il relie automatiquement la réponse du donneur au carnet.
+              <T>
+                Pour un don faisant suite à une alerte, préférez « Enregistrer le don » depuis le détail de l'alerte
+                (page Alertes) : il relie automatiquement la réponse du donneur au carnet.
+              </T>
             </p>
           </CardContent>
         </Card>
@@ -116,7 +130,7 @@ export default function CarnetsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookHeartIcon className="h-4 w-4" /> Carnets de don
+            <BookHeartIcon className="h-4 w-4" /> <T>Carnets de don</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -124,11 +138,21 @@ export default function CarnetsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Donneur</TableHead>
-                  <TableHead>Date du don</TableHead>
-                  <TableHead>Centre</TableHead>
-                  <TableHead>Rappel prochain don</TableHead>
-                  <TableHead>Récompense</TableHead>
+                  <TableHead>
+                    <T>Donneur</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Date du don</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Centre</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Rappel prochain don</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Récompense</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

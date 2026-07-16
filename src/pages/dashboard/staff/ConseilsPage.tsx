@@ -15,6 +15,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { CATEGORIE_CONSEIL_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { CategorieConseil, ConseilSante } from '../../../lib/types'
 
 export default function ConseilsPage() {
@@ -31,6 +32,7 @@ export default function ConseilsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [editId, setEditId] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -66,26 +68,30 @@ export default function ConseilsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PlusIcon className="h-4 w-4" /> Publier un conseil santé
+              <PlusIcon className="h-4 w-4" /> <T>Publier un conseil santé</T>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label>Titre</Label>
+                  <Label>
+                    <T>Titre</T>
+                  </Label>
                   <Input value={titre} onChange={(e) => setTitre(e.target.value)} required minLength={5} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Catégorie</Label>
+                  <Label>
+                    <T>Catégorie</T>
+                  </Label>
                   <Select value={categorie} onValueChange={(v) => setCategorie(v as CategorieConseil)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner" />
+                      <SelectValue placeholder={placeholderSelectionner} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(CATEGORIE_CONSEIL_LABELS).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
-                          {label}
+                          <T>{label}</T>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -93,7 +99,9 @@ export default function ConseilsPage() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Contenu</Label>
+                <Label>
+                  <T>Contenu</T>
+                </Label>
                 <textarea
                   className="flex min-h-24 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   value={contenu}
@@ -103,9 +111,13 @@ export default function ConseilsPage() {
                 />
               </div>
               <Button type="submit" disabled={submitting}>
-                Publier
+                <T>Publier</T>
               </Button>
-              {formError && <p className="text-sm text-destructive">{formError}</p>}
+              {formError && (
+                <p className="text-sm text-destructive">
+                  <T>{formError}</T>
+                </p>
+              )}
             </form>
           </CardContent>
         </Card>
@@ -114,7 +126,7 @@ export default function ConseilsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <StethoscopeIcon className="h-4 w-4" /> Conseils publiés
+            <StethoscopeIcon className="h-4 w-4" /> <T>Conseils publiés</T>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -134,9 +146,13 @@ export default function ConseilsPage() {
                 ) : (
                   <div key={conseil.id} className="rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-medium">{conseil.titre}</h3>
+                      <h3 className="font-medium">
+                        <T>{conseil.titre}</T>
+                      </h3>
                       <div className="flex items-center gap-2">
-                        <Badge variant="outline">{CATEGORIE_CONSEIL_LABELS[conseil.categorie]}</Badge>
+                        <Badge variant="outline">
+                          <T>{CATEGORIE_CONSEIL_LABELS[conseil.categorie]}</T>
+                        </Badge>
                         {peutGerer && (
                           <>
                             <Button variant="outline" size="sm" onClick={() => setEditId(conseil.id)}>
@@ -149,10 +165,12 @@ export default function ConseilsPage() {
                         )}
                       </div>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{conseil.contenu}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      <T>{conseil.contenu}</T>
+                    </p>
                     {conseil.validePar && (
                       <p className="mt-2 text-xs text-muted-foreground">
-                        Validé par Dr. {conseil.validePar.prenom} {conseil.validePar.nom}
+                        <T>Validé par Dr.</T> {conseil.validePar.prenom} {conseil.validePar.nom}
                       </p>
                     )}
                   </div>
@@ -200,11 +218,15 @@ function ConseilEditForm({
     <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-muted/30 p-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label>Titre</Label>
+          <Label>
+            <T>Titre</T>
+          </Label>
           <Input value={titre} onChange={(e) => setTitre(e.target.value)} required minLength={5} />
         </div>
         <div className="space-y-1.5">
-          <Label>Catégorie</Label>
+          <Label>
+            <T>Catégorie</T>
+          </Label>
           <Select value={categorie} onValueChange={(v) => setCategorie(v as CategorieConseil)}>
             <SelectTrigger>
               <SelectValue />
@@ -212,7 +234,7 @@ function ConseilEditForm({
             <SelectContent>
               {Object.entries(CATEGORIE_CONSEIL_LABELS).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
-                  {label}
+                  <T>{label}</T>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -220,7 +242,9 @@ function ConseilEditForm({
         </div>
       </div>
       <div className="space-y-1.5">
-        <Label>Contenu</Label>
+        <Label>
+          <T>Contenu</T>
+        </Label>
         <textarea
           className="flex min-h-24 w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={contenu}
@@ -231,13 +255,17 @@ function ConseilEditForm({
       </div>
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={submitting}>
-          Enregistrer
+          <T>Enregistrer</T>
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Annuler
+          <T>Annuler</T>
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="text-sm text-destructive">
+          <T>{error}</T>
+        </p>
+      )}
     </form>
   )
 }

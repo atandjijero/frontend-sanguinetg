@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { T } from '../../context/LanguageContext'
 
 export function FinalCtaSection() {
   return (
@@ -13,23 +14,27 @@ export function FinalCtaSection() {
         }}
       />
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10 text-center text-on-primary">
-        <h2 className="font-display-lg text-display-lg mb-6">Rejoignez le réseau national de solidarité.</h2>
+        <h2 className="font-display-lg text-display-lg mb-6">
+          <T>Rejoignez le réseau national de solidarité.</T>
+        </h2>
         <p className="font-body-lg text-body-lg mb-10 max-w-2xl mx-auto text-primary-fixed">
-          Votre inscription ne prend que 2 minutes, mais elle peut offrir des décennies à quelqu'un d'autre. Soyez le
-          héros qu'attend un patient aujourd'hui.
+          <T>
+            Votre inscription ne prend que 2 minutes, mais elle peut offrir des décennies à quelqu'un d'autre. Soyez
+            le héros qu'attend un patient aujourd'hui.
+          </T>
         </p>
         <div className="flex flex-col sm:flex-row gap-6 justify-center">
           <Link
             to="/inscription"
             className="px-10 py-5 bg-surface text-primary font-headline-md rounded-2xl shadow-xl hover:bg-surface-container-low transition-all active:scale-95"
           >
-            Créer mon compte donneur
+            <T>Créer mon compte donneur</T>
           </Link>
           <Link
             to="/lieux-de-collecte"
             className="px-10 py-5 bg-primary border-2 border-on-primary text-on-primary font-headline-md rounded-2xl hover:bg-primary/90 transition-all"
           >
-            Consulter les lieux de collecte
+            <T>Consulter les lieux de collecte</T>
           </Link>
         </div>
       </div>

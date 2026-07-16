@@ -14,6 +14,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS, GROUPES_SANGUINS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { GroupeSanguin, Quartier, Utilisateur } from '../../../lib/types'
 
 const TOUS_GROUPES = '__tous__'
@@ -28,6 +29,9 @@ export default function DonneursPage() {
   const [recherche, setRecherche] = useState('')
   const [groupeFiltre, setGroupeFiltre] = useState<GroupeSanguin | typeof TOUS_GROUPES>(TOUS_GROUPES)
   const [quartierFiltre, setQuartierFiltre] = useState(TOUS_QUARTIERS)
+  const placeholderRecherche = useTraduction('Rechercher (nom, téléphone, email)')
+  const placeholderGroupe = useTraduction('Groupe sanguin')
+  const placeholderQuartier = useTraduction('Quartier')
 
   const quartierParId = useMemo(() => new Map((quartiers ?? []).map((q) => [q.id, q])), [quartiers])
 
@@ -61,22 +65,24 @@ export default function DonneursPage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <HeartHandshakeIcon className="h-4 w-4" /> Donneurs ({total})
+          <HeartHandshakeIcon className="h-4 w-4" /> <T>Donneurs</T> ({total})
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-3">
           <Input
-            placeholder="Rechercher (nom, téléphone, email)"
+            placeholder={placeholderRecherche}
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
           />
           <Select value={groupeFiltre} onValueChange={(v) => setGroupeFiltre(v as GroupeSanguin)}>
             <SelectTrigger>
-              <SelectValue placeholder="Groupe sanguin" />
+              <SelectValue placeholder={placeholderGroupe} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={TOUS_GROUPES}>Tous les groupes</SelectItem>
+              <SelectItem value={TOUS_GROUPES}>
+                <T>Tous les groupes</T>
+              </SelectItem>
               {GROUPES_SANGUINS.map((g) => (
                 <SelectItem key={g} value={g}>
                   {GROUPE_SANGUIN_LABELS[g]}
@@ -86,10 +92,12 @@ export default function DonneursPage() {
           </Select>
           <Select value={quartierFiltre} onValueChange={setQuartierFiltre}>
             <SelectTrigger>
-              <SelectValue placeholder="Quartier" />
+              <SelectValue placeholder={placeholderQuartier} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={TOUS_QUARTIERS}>Tous les quartiers</SelectItem>
+              <SelectItem value={TOUS_QUARTIERS}>
+                <T>Tous les quartiers</T>
+              </SelectItem>
               {(quartiers ?? []).map((q) => (
                 <SelectItem key={q.id} value={q.id}>
                   {q.nom}
@@ -103,12 +111,26 @@ export default function DonneursPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Groupe sanguin</TableHead>
-                <TableHead>Téléphone</TableHead>
-                <TableHead>Quartier</TableHead>
-                <TableHead>Statut</TableHead>
-                {peutGererStatut && <TableHead className="text-right">Action</TableHead>}
+                <TableHead>
+                  <T>Nom</T>
+                </TableHead>
+                <TableHead>
+                  <T>Groupe sanguin</T>
+                </TableHead>
+                <TableHead>
+                  <T>Téléphone</T>
+                </TableHead>
+                <TableHead>
+                  <T>Quartier</T>
+                </TableHead>
+                <TableHead>
+                  <T>Statut</T>
+                </TableHead>
+                {peutGererStatut && (
+                  <TableHead className="text-right">
+                    <T>Action</T>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -130,7 +152,7 @@ export default function DonneursPage() {
                   {peutGererStatut && (
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
-                        {u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}
+                        <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
                       </Button>
                     </TableCell>
                   )}

@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, Heart, PlayCircle } from 'lucide-react'
 import Button from '../ui/Button'
+import { T } from '../../context/LanguageContext'
 
 export function HeroSection({ imageUrl }: { imageUrl?: string }) {
   return (
@@ -17,14 +18,22 @@ export function HeroSection({ imageUrl }: { imageUrl?: string }) {
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full mb-6">
             <span className="w-2 h-2 rounded-full bg-success-mint animate-pulse" />
-            <span className="text-caption font-label-md uppercase tracking-wider">Pilotage Lomé : Projet National</span>
+            <span className="text-caption font-label-md uppercase tracking-wider">
+              <T>Pilotage Lomé : Projet National</T>
+            </span>
           </div>
           <h1 className="font-display-lg text-display-lg text-white mb-6 leading-tight">
-            Chaque seconde compte, votre <span className="text-primary-fixed-dim">don sauve des vies</span>.
+            <T>Chaque seconde compte, votre</T>{' '}
+            <span className="text-primary-fixed-dim">
+              <T>don sauve des vies</T>
+            </span>
+            .
           </h1>
           <p className="font-body-lg text-body-lg text-white/90 text-justify mb-10 max-w-lg">
-            Sanguine TG modernise la mobilisation des donneurs de sang au Togo. Recevez des alertes ciblées et agissez
-            en un clic pour les urgences vitales à Lomé.
+            <T>
+              Sanguine TG modernise la mobilisation des donneurs de sang au Togo. Recevez des alertes ciblées et
+              agissez en un clic pour les urgences vitales à Lomé.
+            </T>
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
@@ -33,7 +42,7 @@ export function HeroSection({ imageUrl }: { imageUrl?: string }) {
               className="px-8 py-4 h-auto rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform font-headline-md text-base"
             >
               <Link to="/inscription">
-                Devenir donneur
+                <T>Devenir donneur</T>
                 <ChevronRight size={20} aria-hidden />
               </Link>
             </Button>
@@ -42,7 +51,7 @@ export function HeroSection({ imageUrl }: { imageUrl?: string }) {
               className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-headline-md rounded-xl border border-white/30 hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
             >
               <PlayCircle size={20} aria-hidden />
-              Comment ça marche
+              <T>Comment ça marche</T>
             </Link>
           </div>
         </div>
@@ -55,7 +64,9 @@ export function HeroSection({ imageUrl }: { imageUrl?: string }) {
           </div>
           <span className="font-headline-md text-primary">+2.4k</span>
         </div>
-        <p className="text-caption text-secondary">Vies sauvées grâce aux dons ce mois-ci à Lomé.</p>
+        <p className="text-caption text-secondary">
+          <T>Vies sauvées grâce aux dons ce mois-ci à Lomé.</T>
+        </p>
       </div>
     </section>
   )

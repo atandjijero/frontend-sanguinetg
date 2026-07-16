@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { faqs } from '../../data/faq'
+import { T } from '../../context/LanguageContext'
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [open, setOpen] = useState(false)
@@ -12,14 +13,20 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
       >
-        <span className="font-headline-md text-base font-semibold text-on-surface">{question}</span>
+        <span className="font-headline-md text-base font-semibold text-on-surface">
+          <T>{question}</T>
+        </span>
         <ChevronDown
           className={`shrink-0 text-primary transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           size={20}
           aria-hidden
         />
       </button>
-      {open ? <p className="px-6 pb-5 text-body-md text-secondary text-justify">{answer}</p> : null}
+      {open ? (
+        <p className="px-6 pb-5 text-body-md text-secondary text-justify">
+          <T>{answer}</T>
+        </p>
+      ) : null}
     </div>
   )
 }

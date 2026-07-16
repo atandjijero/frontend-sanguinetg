@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react'
 import { Button } from '../ui-shadcn/ui/button'
+import { T } from '../../context/LanguageContext'
 
 export function PaginationControls({
   page,
@@ -11,18 +13,18 @@ export function PaginationControls({
   totalPages: number
   onPageChange: (page: number) => void
   total: number
-  label?: string
+  label?: ReactNode
 }) {
   if (totalPages <= 1) return null
 
   return (
     <div className="flex items-center justify-between pt-4">
       <p className="text-sm text-muted-foreground">
-        {total} {label}
+        {total} {typeof label === 'string' ? <T>{label}</T> : label}
       </p>
       <div className="flex items-center gap-1">
         <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => onPageChange(Math.max(1, page - 1))}>
-          Précédent
+          <T>Précédent</T>
         </Button>
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((numero) => (
           <Button
@@ -41,7 +43,7 @@ export function PaginationControls({
           disabled={page >= totalPages}
           onClick={() => onPageChange(Math.min(totalPages, page + 1))}
         >
-          Suivant
+          <T>Suivant</T>
         </Button>
       </div>
     </div>

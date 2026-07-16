@@ -9,6 +9,7 @@ import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
+import { T } from '../../../context/LanguageContext'
 import type { Alerte } from '../../../lib/types'
 import { useNotifications } from '../../../context/NotificationsContext'
 
@@ -37,11 +38,15 @@ export default function MesAlertesPage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <MegaphoneIcon className="h-4 w-4" /> Alertes qui vous concernent
+          <MegaphoneIcon className="h-4 w-4" /> <T>Alertes qui vous concernent</T>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {actionError && <p className="text-sm text-destructive">{actionError}</p>}
+        {actionError && (
+          <p className="text-sm text-destructive">
+            <T>{actionError}</T>
+          </p>
+        )}
         <DataState
           isLoading={isLoading}
           error={error}
@@ -58,7 +63,7 @@ export default function MesAlertesPage() {
                   </div>
                   {user?.groupeSanguin && user.groupeSanguin !== alerte.groupeSanguinRequis && (
                     <p className="text-xs text-tertiary mt-1">
-                      Vous êtes {GROUPE_SANGUIN_LABELS[user.groupeSanguin]}, compatible avec les receveurs{' '}
+                      <T>Vous êtes</T> {GROUPE_SANGUIN_LABELS[user.groupeSanguin]}, <T>compatible avec les receveurs</T>{' '}
                       {GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]}.
                     </p>
                   )}
@@ -68,7 +73,7 @@ export default function MesAlertesPage() {
                       className="text-xs flex items-center gap-1 mt-1 text-primary hover:underline w-fit"
                     >
                       <MapPinIcon className="h-3 w-3 shrink-0" />
-                      Rendez-vous au centre <strong>{alerte.centreDon.nom}</strong>
+                      <T>Rendez-vous au centre</T> <strong>{alerte.centreDon.nom}</strong>
                       {alerte.centreDon.adresse ? ` — ${alerte.centreDon.adresse}` : ''}
                     </Link>
                   )}
@@ -78,7 +83,7 @@ export default function MesAlertesPage() {
                 </div>
                 {alerte.maReponse ? (
                   <Badge variant={alerte.maReponse === 'JE_VIENS' ? 'default' : 'secondary'}>
-                    {alerte.maReponse === 'JE_VIENS' ? 'Répondu' : 'Refusé'}
+                    <T>{alerte.maReponse === 'JE_VIENS' ? 'Répondu' : 'Refusé'}</T>
                   </Badge>
                 ) : (
                   <div className="flex gap-2">
@@ -87,7 +92,7 @@ export default function MesAlertesPage() {
                       disabled={pendingId === alerte.id}
                       onClick={() => repondre(alerte.id, 'JE_VIENS')}
                     >
-                      <CheckIcon className="h-4 w-4" /> Je viens
+                      <CheckIcon className="h-4 w-4" /> <T>Je viens</T>
                     </Button>
                     <Button
                       size="sm"
@@ -95,7 +100,7 @@ export default function MesAlertesPage() {
                       disabled={pendingId === alerte.id}
                       onClick={() => repondre(alerte.id, 'INDISPONIBLE')}
                     >
-                      <XIcon className="h-4 w-4" /> Indisponible
+                      <XIcon className="h-4 w-4" /> <T>Indisponible</T>
                     </Button>
                   </div>
                 )}

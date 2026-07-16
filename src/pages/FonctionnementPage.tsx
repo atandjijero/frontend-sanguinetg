@@ -1,5 +1,6 @@
 import React from 'react'
 import { BellRing, BookHeart, MousePointerClick, Stethoscope } from 'lucide-react'
+import { T } from '../context/LanguageContext'
 
 const steps = [
   {
@@ -36,10 +37,14 @@ export default function FonctionnementPage() {
   return (
     <>
       <div className="pt-16 pb-4 max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
-        <h1 className="font-headline-lg text-headline-lg mb-3">Comment Sanguine TG accélère la mobilisation des donneurs</h1>
+        <h1 className="font-headline-lg text-headline-lg mb-3">
+          <T>Comment Sanguine TG accélère la mobilisation des donneurs</T>
+        </h1>
         <p className="text-secondary">
-          Une plateforme centrée sur quatre fonctions simples, pensées pour réduire le délai entre un besoin urgent de
-          sang et l'arrivée d'un donneur compatible à Lomé.
+          <T>
+            Une plateforme centrée sur quatre fonctions simples, pensées pour réduire le délai entre un besoin urgent
+            de sang et l'arrivée d'un donneur compatible à Lomé.
+          </T>
         </p>
       </div>
 
@@ -56,8 +61,12 @@ export default function FonctionnementPage() {
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${step.accent}`}>
                     <Icon size={28} aria-hidden />
                   </div>
-                  <h2 className="font-headline-md text-headline-md mb-4 text-on-surface">{step.title}</h2>
-                  <p className="text-body-md text-secondary text-justify">{step.description}</p>
+                  <h2 className="font-headline-md text-headline-md mb-4 text-on-surface">
+                    <T>{step.title}</T>
+                  </h2>
+                  <p className="text-body-md text-secondary text-justify">
+                    <T>{step.description}</T>
+                  </p>
                 </div>
               )
             })}

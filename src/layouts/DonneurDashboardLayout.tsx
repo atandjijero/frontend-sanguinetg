@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from '../components/ui-shadcn/ui/sideba
 import { SiteHeader } from '../components/ui-shadcn/site-header'
 import { Badge } from '../components/ui-shadcn/ui/badge'
 import { useAuth } from '../context/AuthContext'
+import { T } from '../context/LanguageContext'
 
 /**
  * Sidebar donneur volontairement distincte du sidebar CNTS : accent vert (marque "santé/don")
@@ -42,12 +43,12 @@ export default function DonneurDashboardLayout() {
           onLogout={handleLogout}
           roleBadge={
             <Badge variant="outline" className="mx-2 mt-1 w-fit border-tertiary/30 text-tertiary">
-              Espace donneur
+              <T>Espace donneur</T>
             </Badge>
           }
         />
         <SidebarInset>
-          <SiteHeader title="Mon espace donneur" actions={<NotificationBell />} />
+          <SiteHeader title={<T>Mon espace donneur</T>} actions={<NotificationBell />} />
           <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
             <Outlet />
           </div>

@@ -1,9 +1,9 @@
 import * as React from 'react'
 
 export interface PageHeaderProps {
-  eyebrow?: string
-  title: string
-  description?: string
+  eyebrow?: React.ReactNode
+  title: React.ReactNode
+  description?: React.ReactNode
   backgroundImage?: string
 }
 

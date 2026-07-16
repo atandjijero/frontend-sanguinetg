@@ -3,6 +3,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui-shadcn/ui/chart'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
 import { SEQUENTIAL_BLUE } from '../../lib/chart-colors'
+import { T } from '../../context/LanguageContext'
 import type { CarnetDigital } from '../../lib/types'
 
 const MOIS_COURTS = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc']
@@ -32,7 +33,9 @@ export function DonsParMoisChart({ carnets }: { carnets: CarnetDigital[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Dons enregistrés — 6 derniers mois</CardTitle>
+        <CardTitle>
+          <T>Dons enregistrés — 6 derniers mois</T>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">

@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 import { ThemeProvider } from './components/ThemeProvider';
 import { ConfirmProvider } from './context/ConfirmContext';
+import { LanguageProvider } from './context/LanguageContext';
 import { Toaster } from './components/ui-shadcn/ui/sonner';
 import reportWebVitals from './reportWebVitals';
 
@@ -13,10 +14,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <ConfirmProvider>
-        <App />
-        <Toaster position="top-right" />
-      </ConfirmProvider>
+      <LanguageProvider>
+        <ConfirmProvider>
+          <App />
+          <Toaster position="top-right" />
+        </ConfirmProvider>
+      </LanguageProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

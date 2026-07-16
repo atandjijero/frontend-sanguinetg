@@ -9,6 +9,8 @@ import LieuxDeCollectePage from './pages/LieuxDeCollectePage';
 import ReponseAlertePage from './pages/ReponseAlertePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import MotDePasseOubliePage from './pages/MotDePasseOubliePage';
+import ReinitialiserMotDePassePage from './pages/ReinitialiserMotDePassePage';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationsProvider } from './context/NotificationsContext';
 import { HeartbeatTracker } from './components/HeartbeatTracker';
@@ -27,6 +29,7 @@ import QuartiersPage from './pages/dashboard/staff/QuartiersPage';
 import CentresDonPage from './pages/dashboard/staff/CentresDonPage';
 import EquipePage from './pages/dashboard/staff/EquipePage';
 import MessagesPage from './pages/dashboard/staff/MessagesPage';
+import AbonnesPage from './pages/dashboard/staff/AbonnesPage';
 import SecurityPage from './pages/dashboard/staff/SecurityPage';
 import ImagesPage from './pages/dashboard/staff/ImagesPage';
 import DonneurHomePage from './pages/dashboard/donneur/DonneurHomePage';
@@ -53,6 +56,8 @@ function App() {
               <Route path="reponse-alerte" element={<ReponseAlertePage />} />
               <Route path="connexion" element={<LoginPage />} />
               <Route path="inscription" element={<RegisterPage />} />
+              <Route path="mot-de-passe-oublie" element={<MotDePasseOubliePage />} />
+              <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePassePage />} />
             </Route>
 
             {/* Espace CNTS : SUPERADMIN, ADMIN, AGENT_CNTS, MEDECIN (navigation masquée par rôle dans le sidebar) */}
@@ -72,6 +77,7 @@ function App() {
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="profil" element={<ProfilPage />} />
                 <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>
+                  <Route path="abonnes" element={<AbonnesPage />} />
                   <Route path="securite" element={<SecurityPage />} />
                 </Route>
               </Route>

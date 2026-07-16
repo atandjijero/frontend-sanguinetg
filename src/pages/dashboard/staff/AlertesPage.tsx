@@ -17,6 +17,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Alerte, CentreDon, GroupeSanguin, Quartier } from '../../../lib/types'
 
 function toggle<T>(liste: T[], valeur: T): T[] {
@@ -31,6 +32,7 @@ export default function AlertesPage() {
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
   const { data: centres } = useApiData<CentreDon[]>('/centres-don')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(alertes ?? [], 6)
+  const placeholderTous = useTraduction('Tous')
 
   const [groupes, setGroupes] = useState<GroupeSanguin[]>([])
   const [quartierIds, setQuartierIds] = useState<string[]>([])
@@ -99,14 +101,16 @@ export default function AlertesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PlusIcon className="h-4 w-4" /> Nouvelle(s) alerte(s)
+            <PlusIcon className="h-4 w-4" /> <T>Nouvelle(s) alerte(s)</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Groupes sanguins requis</Label>
+                <Label>
+                  <T>Groupes sanguins requis</T>
+                </Label>
                 <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3">
                   {GROUPES_SANGUINS.map((g) => (
                     <label key={g} className="flex items-center gap-2 text-sm cursor-pointer">
@@ -120,7 +124,9 @@ export default function AlertesPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Quartiers ciblés</Label>
+                <Label>
+                  <T>Quartiers ciblés</T>
+                </Label>
                 <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3 max-h-48 overflow-y-auto">
                   {(quartiers ?? []).map((q) => (
                     <label key={q.id} className="flex items-center gap-2 text-sm cursor-pointer">
@@ -136,7 +142,9 @@ export default function AlertesPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Centres de collecte</Label>
+              <Label>
+                <T>Centres de collecte</T>
+              </Label>
               <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-3 max-h-48 overflow-y-auto sm:max-w-sm">
                 {(centres ?? []).map((c) => (
                   <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
@@ -152,7 +160,9 @@ export default function AlertesPage() {
 
             {quartierIds.length > 0 && (
               <div className="space-y-2">
-                <Label>Nombre de donneurs à cibler par quartier (optionnel)</Label>
+                <Label>
+                  <T>Nombre de donneurs à cibler par quartier (optionnel)</T>
+                </Label>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {quartierIds.map((qId) => (
                     <div key={qId} className="flex items-center gap-2">
@@ -164,7 +174,7 @@ export default function AlertesPage() {
                         onChange={(e) =>
                           setNombreDonneursMaxParQuartier((prev) => ({ ...prev, [qId]: e.target.value }))
                         }
-                        placeholder="Tous"
+                        placeholder={placeholderTous}
                       />
                     </div>
                   ))}
@@ -175,9 +185,11 @@ export default function AlertesPage() {
             {nbCombinaisons > 0 && (
               <div className="rounded-md border border-border p-3">
                 <p className="text-sm font-medium mb-2">
-                  {nbCombinaisons > 1
-                    ? `${nbCombinaisons} alertes distinctes seront créées (une par combinaison groupe × quartier × centre, pour un suivi et une fermeture indépendants) :`
-                    : "L'alerte suivante sera créée :"}
+                  <T>
+                    {nbCombinaisons > 1
+                      ? `${nbCombinaisons} alertes distinctes seront créées (une par combinaison groupe × quartier × centre, pour un suivi et une fermeture indépendants) :`
+                      : "L'alerte suivante sera créée :"}
+                  </T>
                 </p>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   {groupes.flatMap((g) =>
@@ -195,11 +207,19 @@ export default function AlertesPage() {
 
             <div className="flex items-center gap-4">
               <Button type="submit" disabled={submitting || nbCombinaisons === 0}>
-                {nbCombinaisons > 1 ? `Envoyer ${nbCombinaisons} alertes` : "Envoyer l'alerte"}
+                <T>{nbCombinaisons > 1 ? `Envoyer ${nbCombinaisons} alertes` : "Envoyer l'alerte"}</T>
               </Button>
             </div>
-            {formError && <p className="text-sm text-destructive">{formError}</p>}
-            {succes && <p className="text-sm text-tertiary">{succes}</p>}
+            {formError && (
+              <p className="text-sm text-destructive">
+                <T>{formError}</T>
+              </p>
+            )}
+            {succes && (
+              <p className="text-sm text-tertiary">
+                <T>{succes}</T>
+              </p>
+            )}
           </form>
         </CardContent>
       </Card>
@@ -208,7 +228,7 @@ export default function AlertesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MegaphoneIcon className="h-4 w-4" /> Alertes
+            <MegaphoneIcon className="h-4 w-4" /> <T>Alertes</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -216,13 +236,27 @@ export default function AlertesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Groupe</TableHead>
-                  <TableHead>Quartier</TableHead>
-                  <TableHead>Centre</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Réponses</TableHead>
-                  <TableHead>Créée le</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead>
+                    <T>Groupe</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Quartier</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Centre</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Statut</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Réponses</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Créée le</T>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <T>Action</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,11 +283,13 @@ export default function AlertesPage() {
                     </TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" asChild>
-                        <Link to={`/admin/alertes/${alerte.id}`}>Voir les réponses</Link>
+                        <Link to={`/admin/alertes/${alerte.id}`}>
+                          <T>Voir les réponses</T>
+                        </Link>
                       </Button>
                       {peutLancerAlertes && (
                         <Button variant="outline" size="sm" onClick={() => toggleStatut(alerte)}>
-                          {alerte.statut === 'OUVERTE' ? 'Fermer' : 'Rouvrir'}
+                          <T>{alerte.statut === 'OUVERTE' ? 'Fermer' : 'Rouvrir'}</T>
                         </Button>
                       )}
                       {peutLancerAlertes && (

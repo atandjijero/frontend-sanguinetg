@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Building2Icon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '../../../context/ConfirmContext'
@@ -13,6 +13,7 @@ import { PaginationControls } from '../../../components/dashboard/PaginationCont
 import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { api, ApiError } from '../../../lib/api'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { CentreDon, Quartier } from '../../../lib/types'
 
 const AUCUN_QUARTIER = '__aucun__'
@@ -40,7 +41,7 @@ export default function CentresDonPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PlusIcon className="h-4 w-4" /> Ajouter un centre de collecte
+            <PlusIcon className="h-4 w-4" /> <T>Ajouter un centre de collecte</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -51,7 +52,7 @@ export default function CentresDonPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2Icon className="h-4 w-4" /> Centres de collecte
+            <Building2Icon className="h-4 w-4" /> <T>Centres de collecte</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -59,22 +60,32 @@ export default function CentresDonPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Quartier</TableHead>
-                  <TableHead>Coordonnées</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>
+                    <T>Nom</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Quartier</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Coordonnées</T>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <T>Actions</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pageItems.map((centre) => (
-                  <>
-                    <TableRow key={centre.id}>
+                  <Fragment key={centre.id}>
+                    <TableRow>
                       <TableCell className="font-medium">{centre.nom}</TableCell>
                       <TableCell>{centre.quartier?.nom ?? '—'}</TableCell>
                       <TableCell className="text-muted-foreground">
-                        {centre.latitude && centre.longitude
-                          ? `${centre.latitude.toFixed(4)}, ${centre.longitude.toFixed(4)}`
-                          : 'Non géolocalisé'}
+                        {centre.latitude && centre.longitude ? (
+                          `${centre.latitude.toFixed(4)}, ${centre.longitude.toFixed(4)}`
+                        ) : (
+                          <T>Non géolocalisé</T>
+                        )}
                       </TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button
@@ -90,7 +101,7 @@ export default function CentresDonPage() {
                       </TableCell>
                     </TableRow>
                     {editId === centre.id && (
-                      <TableRow key={`${centre.id}-edit`}>
+                      <TableRow>
                         <TableCell colSpan={4} className="bg-muted/30">
                           <CentreDonForm
                             quartiers={quartiers ?? []}
@@ -104,7 +115,7 @@ export default function CentresDonPage() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>
@@ -160,24 +171,34 @@ function CentreDonForm({
     }
   }
 
+  const placeholderSelectionner = useTraduction('Sélectionner')
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4 py-2">
       <div className="space-y-1.5">
-        <Label>Nom du centre</Label>
+        <Label>
+          <T>Nom du centre</T>
+        </Label>
         <Input value={nom} onChange={(e) => setNom(e.target.value)} required minLength={2} className="w-64" />
       </div>
       <div className="space-y-1.5">
-        <Label>Adresse (optionnel)</Label>
+        <Label>
+          <T>Adresse (optionnel)</T>
+        </Label>
         <Input value={adresse} onChange={(e) => setAdresse(e.target.value)} className="w-64" />
       </div>
       <div className="space-y-1.5">
-        <Label>Quartier (optionnel)</Label>
+        <Label>
+          <T>Quartier (optionnel)</T>
+        </Label>
         <Select value={quartierId} onValueChange={setQuartierId}>
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Sélectionner" />
+            <SelectValue placeholder={placeholderSelectionner} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={AUCUN_QUARTIER}>Aucun</SelectItem>
+            <SelectItem value={AUCUN_QUARTIER}>
+              <T>Aucun</T>
+            </SelectItem>
             {quartiers.map((q) => (
               <SelectItem key={q.id} value={q.id}>
                 {q.nom}
@@ -187,17 +208,24 @@ function CentreDonForm({
         </Select>
       </div>
       <Button type="submit" disabled={submitting}>
-        {centre ? 'Enregistrer' : 'Ajouter'}
+        <T>{centre ? 'Enregistrer' : 'Ajouter'}</T>
       </Button>
       {onCancel && (
         <Button type="button" variant="ghost" onClick={onCancel}>
-          Annuler
+          <T>Annuler</T>
         </Button>
       )}
-      {error && <p className="w-full text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-destructive">
+          <T>{error}</T>
+        </p>
+      )}
       {!centre && (
         <p className="w-full text-xs text-muted-foreground">
-          Les coordonnées GPS sont détectées automatiquement (nom + quartier, Lomé) si elles existent sur la carte.
+          <T>
+            Les coordonnées GPS sont détectées automatiquement (nom + quartier, Lomé) si elles existent sur la
+            carte.
+          </T>
         </p>
       )}
     </form>

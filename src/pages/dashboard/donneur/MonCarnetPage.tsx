@@ -4,6 +4,7 @@ import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { DataState } from '../../../components/dashboard/DataState'
 import { useApiData } from '../../../hooks/useApiData'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { T } from '../../../context/LanguageContext'
 import type { CarnetDigital } from '../../../lib/types'
 
 export default function MonCarnetPage() {
@@ -13,7 +14,7 @@ export default function MonCarnetPage() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BookHeartIcon className="h-4 w-4" /> Mon carnet de don
+          <BookHeartIcon className="h-4 w-4" /> <T>Mon carnet de don</T>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -29,16 +30,21 @@ export default function MonCarnetPage() {
                 <div className="flex items-center justify-between">
                   <span className="font-medium">{new Date(carnet.dateDon).toLocaleDateString('fr-FR')}</span>
                   {carnet.recompense && (
-                    <Badge variant="outline">{TYPE_RECOMPENSE_LABELS[carnet.recompense.type]}</Badge>
+                    <Badge variant="outline">
+                      <T>{TYPE_RECOMPENSE_LABELS[carnet.recompense.type]}</T>
+                    </Badge>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{carnet.centreDon?.nom ?? '—'}</p>
                 {carnet.messageRemerciement && (
-                  <p className="text-sm mt-2 italic">"{carnet.messageRemerciement}"</p>
+                  <p className="text-sm mt-2 italic">
+                    "<T>{carnet.messageRemerciement}</T>"
+                  </p>
                 )}
                 {carnet.rappelProchaineDate && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    Prochain don possible à partir du {new Date(carnet.rappelProchaineDate).toLocaleDateString('fr-FR')}
+                    <T>Prochain don possible à partir du</T>{' '}
+                    {new Date(carnet.rappelProchaineDate).toLocaleDateString('fr-FR')}
                   </p>
                 )}
               </div>

@@ -125,6 +125,13 @@ export interface StatistiquesMobilisation {
   donneursMobilisesParAlerte: number | null
 }
 
+export interface AbonneNewsletter {
+  id: string
+  nom: string
+  email: string
+  dateAbonnement: string
+}
+
 export type TypeAlerteSecurite = 'BRUTE_FORCE' | 'CSP_VIOLATION' | 'SQL_INJECTION' | 'XSS_ATTEMPT'
 export type GraviteAlerteSecurite = 'FAIBLE' | 'MOYEN' | 'ELEVE' | 'CRITIQUE'
 

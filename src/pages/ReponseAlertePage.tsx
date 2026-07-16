@@ -4,6 +4,7 @@ import { CheckCircle2, HeartHandshake, LogIn, XCircle } from 'lucide-react'
 import Button from '../components/ui/Button'
 import { api, ApiError } from '../lib/api'
 import { GROUPE_SANGUIN_LABELS } from '../lib/constants'
+import { T } from '../context/LanguageContext'
 import type { GroupeSanguin, StatutReponse } from '../lib/types'
 
 interface Apercu {
@@ -56,24 +57,34 @@ export default function ReponseAlertePage() {
   return (
     <section className="pt-16 pb-20">
       <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop text-center mb-10">
-        <h1 className="font-headline-lg text-headline-lg mb-3">Réponse à l'alerte</h1>
-        <p className="text-secondary">Merci de faire vivre la chaîne du don de sang au Togo.</p>
+        <h1 className="font-headline-lg text-headline-lg mb-3">
+          <T>Réponse à l'alerte</T>
+        </h1>
+        <p className="text-secondary">
+          <T>Merci de faire vivre la chaîne du don de sang au Togo.</T>
+        </p>
       </div>
 
       <div className="max-w-md mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-8 soft-shadow text-center">
-          {chargement && <p className="text-secondary">Chargement…</p>}
+          {chargement && (
+            <p className="text-secondary">
+              <T>Chargement…</T>
+            </p>
+          )}
 
           {!chargement && erreur && !apercu && (
             <>
               <XCircle className="mx-auto mb-4 text-error" size={40} />
-              <p className="text-on-surface font-medium mb-2">{erreur}</p>
+              <p className="text-on-surface font-medium mb-2">
+                <T>{erreur}</T>
+              </p>
               <p className="text-secondary text-body-md mb-6">
-                Connectez-vous à votre espace donneur pour répondre directement.
+                <T>Connectez-vous à votre espace donneur pour répondre directement.</T>
               </p>
               <Button asChild variant="primary" size="lg" className="rounded-xl w-full">
                 <Link to="/connexion">
-                  <LogIn size={16} aria-hidden /> Se connecter
+                  <LogIn size={16} aria-hidden /> <T>Se connecter</T>
                 </Link>
               </Button>
             </>
@@ -83,12 +94,14 @@ export default function ReponseAlertePage() {
             <>
               <CheckCircle2 className="mx-auto mb-4 text-primary" size={40} />
               <h2 className="font-headline-md text-headline-md mb-2">
-                {reponseEnvoyee === 'JE_VIENS' ? 'Merci, à bientôt !' : 'Réponse enregistrée'}
+                <T>{reponseEnvoyee === 'JE_VIENS' ? 'Merci, à bientôt !' : 'Réponse enregistrée'}</T>
               </h2>
               <p className="text-secondary">
-                {reponseEnvoyee === 'JE_VIENS'
-                  ? `Votre venue au centre${apercu.centreNom ? ` ${apercu.centreNom}` : ''} a bien été enregistrée.`
-                  : 'Merci de nous avoir prévenus, ce sera pour une prochaine fois.'}
+                <T>
+                  {reponseEnvoyee === 'JE_VIENS'
+                    ? `Votre venue au centre${apercu.centreNom ? ` ${apercu.centreNom}` : ''} a bien été enregistrée.`
+                    : 'Merci de nous avoir prévenus, ce sera pour une prochaine fois.'}
+                </T>
               </p>
             </>
           )}
@@ -96,27 +109,31 @@ export default function ReponseAlertePage() {
           {!chargement && apercu && !reponseEnvoyee && (
             <>
               <HeartHandshake className="mx-auto mb-4 text-primary" size={40} />
-              <p className="text-caption uppercase tracking-widest text-secondary mb-1">Alerte don de sang</p>
+              <p className="text-caption uppercase tracking-widest text-secondary mb-1">
+                <T>Alerte don de sang</T>
+              </p>
               <h2 className="font-headline-md text-headline-md mb-3">
-                Besoin de {GROUPE_SANGUIN_LABELS[apercu.groupeSanguinRequis]}
+                <T>{`Besoin de ${GROUPE_SANGUIN_LABELS[apercu.groupeSanguinRequis]}`}</T>
               </h2>
               <p className="text-on-surface mb-1">
-                Bonjour {apercu.prenom}, un besoin a été signalé à <strong>{apercu.quartierNom}</strong>.
+                <T>Bonjour</T> {apercu.prenom}, <T>un besoin a été signalé à</T> <strong>{apercu.quartierNom}</strong>.
               </p>
               {apercu.centreNom && (
                 <p className="text-secondary text-body-md mb-4">
-                  Rendez-vous au centre <strong>{apercu.centreNom}</strong>
+                  <T>Rendez-vous au centre</T> <strong>{apercu.centreNom}</strong>
                   {apercu.centreAdresse ? ` — ${apercu.centreAdresse}` : ''}
                 </p>
               )}
 
               {!apercu.alerteOuverte ? (
-                <p className="text-secondary text-body-md mt-4">Cette alerte est désormais fermée, merci de votre disponibilité.</p>
+                <p className="text-secondary text-body-md mt-4">
+                  <T>Cette alerte est désormais fermée, merci de votre disponibilité.</T>
+                </p>
               ) : (
                 <>
                   {apercu.maReponse && (
                     <p className="text-secondary text-body-md mb-4">
-                      Réponse actuelle : {apercu.maReponse === 'JE_VIENS' ? 'Je viens' : 'Indisponible'}
+                      <T>{`Réponse actuelle : ${apercu.maReponse === 'JE_VIENS' ? 'Je viens' : 'Indisponible'}`}</T>
                     </p>
                   )}
                   <div className="flex flex-col gap-3 mt-6">
@@ -128,7 +145,7 @@ export default function ReponseAlertePage() {
                       onClick={() => repondre('JE_VIENS')}
                       autoFocus={statutSuggere === 'JE_VIENS'}
                     >
-                      ✅ Je viens
+                      ✅ <T>Je viens</T>
                     </Button>
                     <Button
                       variant="secondary"
@@ -137,17 +154,21 @@ export default function ReponseAlertePage() {
                       disabled={envoi}
                       onClick={() => repondre('INDISPONIBLE')}
                     >
-                      Indisponible
+                      <T>Indisponible</T>
                     </Button>
                   </div>
-                  {erreur && <p className="text-sm text-error mt-4">{erreur}</p>}
+                  {erreur && (
+                    <p className="text-sm text-error mt-4">
+                      <T>{erreur}</T>
+                    </p>
+                  )}
                 </>
               )}
 
               <p className="text-secondary text-body-md mt-6">
-                Vous préférez répondre depuis votre espace ?{' '}
+                <T>Vous préférez répondre depuis votre espace ?</T>{' '}
                 <Link to="/connexion" className="text-primary font-semibold hover:underline">
-                  Se connecter
+                  <T>Se connecter</T>
                 </Link>
               </p>
             </>

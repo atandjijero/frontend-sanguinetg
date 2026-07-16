@@ -27,6 +27,7 @@ import { useConfirm } from '../../../context/ConfirmContext'
 import { useApiData } from '../../../hooks/useApiData'
 import { api, ApiError } from '../../../lib/api'
 import { GRAVITE_ALERTE_SECURITE_LABELS, TYPE_ALERTE_SECURITE_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type {
   AlerteSecurite,
   AlertesSecuriteStats,
@@ -52,7 +53,7 @@ const TYPE_ICONS: Record<TypeAlerteSecurite, LucideIcon> = {
   XSS_ATTEMPT: SquareCodeIcon,
 }
 
-function Champ({ label, children }: { label: string; children: ReactNode }) {
+function Champ({ label, children }: { label: ReactNode; children: ReactNode }) {
   return (
     <div className="rounded-lg border bg-muted/40 p-3">
       <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
@@ -80,6 +81,9 @@ export default function SecurityPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const placeholderRecherche = useTraduction('Rechercher (IP, message, URI…)')
+  const placeholderTousTypes = useTraduction('Tous les types')
+  const placeholderToutesGravites = useTraduction('Toutes les gravités')
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -140,46 +144,48 @@ export default function SecurityPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <ShieldAlertIcon className="h-5 w-5 text-primary" /> Alertes de sécurité
+          <ShieldAlertIcon className="h-5 w-5 text-primary" /> <T>Alertes de sécurité</T>
         </h2>
         <p className="text-sm text-muted-foreground">
-          Surveillance en temps réel des cyber-menaces et comportements suspects.
+          <T>Surveillance en temps réel des cyber-menaces et comportements suspects.</T>
         </p>
       </div>
 
       <div>
         <h3 className="text-sm font-medium text-secondary mb-3 flex items-center gap-2">
-          <RadioIcon className="h-4 w-4 text-tertiary" /> Fréquentation en temps réel
+          <RadioIcon className="h-4 w-4 text-tertiary" /> <T>Fréquentation en temps réel</T>
         </h3>
         <div className="grid gap-4 grid-cols-3">
-          <StatCard label="En ligne maintenant" value={frequentation?.enLigne ?? '—'} icon={RadioIcon} />
-          <StatCard label="Visiteurs connectés" value={frequentation?.connectes ?? '—'} icon={UserCheckIcon} />
-          <StatCard label="Visiteurs anonymes" value={frequentation?.anonymes ?? '—'} icon={UserRoundIcon} />
+          <StatCard label={<T>En ligne maintenant</T>} value={frequentation?.enLigne ?? '—'} icon={RadioIcon} />
+          <StatCard label={<T>Visiteurs connectés</T>} value={frequentation?.connectes ?? '—'} icon={UserCheckIcon} />
+          <StatCard label={<T>Visiteurs anonymes</T>} value={frequentation?.anonymes ?? '—'} icon={UserRoundIcon} />
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          Actualisé toutes les 30 secondes — présence détectée sur les 5 dernières minutes.
+          <T>Actualisé toutes les 30 secondes — présence détectée sur les 5 dernières minutes.</T>
         </p>
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-6">
-        <StatCard label="Total alertes" value={stats?.total ?? '—'} icon={ShieldAlertIcon} />
-        <StatCard label="Critiques" value={stats?.critiques ?? '—'} icon={AlertOctagonIcon} />
+        <StatCard label={<T>Total alertes</T>} value={stats?.total ?? '—'} icon={ShieldAlertIcon} />
+        <StatCard label={<T>Critiques</T>} value={stats?.critiques ?? '—'} icon={AlertOctagonIcon} />
         <StatCard label="Brute Force" value={stats?.bruteForce ?? '—'} icon={KeyRoundIcon} />
-        <StatCard label="Violations CSP" value={stats?.cspViolations ?? '—'} icon={ShieldIcon} />
-        <StatCard label="Injections SQL" value={stats?.sqlInjections ?? '—'} icon={DatabaseIcon} />
-        <StatCard label="Attaques XSS" value={stats?.xssAttempts ?? '—'} icon={SquareCodeIcon} />
+        <StatCard label={<T>Violations CSP</T>} value={stats?.cspViolations ?? '—'} icon={ShieldIcon} />
+        <StatCard label={<T>Injections SQL</T>} value={stats?.sqlInjections ?? '—'} icon={DatabaseIcon} />
+        <StatCard label={<T>Attaques XSS</T>} value={stats?.xssAttempts ?? '—'} icon={SquareCodeIcon} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Journal des alertes</CardTitle>
+          <CardTitle>
+            <T>Journal des alertes</T>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-end gap-3">
             <Input
               value={rechercheInput}
               onChange={(e) => setRechercheInput(e.target.value)}
-              placeholder="Rechercher (IP, message, URI…)"
+              placeholder={placeholderRecherche}
               className="w-64"
             />
             <Select
@@ -190,13 +196,15 @@ export default function SecurityPage() {
               }}
             >
               <SelectTrigger className="w-44">
-                <SelectValue placeholder="Tous les types" />
+                <SelectValue placeholder={placeholderTousTypes} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={TOUS}>Tous les types</SelectItem>
+                <SelectItem value={TOUS}>
+                  <T>Tous les types</T>
+                </SelectItem>
                 {Object.entries(TYPE_ALERTE_SECURITE_LABELS).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
-                    {label}
+                    <T>{label}</T>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -209,13 +217,15 @@ export default function SecurityPage() {
               }}
             >
               <SelectTrigger className="w-44">
-                <SelectValue placeholder="Toutes les gravités" />
+                <SelectValue placeholder={placeholderToutesGravites} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={TOUS}>Toutes les gravités</SelectItem>
+                <SelectItem value={TOUS}>
+                  <T>Toutes les gravités</T>
+                </SelectItem>
                 {Object.entries(GRAVITE_ALERTE_SECURITE_LABELS).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
-                    {label}
+                    <T>{label}</T>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -224,18 +234,24 @@ export default function SecurityPage() {
 
           {selectedIds.length > 0 && (
             <div className="flex items-center gap-3">
-              <p className="text-sm text-muted-foreground">{selectedIds.length} sélectionnée(s)</p>
+              <p className="text-sm text-muted-foreground">
+                {selectedIds.length} <T>sélectionnée(s)</T>
+              </p>
               <Button
                 variant="destructive"
                 size="sm"
                 disabled={deleting}
                 onClick={() => supprimer(selectedIds)}
               >
-                <Trash2Icon className="h-4 w-4" /> Supprimer la sélection
+                <Trash2Icon className="h-4 w-4" /> <T>Supprimer la sélection</T>
               </Button>
             </div>
           )}
-          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+          {deleteError && (
+            <p className="text-sm text-destructive">
+              <T>{deleteError}</T>
+            </p>
+          )}
 
           <DataState
             isLoading={isLoading}
@@ -253,13 +269,21 @@ export default function SecurityPage() {
                       aria-label="Tout sélectionner"
                     />
                   </TableHead>
-                  <TableHead>Gravité</TableHead>
+                  <TableHead>
+                    <T>Gravité</T>
+                  </TableHead>
                   <TableHead>Type</TableHead>
-                  <TableHead>Message</TableHead>
+                  <TableHead>
+                    <T>Message</T>
+                  </TableHead>
                   <TableHead>IP Source</TableHead>
                   <TableHead>URI</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead>
+                    <T>Date</T>
+                  </TableHead>
+                  <TableHead className="text-right">
+                    <T>Action</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -273,9 +297,13 @@ export default function SecurityPage() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Badge variant={GRAVITE_VARIANT[alerte.gravite]}>{GRAVITE_ALERTE_SECURITE_LABELS[alerte.gravite]}</Badge>
+                      <Badge variant={GRAVITE_VARIANT[alerte.gravite]}>
+                        <T>{GRAVITE_ALERTE_SECURITE_LABELS[alerte.gravite]}</T>
+                      </Badge>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">{TYPE_ALERTE_SECURITE_LABELS[alerte.type]}</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <T>{TYPE_ALERTE_SECURITE_LABELS[alerte.type]}</T>
+                    </TableCell>
                     <TableCell className="max-w-md">
                       <p className="truncate">{alerte.message}</p>
                     </TableCell>
@@ -286,7 +314,7 @@ export default function SecurityPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" onClick={() => setDetailAlerte(alerte)}>
-                        Voir plus
+                        <T>Voir plus</T>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -296,7 +324,9 @@ export default function SecurityPage() {
 
             {resultat && resultat.totalPages > 1 && (
               <div className="flex items-center justify-between pt-4">
-                <p className="text-sm text-muted-foreground">{resultat.total} alertes</p>
+                <p className="text-sm text-muted-foreground">
+                  {resultat.total} <T>alertes</T>
+                </p>
                 <div className="flex items-center gap-1">
                   <Button
                     variant="outline"
@@ -304,7 +334,7 @@ export default function SecurityPage() {
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                   >
-                    Précédent
+                    <T>Précédent</T>
                   </Button>
                   {Array.from({ length: resultat.totalPages }, (_, i) => i + 1).map((numero) => (
                     <Button
@@ -323,7 +353,7 @@ export default function SecurityPage() {
                     disabled={page >= resultat.totalPages}
                     onClick={() => setPage((p) => p + 1)}
                   >
-                    Suivant
+                    <T>Suivant</T>
                   </Button>
                 </div>
               </div>
@@ -337,7 +367,9 @@ export default function SecurityPage() {
           {detailAlerte && (
             <>
               <DialogHeader>
-                <DialogTitle>Détails de l'alerte</DialogTitle>
+                <DialogTitle>
+                  <T>Détails de l'alerte</T>
+                </DialogTitle>
                 <DialogDescription className="font-mono text-xs">{detailAlerte.id}</DialogDescription>
               </DialogHeader>
 
@@ -348,18 +380,18 @@ export default function SecurityPage() {
                       const Icon = TYPE_ICONS[detailAlerte.type]
                       return <Icon className="h-4 w-4 text-muted-foreground" />
                     })()}
-                    {TYPE_ALERTE_SECURITE_LABELS[detailAlerte.type]}
+                    <T>{TYPE_ALERTE_SECURITE_LABELS[detailAlerte.type]}</T>
                   </span>
                 </Champ>
-                <Champ label="Gravité">
+                <Champ label={<T>Gravité</T>}>
                   <Badge variant={GRAVITE_VARIANT[detailAlerte.gravite]}>
-                    {GRAVITE_ALERTE_SECURITE_LABELS[detailAlerte.gravite]}
+                    <T>{GRAVITE_ALERTE_SECURITE_LABELS[detailAlerte.gravite]}</T>
                   </Badge>
                 </Champ>
-                <Champ label="IP source">
+                <Champ label={<T>IP source</T>}>
                   <span className="font-mono">{detailAlerte.ipSource ?? '—'}</span>
                 </Champ>
-                <Champ label="Date">{new Date(detailAlerte.dateCreation).toLocaleString('fr-FR')}</Champ>
+                <Champ label={<T>Date</T>}>{new Date(detailAlerte.dateCreation).toLocaleString('fr-FR')}</Champ>
                 <Champ label="URI">
                   <span className="font-mono break-all">{detailAlerte.uri ?? '—'}</span>
                 </Champ>
@@ -368,7 +400,7 @@ export default function SecurityPage() {
                 </Champ>
               </div>
 
-              <Champ label="Message">
+              <Champ label={<T>Message</T>}>
                 <p className="font-normal">{detailAlerte.message}</p>
               </Champ>
 
@@ -383,7 +415,7 @@ export default function SecurityPage() {
 
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDetailAlerte(null)}>
-                  Fermer
+                  <T>Fermer</T>
                 </Button>
                 <Button
                   variant="destructive"
@@ -394,7 +426,7 @@ export default function SecurityPage() {
                     }
                   }}
                 >
-                  <Trash2Icon className="h-4 w-4" /> Supprimer
+                  <Trash2Icon className="h-4 w-4" /> <T>Supprimer</T>
                 </Button>
               </DialogFooter>
             </>

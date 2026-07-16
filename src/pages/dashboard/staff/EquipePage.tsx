@@ -13,6 +13,7 @@ import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Role, Utilisateur } from '../../../lib/types'
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -47,6 +48,7 @@ export default function EquipePage() {
   const [role, setRole] = useState<Role | ''>('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -74,29 +76,35 @@ export default function EquipePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PlusIcon className="h-4 w-4" /> Créer un compte membre du CNTS
+            <PlusIcon className="h-4 w-4" /> <T>Créer un compte membre du CNTS</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-1.5">
-              <Label>Nom</Label>
+              <Label>
+                <T>Nom</T>
+              </Label>
               <Input value={nom} onChange={(e) => setNom(e.target.value)} required minLength={2} />
             </div>
             <div className="space-y-1.5">
-              <Label>Prénom</Label>
+              <Label>
+                <T>Prénom</T>
+              </Label>
               <Input value={prenom} onChange={(e) => setPrenom(e.target.value)} required minLength={2} />
             </div>
             <div className="space-y-1.5">
-              <Label>Rôle</Label>
+              <Label>
+                <T>Rôle</T>
+              </Label>
               <Select value={role} onValueChange={(v) => setRole(v as Role)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner" />
+                  <SelectValue placeholder={placeholderSelectionner} />
                 </SelectTrigger>
                 <SelectContent>
                   {rolesCreables.map((r) => (
                     <SelectItem key={r} value={r}>
-                      {ROLE_LABELS[r]}
+                      <T>{ROLE_LABELS[r]}</T>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -107,11 +115,15 @@ export default function EquipePage() {
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="space-y-1.5">
-              <Label>Téléphone</Label>
+              <Label>
+                <T>Téléphone</T>
+              </Label>
               <Input value={telephone} onChange={(e) => setTelephone(e.target.value)} required placeholder="+22890123456" />
             </div>
             <div className="space-y-1.5">
-              <Label>Mot de passe provisoire</Label>
+              <Label>
+                <T>Mot de passe provisoire</T>
+              </Label>
               <Input
                 type="password"
                 value={motDePasse}
@@ -122,9 +134,13 @@ export default function EquipePage() {
             </div>
             <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-4">
               <Button type="submit" disabled={submitting}>
-                Créer le compte
+                <T>Créer le compte</T>
               </Button>
-              {formError && <p className="text-sm text-destructive">{formError}</p>}
+              {formError && (
+                <p className="text-sm text-destructive">
+                  <T>{formError}</T>
+                </p>
+              )}
             </div>
           </form>
         </CardContent>
@@ -133,7 +149,7 @@ export default function EquipePage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UsersIcon className="h-4 w-4" /> Équipe CNTS
+            <UsersIcon className="h-4 w-4" /> <T>Équipe CNTS</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -141,11 +157,21 @@ export default function EquipePage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Rôle</TableHead>
+                  <TableHead>
+                    <T>Nom</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Rôle</T>
+                  </TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Statut</TableHead>
-                  {peutGererStatut && <TableHead className="text-right">Action</TableHead>}
+                  <TableHead>
+                    <T>Statut</T>
+                  </TableHead>
+                  {peutGererStatut && (
+                    <TableHead className="text-right">
+                      <T>Action</T>
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -154,7 +180,9 @@ export default function EquipePage() {
                     <TableCell className="font-medium">
                       {u.prenom} {u.nom}
                     </TableCell>
-                    <TableCell>{ROLE_LABELS[u.role]}</TableCell>
+                    <TableCell>
+                      <T>{ROLE_LABELS[u.role]}</T>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{u.email}</TableCell>
                     <TableCell>
                       <Badge variant={u.statut === 'ACTIF' ? 'default' : 'destructive'}>{u.statut}</Badge>
@@ -163,7 +191,7 @@ export default function EquipePage() {
                       <TableCell className="text-right">
                         {u.id !== moi?.id && (
                           <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
-                            {u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}
+                            <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
                           </Button>
                         )}
                       </TableCell>

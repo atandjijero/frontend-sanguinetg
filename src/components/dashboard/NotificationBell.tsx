@@ -12,6 +12,7 @@ import { useApiData } from '../../hooks/useApiData'
 import { api } from '../../lib/api'
 import type { NotificationDonneur } from '../../lib/types'
 import { useNotifications } from '../../context/NotificationsContext'
+import { T } from '../../context/LanguageContext'
 
 export function NotificationBell() {
   const { refreshKey } = useNotifications()
@@ -45,13 +46,15 @@ export function NotificationBell() {
           <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
           {nonLues > 0 && (
             <button type="button" className="text-xs text-primary hover:underline" onClick={marquerToutesLues}>
-              Tout marquer lu
+              <T>Tout marquer lu</T>
             </button>
           )}
         </div>
         <DropdownMenuSeparator />
         {!notifications?.length && (
-          <p className="px-2 py-4 text-center text-sm text-muted-foreground">Aucune notification.</p>
+          <p className="px-2 py-4 text-center text-sm text-muted-foreground">
+            <T>Aucune notification.</T>
+          </p>
         )}
         <div className="max-h-96 overflow-y-auto">
           {notifications?.map((n) => (
@@ -60,7 +63,9 @@ export function NotificationBell() {
               className={`flex flex-col items-start gap-1 whitespace-normal py-2 ${n.statut !== 'LUE' ? 'bg-primary/5' : ''}`}
               onClick={() => n.statut !== 'LUE' && marquerLue(n.id)}
             >
-              <p className="text-sm">{n.contenu}</p>
+              <p className="text-sm">
+                <T>{n.contenu}</T>
+              </p>
               <div className="flex items-center gap-3 text-muted-foreground">
                 <span className="flex items-center gap-1 text-[11px]" title="Notification in-app">
                   <BellIcon className="h-3 w-3" /> Push

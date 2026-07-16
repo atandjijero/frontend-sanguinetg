@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui-shadcn/ui/dialog'
+import { T } from './LanguageContext'
 
 interface ConfirmOptions {
   title?: string
@@ -49,15 +50,17 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           {options && (
             <>
               <DialogHeader>
-                <DialogTitle>{options.title ?? 'Confirmation'}</DialogTitle>
-                <DialogDescription>{options.description}</DialogDescription>
+                <DialogTitle>{options.title ? <T>{options.title}</T> : <T>Confirmation</T>}</DialogTitle>
+                <DialogDescription>
+                  <T>{options.description}</T>
+                </DialogDescription>
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => repondre(false)}>
-                  {options.cancelLabel ?? 'Annuler'}
+                  {options.cancelLabel ? <T>{options.cancelLabel}</T> : <T>Annuler</T>}
                 </Button>
                 <Button variant={options.destructive === false ? 'default' : 'destructive'} onClick={() => repondre(true)}>
-                  {options.confirmLabel ?? 'Confirmer'}
+                  {options.confirmLabel ? <T>{options.confirmLabel}</T> : <T>Confirmer</T>}
                 </Button>
               </DialogFooter>
             </>

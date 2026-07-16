@@ -7,6 +7,7 @@ import { CentresMap } from '../components/maps/CentresMap'
 import { ItineraireMap, type ItineraireInfo } from '../components/maps/ItineraireMap'
 import { useApiData } from '../hooks/useApiData'
 import { distanceKm, type Coordonnees } from '../lib/geo'
+import { T } from '../context/LanguageContext'
 import type { CentreDon } from '../lib/types'
 
 type CentreGeolocalise = CentreDon & { latitude: number; longitude: number }
@@ -73,7 +74,7 @@ export function CentresDonExplorer() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2Icon className="h-4 w-4" /> Centres {position ? 'les plus proches' : 'de collecte'}
+            <Building2Icon className="h-4 w-4" /> <T>Centres</T> <T>{position ? 'les plus proches' : 'de collecte'}</T>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -99,7 +100,7 @@ export function CentresDonExplorer() {
                   {c.adresse && <p className="text-xs text-muted-foreground mt-1">{c.adresse}</p>}
                   {estSelectionne && itineraire && (
                     <p className="text-xs text-primary mt-2 flex items-center gap-1">
-                      <NavigationIcon className="h-3 w-3" /> {itineraire.distanceTexte} · {itineraire.dureeTexte} en voiture
+                      <NavigationIcon className="h-3 w-3" /> {itineraire.distanceTexte} · {itineraire.dureeTexte} <T>en voiture</T>
                     </p>
                   )}
                 </button>

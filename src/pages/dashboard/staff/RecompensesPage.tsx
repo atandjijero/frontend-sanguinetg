@@ -14,6 +14,7 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Recompense, TypeRecompense, Utilisateur } from '../../../lib/types'
 
 const STATUT_VARIANT: Record<Recompense['statut'], 'default' | 'secondary' | 'destructive'> = {
@@ -35,6 +36,8 @@ export default function RecompensesPage() {
   const [description, setDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
+  const placeholderDescription = useTraduction('Kit de vivres (riz, huile, conserves)')
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -60,16 +63,18 @@ export default function RecompensesPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PlusIcon className="h-4 w-4" /> Attribuer une récompense
+              <PlusIcon className="h-4 w-4" /> <T>Attribuer une récompense</T>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-4">
               <div className="space-y-1.5">
-                <Label>Donneur</Label>
+                <Label>
+                  <T>Donneur</T>
+                </Label>
                 <Select value={donneurId} onValueChange={setDonneurId}>
                   <SelectTrigger className="w-56">
-                    <SelectValue placeholder="Sélectionner" />
+                    <SelectValue placeholder={placeholderSelectionner} />
                   </SelectTrigger>
                   <SelectContent>
                     {(donneurs ?? []).map((d) => (
@@ -81,34 +86,42 @@ export default function RecompensesPage() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Type</Label>
+                <Label>
+                  <T>Type</T>
+                </Label>
                 <Select value={type} onValueChange={(v) => setType(v as TypeRecompense)}>
                   <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Sélectionner" />
+                    <SelectValue placeholder={placeholderSelectionner} />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TYPE_RECOMPENSE_LABELS).map(([value, label]) => (
                       <SelectItem key={value} value={value}>
-                        {label}
+                        <T>{label}</T>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Description</Label>
+                <Label>
+                  <T>Description</T>
+                </Label>
                 <Input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Kit de vivres (riz, huile, conserves)"
+                  placeholder={placeholderDescription}
                   required
                   className="w-72"
                 />
               </div>
               <Button type="submit" disabled={submitting}>
-                Attribuer
+                <T>Attribuer</T>
               </Button>
-              {formError && <p className="text-sm text-destructive w-full">{formError}</p>}
+              {formError && (
+                <p className="text-sm text-destructive w-full">
+                  <T>{formError}</T>
+                </p>
+              )}
             </form>
           </CardContent>
         </Card>
@@ -117,7 +130,7 @@ export default function RecompensesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <GiftIcon className="h-4 w-4" /> Récompenses attribuées
+            <GiftIcon className="h-4 w-4" /> <T>Récompenses attribuées</T>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -125,11 +138,21 @@ export default function RecompensesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Donneur</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>
+                    <T>Donneur</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Type</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Description</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Statut</T>
+                  </TableHead>
+                  <TableHead>
+                    <T>Date</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -138,7 +161,9 @@ export default function RecompensesPage() {
                     <TableCell className="font-medium">
                       {r.donneur ? `${r.donneur.prenom} ${r.donneur.nom}` : '—'}
                     </TableCell>
-                    <TableCell>{TYPE_RECOMPENSE_LABELS[r.type]}</TableCell>
+                    <TableCell>
+                      <T>{TYPE_RECOMPENSE_LABELS[r.type]}</T>
+                    </TableCell>
                     <TableCell>{r.description}</TableCell>
                     <TableCell>
                       <Badge variant={STATUT_VARIANT[r.statut]}>{r.statut}</Badge>

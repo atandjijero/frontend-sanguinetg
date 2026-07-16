@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { useApiData } from '../hooks/useApiData'
 import { ApiError } from '../lib/api'
 import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../lib/constants'
+import { T } from '../context/LanguageContext'
 import type { Quartier } from '../lib/types'
 
 export default function RegisterPage() {
@@ -53,29 +54,37 @@ export default function RegisterPage() {
     <>
       <section className="pt-16 pb-20">
         <div className="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop text-center mb-10">
-          <h1 className="font-headline-lg text-headline-lg mb-3">Devenez donneur à Lomé</h1>
+          <h1 className="font-headline-lg text-headline-lg mb-3">
+            <T>Devenez donneur à Lomé</T>
+          </h1>
           <p className="text-secondary">
-            Rejoignez le réseau Sanguine TG pour recevoir des alertes ciblées selon votre groupe sanguin et votre
-            zone, et bénéficier du suivi et du conseil santé du CNTS.
+            <T>
+              Rejoignez le réseau Sanguine TG pour recevoir des alertes ciblées selon votre groupe sanguin et votre
+              zone, et bénéficier du suivi et du conseil santé du CNTS.
+            </T>
           </p>
         </div>
         <div className="max-w-2xl mx-auto px-margin-mobile md:px-margin-desktop">
           <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-8 soft-shadow">
             {submitted ? (
               <div className="text-center py-12">
-                <h2 className="font-headline-md text-headline-md text-primary mb-3">Bienvenue dans le réseau !</h2>
+                <h2 className="font-headline-md text-headline-md text-primary mb-3">
+                  <T>Bienvenue dans le réseau !</T>
+                </h2>
                 <p className="text-secondary text-justify mb-6">
-                  Votre compte donneur a été créé. Vous pouvez dès maintenant accéder à votre espace personnel.
+                  <T>Votre compte donneur a été créé. Vous pouvez dès maintenant accéder à votre espace personnel.</T>
                 </p>
                 <Button variant="primary" size="lg" onClick={() => navigate('/espace-donneur')}>
-                  Accéder à mon espace
+                  <T>Accéder à mon espace</T>
                 </Button>
               </div>
             ) : (
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Nom</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Nom</T>
+                    </span>
                     <input
                       required
                       type="text"
@@ -85,7 +94,9 @@ export default function RegisterPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Prénom</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Prénom</T>
+                    </span>
                     <input
                       required
                       type="text"
@@ -108,7 +119,9 @@ export default function RegisterPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Téléphone</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Téléphone</T>
+                    </span>
                     <input
                       required
                       type="tel"
@@ -122,13 +135,17 @@ export default function RegisterPage() {
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Groupe sanguin déclaré</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Groupe sanguin déclaré</T>
+                    </span>
                     <select
                       value={groupeSanguin}
                       onChange={(e) => setGroupeSanguin(e.target.value)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="">Sélectionner</option>
+                      <option value="">
+                        <T>Sélectionner</T>
+                      </option>
                       {GROUPES_SANGUINS.map((group) => (
                         <option key={group} value={group}>
                           {GROUPE_SANGUIN_LABELS[group]}
@@ -137,13 +154,17 @@ export default function RegisterPage() {
                     </select>
                   </label>
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Zone à Lomé</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Zone à Lomé</T>
+                    </span>
                     <select
                       value={quartierId}
                       onChange={(e) => setQuartierId(e.target.value)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="">Sélectionner</option>
+                      <option value="">
+                        <T>Sélectionner</T>
+                      </option>
                       {(quartiers ?? []).map((q) => (
                         <option key={q.id} value={q.id}>
                           {q.nom}
@@ -155,7 +176,9 @@ export default function RegisterPage() {
 
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Mot de passe</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Mot de passe</T>
+                    </span>
                     <input
                       required
                       type="password"
@@ -166,7 +189,9 @@ export default function RegisterPage() {
                     />
                   </label>
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Confirmer le mot de passe</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Confirmer le mot de passe</T>
+                    </span>
                     <input
                       required
                       type="password"
@@ -186,22 +211,28 @@ export default function RegisterPage() {
                     className="mt-1 accent-primary"
                   />
                   <span className="text-body-md text-secondary">
-                    J'accepte que mes informations soient utilisées par le CNTS pour me contacter lors d'urgences de
-                    don de sang compatibles avec mon profil.
+                    <T>
+                      J'accepte que mes informations soient utilisées par le CNTS pour me contacter lors d'urgences
+                      de don de sang compatibles avec mon profil.
+                    </T>
                   </span>
                 </label>
 
-                {error && <p className="text-sm text-error">{error}</p>}
+                {error && (
+                  <p className="text-sm text-error">
+                    <T>{error}</T>
+                  </p>
+                )}
 
                 <Button type="submit" variant="primary" size="lg" className="rounded-xl w-full" disabled={submitting}>
-                  Créer mon compte donneur
+                  <T>Créer mon compte donneur</T>
                   <UserPlus size={16} aria-hidden />
                 </Button>
 
                 <p className="text-center text-body-md text-secondary">
-                  Déjà inscrit ?{' '}
+                  <T>Déjà inscrit ?</T>{' '}
                   <Link to="/connexion" className="text-primary font-semibold hover:underline">
-                    Se connecter
+                    <T>Se connecter</T>
                   </Link>
                 </p>
               </form>

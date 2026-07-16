@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Clock, Mail, MapPin, Phone, Send } from 'lucide-react'
 import Button from '../ui/Button'
 import { api, ApiError } from '../../lib/api'
+import { T, useTraduction } from '../../context/LanguageContext'
 
 const contactInfo = [
   { icon: MapPin, label: 'Adresse', value: 'Centre National de Transfusion Sanguine, Lomé, Togo' },
@@ -18,6 +19,7 @@ export function ContactSection() {
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const erreurEnvoi = useTraduction("Impossible d'envoyer le message, réessayez.")
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -27,7 +29,7 @@ export function ContactSection() {
       await api.post('/contact', { nomComplet, email, sujet, message })
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible d'envoyer le message, réessayez.")
+      setError(err instanceof ApiError ? err.message : erreurEnvoi)
     } finally {
       setSubmitting(false)
     }
@@ -37,9 +39,11 @@ export function ContactSection() {
     <section className="py-20" id="contact">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
         <div className="text-center mb-16">
-          <h2 className="font-headline-lg text-headline-lg mb-4">Contactez le CNTS</h2>
+          <h2 className="font-headline-lg text-headline-lg mb-4">
+            <T>Contactez le CNTS</T>
+          </h2>
           <p className="text-secondary max-w-2xl mx-auto">
-            Une question sur le don de sang, une urgence ou un partenariat ? Écrivez-nous.
+            <T>Une question sur le don de sang, une urgence ou un partenariat ? Écrivez-nous.</T>
           </p>
         </div>
 
@@ -53,7 +57,9 @@ export function ContactSection() {
                     <Icon size={20} aria-hidden />
                   </div>
                   <div>
-                    <p className="text-caption uppercase tracking-widest text-secondary">{item.label}</p>
+                    <p className="text-caption uppercase tracking-widest text-secondary">
+                      <T>{item.label}</T>
+                    </p>
                     <p className="text-on-surface font-medium">{item.value}</p>
                   </div>
                 </div>
@@ -75,14 +81,20 @@ export function ContactSection() {
           <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-8 soft-shadow">
             {submitted ? (
               <div className="text-center py-12">
-                <h3 className="font-headline-md text-headline-md text-primary mb-3">Message envoyé</h3>
-                <p className="text-secondary">Merci, le CNTS reviendra vers vous dans les meilleurs délais.</p>
+                <h3 className="font-headline-md text-headline-md text-primary mb-3">
+                  <T>Message envoyé</T>
+                </h3>
+                <p className="text-secondary">
+                  <T>Merci, le CNTS reviendra vers vous dans les meilleurs délais.</T>
+                </p>
               </div>
             ) : (
               <form className="space-y-5" onSubmit={handleSubmit}>
                 <div className="grid gap-5 sm:grid-cols-2">
                   <label className="block">
-                    <span className="text-label-md text-on-surface mb-2 block">Nom complet</span>
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Nom complet</T>
+                    </span>
                     <input
                       required
                       type="text"
@@ -103,7 +115,9 @@ export function ContactSection() {
                   </label>
                 </div>
                 <label className="block">
-                  <span className="text-label-md text-on-surface mb-2 block">Sujet</span>
+                  <span className="text-label-md text-on-surface mb-2 block">
+                    <T>Sujet</T>
+                  </span>
                   <input
                     required
                     type="text"
@@ -113,7 +127,9 @@ export function ContactSection() {
                   />
                 </label>
                 <label className="block">
-                  <span className="text-label-md text-on-surface mb-2 block">Message</span>
+                  <span className="text-label-md text-on-surface mb-2 block">
+                    <T>Message</T>
+                  </span>
                   <textarea
                     required
                     rows={5}
@@ -124,7 +140,7 @@ export function ContactSection() {
                 </label>
                 {error && <p className="text-sm text-error">{error}</p>}
                 <Button type="submit" variant="primary" size="lg" className="rounded-xl" disabled={submitting}>
-                  {submitting ? 'Envoi...' : 'Envoyer le message'}
+                  {submitting ? <T>Envoi...</T> : <T>Envoyer le message</T>}
                   <Send size={16} aria-hidden />
                 </Button>
               </form>

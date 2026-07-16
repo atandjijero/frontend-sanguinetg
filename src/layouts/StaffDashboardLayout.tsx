@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from '../components/ui-shadcn/ui/sideba
 import { SiteHeader } from '../components/ui-shadcn/site-header'
 import { Badge } from '../components/ui-shadcn/ui/badge'
 import { useAuth } from '../context/AuthContext'
+import { T } from '../context/LanguageContext'
 import type { Role } from '../lib/types'
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -41,12 +42,12 @@ export default function StaffDashboardLayout() {
         compact
         roleBadge={
           <Badge variant="outline" className="mx-2 mt-1 w-fit border-primary/30 text-primary">
-            {ROLE_LABELS[user.role]}
+            <T>{ROLE_LABELS[user.role]}</T>
           </Badge>
         }
       />
       <SidebarInset>
-        <SiteHeader title={user.role === 'SUPERADMIN' ? 'Espace superadmin' : 'Espace CNTS'} />
+        <SiteHeader title={<T>{user.role === 'SUPERADMIN' ? 'Espace superadmin' : 'Espace CNTS'}</T>} />
         <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
           <Outlet />
         </div>

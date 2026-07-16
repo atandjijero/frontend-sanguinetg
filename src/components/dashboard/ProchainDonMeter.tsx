@@ -4,6 +4,7 @@ import { CheckCircle2Icon, HeartHandshakeIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
 import { ChartContainer, type ChartConfig } from '../ui-shadcn/ui/chart'
 import { SEQUENTIAL_BLUE, STATUS } from '../../lib/chart-colors'
+import { T } from '../../context/LanguageContext'
 import type { CarnetDigital } from '../../lib/types'
 
 const chartConfig = { progression: { label: 'Progression' } } satisfies ChartConfig
@@ -29,14 +30,20 @@ export function ProchainDonMeter({ carnets }: { carnets: CarnetDigital[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Prochain don possible</CardTitle>
+        <CardTitle>
+          <T>Prochain don possible</T>
+        </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
         {etat.statut === 'jamais-donne' && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
             <HeartHandshakeIcon className="h-10 w-10 text-primary" />
-            <p className="text-sm font-medium">Prêt(e) pour votre premier don</p>
-            <p className="text-xs text-muted-foreground">Répondez à une alerte compatible pour commencer.</p>
+            <p className="text-sm font-medium">
+              <T>Prêt(e) pour votre premier don</T>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              <T>Répondez à une alerte compatible pour commencer.</T>
+            </p>
           </div>
         )}
 
@@ -44,9 +51,11 @@ export function ProchainDonMeter({ carnets }: { carnets: CarnetDigital[] }) {
           <div className="flex flex-col items-center gap-2 py-6 text-center">
             <CheckCircle2Icon className="h-10 w-10" style={{ color: STATUS.good }} />
             <p className="text-sm font-medium" style={{ color: STATUS.good }}>
-              Vous pouvez donner dès maintenant
+              <T>Vous pouvez donner dès maintenant</T>
             </p>
-            <p className="text-xs text-muted-foreground">Le délai réglementaire de 90 jours est écoulé.</p>
+            <p className="text-xs text-muted-foreground">
+              <T>Le délai réglementaire de 90 jours est écoulé.</T>
+            </p>
           </div>
         )}
 
@@ -65,7 +74,7 @@ export function ProchainDonMeter({ carnets }: { carnets: CarnetDigital[] }) {
                 {etat.joursRestants}
               </text>
               <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-muted-foreground text-xs">
-                jour{etat.joursRestants > 1 ? 's' : ''} restant{etat.joursRestants > 1 ? 's' : ''}
+                <T>{`jour${etat.joursRestants > 1 ? 's' : ''} restant${etat.joursRestants > 1 ? 's' : ''}`}</T>
               </text>
             </RadialBarChart>
           </ChartContainer>

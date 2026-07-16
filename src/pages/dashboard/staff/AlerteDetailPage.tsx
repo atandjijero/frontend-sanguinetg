@@ -12,6 +12,7 @@ import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS, TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Alerte, CarnetDigital, CentreDon, ReponseAvecDonneur, TypeRecompense } from '../../../lib/types'
 
 type FormulaireOuvert = { type: 'don'; reponseId: string } | { type: 'recompense'; carnetId: string; donneurId: string } | null
@@ -44,29 +45,39 @@ export default function AlerteDetailPage() {
   return (
     <div className="space-y-6">
       <Link to="/admin/alertes" className="inline-flex items-center gap-1 text-sm text-secondary hover:text-primary">
-        <ArrowLeftIcon className="h-4 w-4" /> Retour aux alertes
+        <ArrowLeftIcon className="h-4 w-4" /> <T>Retour aux alertes</T>
       </Link>
 
       <Card>
         <CardHeader>
           <CardTitle>
-            {loadingAlerte || !alerte
-              ? 'Détail de l\'alerte'
-              : `Alerte ${GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]} — ${alerte.quartier?.nom ?? ''}`}
+            {loadingAlerte || !alerte ? (
+              <T>Détail de l'alerte</T>
+            ) : (
+              `Alerte ${GROUPE_SANGUIN_LABELS[alerte.groupeSanguinRequis]} — ${alerte.quartier?.nom ?? ''}`
+            )}
           </CardTitle>
         </CardHeader>
         {alerte && (
           <CardContent className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <Badge variant={alerte.statut === 'OUVERTE' ? 'default' : 'secondary'}>{alerte.statut}</Badge>
-            <span>Créée le {new Date(alerte.dateCreation).toLocaleString('fr-FR')}</span>
-            {alerte.centreDon && <span>Centre : {alerte.centreDon.nom}</span>}
+            <span>
+              <T>Créée le</T> {new Date(alerte.dateCreation).toLocaleString('fr-FR')}
+            </span>
+            {alerte.centreDon && (
+              <span>
+                <T>Centre :</T> {alerte.centreDon.nom}
+              </span>
+            )}
           </CardContent>
         )}
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Réponses des donneurs</CardTitle>
+          <CardTitle>
+            <T>Réponses des donneurs</T>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <DataState
@@ -90,23 +101,25 @@ export default function AlerteDetailPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-sm text-muted-foreground">{reponse.donneur.telephone ?? 'Téléphone non renseigné'}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {reponse.donneur.telephone ?? <T>Téléphone non renseigné</T>}
+                        </div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <Badge variant={reponse.statut === 'JE_VIENS' ? 'default' : 'secondary'}>
-                          {reponse.statut === 'JE_VIENS' ? 'Vient' : 'Indisponible'}
+                          <T>{reponse.statut === 'JE_VIENS' ? 'Vient' : 'Indisponible'}</T>
                         </Badge>
 
                         {reponse.statut === 'JE_VIENS' && !carnet && (
                           <Button size="sm" onClick={() => setFormulaire({ type: 'don', reponseId: reponse.id })}>
-                            Enregistrer le don
+                            <T>Enregistrer le don</T>
                           </Button>
                         )}
 
                         {carnet && (
                           <span className="inline-flex items-center gap-1 text-sm text-tertiary">
-                            <CheckCircle2Icon className="h-4 w-4" /> Don enregistré
+                            <CheckCircle2Icon className="h-4 w-4" /> <T>Don enregistré</T>
                           </span>
                         )}
 
@@ -116,7 +129,7 @@ export default function AlerteDetailPage() {
                             variant="outline"
                             onClick={() => setFormulaire({ type: 'recompense', carnetId: carnet.id, donneurId: reponse.donneur.id })}
                           >
-                            <GiftIcon className="h-4 w-4" /> Récompenser
+                            <GiftIcon className="h-4 w-4" /> <T>Récompenser</T>
                           </Button>
                         )}
                       </div>
@@ -168,6 +181,7 @@ function EnregistrerDonForm({
   const [dateDon, setDateDon] = useState(() => new Date().toISOString().slice(0, 10))
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -187,14 +201,18 @@ function EnregistrerDonForm({
   return (
     <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
       <div className="space-y-1.5">
-        <Label>Date du don</Label>
+        <Label>
+          <T>Date du don</T>
+        </Label>
         <Input type="date" value={dateDon} onChange={(e) => setDateDon(e.target.value)} required className="w-40" />
       </div>
       <div className="space-y-1.5">
-        <Label>Centre de don</Label>
+        <Label>
+          <T>Centre de don</T>
+        </Label>
         <Select value={centreDonId} onValueChange={setCentreDonId}>
           <SelectTrigger className="w-64">
-            <SelectValue placeholder="Sélectionner" />
+            <SelectValue placeholder={placeholderSelectionner} />
           </SelectTrigger>
           <SelectContent>
             {(centres ?? []).map((c) => (
@@ -206,12 +224,16 @@ function EnregistrerDonForm({
         </Select>
       </div>
       <Button type="submit" size="sm" disabled={submitting}>
-        Confirmer
+        <T>Confirmer</T>
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={onAnnuler}>
-        Annuler
+        <T>Annuler</T>
       </Button>
-      {error && <p className="w-full text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-destructive">
+          <T>{error}</T>
+        </p>
+      )}
     </form>
   )
 }
@@ -231,6 +253,8 @@ function AttribuerRecompenseForm({
   const [description, setDescription] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const placeholderSelectionner = useTraduction('Sélectionner')
+  const placeholderDescription = useTraduction('Kit de vivres (riz, huile, conserves)')
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
@@ -251,37 +275,45 @@ function AttribuerRecompenseForm({
   return (
     <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
       <div className="space-y-1.5">
-        <Label>Type</Label>
+        <Label>
+          <T>Type</T>
+        </Label>
         <Select value={type} onValueChange={(v) => setType(v as TypeRecompense)}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Sélectionner" />
+            <SelectValue placeholder={placeholderSelectionner} />
           </SelectTrigger>
           <SelectContent>
             {Object.entries(TYPE_RECOMPENSE_LABELS).map(([value, label]) => (
               <SelectItem key={value} value={value}>
-                {label}
+                <T>{label}</T>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-1.5">
-        <Label>Description</Label>
+        <Label>
+          <T>Description</T>
+        </Label>
         <Input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Kit de vivres (riz, huile, conserves)"
+          placeholder={placeholderDescription}
           required
           className="w-72"
         />
       </div>
       <Button type="submit" size="sm" disabled={submitting}>
-        Attribuer
+        <T>Attribuer</T>
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={onAnnuler}>
-        Annuler
+        <T>Annuler</T>
       </Button>
-      {error && <p className="w-full text-sm text-destructive">{error}</p>}
+      {error && (
+        <p className="w-full text-sm text-destructive">
+          <T>{error}</T>
+        </p>
+      )}
     </form>
   )
 }

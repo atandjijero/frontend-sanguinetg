@@ -1,6 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Droplet, Globe, Mail } from 'lucide-react'
+import { Globe, Mail } from 'lucide-react'
+import { TogoFlag } from '../icons/TogoFlag'
+import { T } from '../../context/LanguageContext'
 
 export function Footer() {
   return (
@@ -9,11 +11,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-12">
           <div className="col-span-1 md:col-span-1">
             <Link className="font-headline-md text-headline-md font-bold text-primary mb-6 flex items-center gap-2" to="/">
-              <Droplet size={24} aria-hidden />
+              <TogoFlag size={24} />
               Sanguine TG
             </Link>
             <p className="text-secondary text-body-md text-justify mb-6">
-              L'initiative officielle du CNTS Togo pour digitaliser et sécuriser le don de sang national.
+              <T>L'initiative officielle du CNTS Togo pour digitaliser et sécuriser le don de sang national.</T>
             </p>
             <div className="flex gap-4">
               <a
@@ -34,28 +36,32 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">Plateforme</h4>
+            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">
+              <T>Plateforme</T>
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link className="text-on-surface-variant hover:text-primary transition-colors" to="/a-propos">
-                  À propos
+                  <T>À propos</T>
                 </Link>
               </li>
               <li>
                 <Link className="text-on-surface-variant hover:text-primary transition-colors" to="/fonctionnement">
-                  Fonctionnement
+                  <T>Fonctionnement</T>
                 </Link>
               </li>
               <li>
                 <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  Mentions Légales
+                  <T>Mentions Légales</T>
                 </a>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">Aide</h4>
+            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">
+              <T>Aide</T>
+            </h4>
             <ul className="space-y-2">
               <li>
                 <Link className="text-on-surface-variant hover:text-primary transition-colors" to="/faq">
@@ -64,19 +70,21 @@ export function Footer() {
               </li>
               <li>
                 <Link className="text-on-surface-variant hover:text-primary transition-colors" to="/contact">
-                  Contact
+                  <T>Contact</T>
                 </Link>
               </li>
               <li>
                 <a className="text-on-surface-variant hover:text-primary transition-colors" href="#">
-                  Centres de collecte
+                  <T>Centres de collecte</T>
                 </a>
               </li>
             </ul>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">Contact</h4>
+            <h4 className="font-label-md text-label-md uppercase tracking-widest text-on-surface">
+              <T>Contact</T>
+            </h4>
             <p className="text-on-surface-variant text-body-md">
               Lomé, Togo
               <br />
@@ -89,11 +97,13 @@ export function Footer() {
 
         <div className="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-caption text-secondary">
-            © 2024 Centre National de Transfusion Sanguine (CNTS) Togo. Tous droits réservés.
+            © 2024 <T>Centre National de Transfusion Sanguine (CNTS) Togo. Tous droits réservés.</T>
           </p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-success-mint" />
-            <span className="text-caption font-bold text-success-mint">Système Opérationnel</span>
+            <span className="text-caption font-bold text-success-mint">
+              <T>Système Opérationnel</T>
+            </span>
           </div>
         </div>
       </div>
