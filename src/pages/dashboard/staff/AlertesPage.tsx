@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MegaphoneIcon, PlusIcon } from 'lucide-react'
+import { MegaphoneIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { toast } from 'sonner'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
@@ -23,6 +25,7 @@ function toggle<T>(liste: T[], valeur: T): T[] {
 
 export default function AlertesPage() {
   const { user } = useAuth()
+  const confirm = useConfirm()
   const peutLancerAlertes = user?.role !== 'SUPERADMIN'
   const { data: alertes, isLoading, error, refetch } = useApiData<Alerte[]>('/alertes')
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
@@ -77,6 +80,17 @@ export default function AlertesPage() {
     const nouveauStatut = alerte.statut === 'OUVERTE' ? 'FERMEE' : 'OUVERTE'
     await api.patch(`/alertes/${alerte.id}/statut`, { statut: nouveauStatut })
     refetch()
+  }
+
+  async function handleDelete(id: string) {
+    if (!(await confirm({ description: 'Supprimer cette alerte ? Les réponses des donneurs liées seront aussi supprimées.' })))
+      return
+    try {
+      await api.delete(`/alertes/${id}`)
+      await refetch()
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Suppression impossible')
+    }
   }
 
   return (
@@ -220,7 +234,16 @@ export default function AlertesPage() {
                     <TableCell>
                       <Badge variant={alerte.statut === 'OUVERTE' ? 'default' : 'secondary'}>{alerte.statut}</Badge>
                     </TableCell>
-                    <TableCell>{alerte._count?.reponses ?? 0}</TableCell>
+                    <TableCell>
+                      {alerte._count?.reponses ?? 0}
+                      {!!alerte._count?.notifications && (
+                        <span className="text-muted-foreground">
+                          {' '}
+                          / {alerte._count.notifications} (
+                          {Math.round(((alerte._count.reponses ?? 0) / alerte._count.notifications) * 100)}%)
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {new Date(alerte.dateCreation).toLocaleDateString('fr-FR')}
                     </TableCell>
@@ -231,6 +254,11 @@ export default function AlertesPage() {
                       {peutLancerAlertes && (
                         <Button variant="outline" size="sm" onClick={() => toggleStatut(alerte)}>
                           {alerte.statut === 'OUVERTE' ? 'Fermer' : 'Rouvrir'}
+                        </Button>
+                      )}
+                      {peutLancerAlertes && (
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(alerte.id)}>
+                          <Trash2Icon className="h-4 w-4" />
                         </Button>
                       )}
                     </TableCell>

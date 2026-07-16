@@ -69,7 +69,7 @@ export interface Alerte {
   maReponse?: StatutReponse | null
   resume?: { jeViens: number; indisponible: number }
   donneursNotifies?: number
-  _count?: { reponses: number }
+  _count?: { reponses: number; notifications?: number }
 }
 
 export interface ReponseAvecDonneur {
