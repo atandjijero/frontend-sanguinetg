@@ -97,7 +97,7 @@ export function Footer() {
 
         <div className="pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-caption text-secondary">
-            © 2024 <T>Centre National de Transfusion Sanguine (CNTS) Togo. Tous droits réservés.</T>
+            © {new Date().getFullYear()} <T>Centre National de Transfusion Sanguine (CNTS) Togo. Tous droits réservés.</T>
           </p>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-success-mint" />
