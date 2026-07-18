@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { AppSidebar } from '../components/dashboard/AppSidebar'
 import { NotificationBell } from '../components/dashboard/NotificationBell'
@@ -6,7 +7,11 @@ import { SidebarInset, SidebarProvider } from '../components/ui-shadcn/ui/sideba
 import { SiteHeader } from '../components/ui-shadcn/site-header'
 import { Badge } from '../components/ui-shadcn/ui/badge'
 import { useAuth } from '../context/AuthContext'
-import { T } from '../context/LanguageContext'
+import { useConfirm } from '../context/ConfirmContext'
+import { usePushSubscription } from '../hooks/usePushSubscription'
+import { T, useTraduction } from '../context/LanguageContext'
+
+const CLE_REFUS_NOTIFICATIONS = 'sanguine-tg-notifications-refusees'
 
 /**
  * Sidebar donneur volontairement distincte du sidebar CNTS : accent vert (marque "santé/don")
@@ -15,6 +20,46 @@ import { T } from '../context/LanguageContext'
 export default function DonneurDashboardLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const { supporte, abonne, abonner } = usePushSubscription()
+  const confirm = useConfirm()
+  const titre = useTraduction('Activer les notifications')
+  const description = useTraduction(
+    "Recevez une alerte dès qu'un don compatible avec votre groupe sanguin est recherché près de chez vous — même quand l'application est fermée.",
+  )
+  const labelActiver = useTraduction('Activer')
+  const labelPlusTard = useTraduction('Plus tard')
+
+  // On propose l'abonnement aux notifications push via une carte à l'image du reste de
+  // l'app (même style que les confirmations de suppression), plutôt que de laisser le
+  // navigateur afficher sa popup native sans contexte. Cette popup native ne s'affiche
+  // ensuite que si le donneur accepte ; un refus de la carte n'est pas re-proposé.
+  useEffect(() => {
+    if (!supporte || abonne) return
+    if (typeof Notification !== 'undefined' && Notification.permission === 'denied') return
+    if (localStorage.getItem(CLE_REFUS_NOTIFICATIONS) === '1') return
+
+    let annule = false
+    ;(async () => {
+      const accepte = await confirm({
+        title: titre,
+        description,
+        confirmLabel: labelActiver,
+        cancelLabel: labelPlusTard,
+        destructive: false,
+      })
+      if (annule) return
+      if (accepte) {
+        await abonner()
+      } else {
+        localStorage.setItem(CLE_REFUS_NOTIFICATIONS, '1')
+      }
+    })()
+
+    return () => {
+      annule = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [supporte, abonne])
 
   if (!user) return null
 

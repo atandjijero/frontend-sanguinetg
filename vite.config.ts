@@ -25,11 +25,16 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // Désactivé en dev (`vite`/`npm run dev`) : c'est justement un service worker resté actif
+      // Désactivé en dev (`vite`/`npm start`) : c'est justement un service worker resté actif
       // depuis un ancien `npm start` (CRA, port 3000) qui causait les erreurs "%PUBLIC_URL%"
       // et les réponses servies depuis un cache obsolète. Le PWA ne s'active qu'au build/preview.
       devOptions: { enabled: false },
       registerType: 'autoUpdate',
+      // Service worker écrit à la main (src/sw.ts) plutôt que généré : nécessaire pour gérer
+      // les évènements `push`/`notificationclick` (notifications push + badge sur l'icône).
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       includeAssets: ['favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
         name: 'Sanguine TG',
@@ -47,13 +52,8 @@ export default defineConfig({
           { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
-        // Toujours prendre le contrôle immédiatement et nettoyer les caches d'une version
-        // précédente, pour ne jamais reproduire le service worker "collé" à l'origine du bug.
-        skipWaiting: true,
-        clientsClaim: true,
-        cleanupOutdatedCaches: true,
-      },
+      // skipWaiting/clientsClaim/cleanupOutdatedCaches sont gérés à la main dans src/sw.ts
+      // (stratégie injectManifest : plus d'option `workbox` générée automatiquement).
     }),
   ],
   resolve: {

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BellIcon, MailIcon, SmartphoneIcon } from 'lucide-react'
 import { Button } from '../ui-shadcn/ui/button'
 import {
@@ -18,6 +19,18 @@ export function NotificationBell() {
   const { refreshKey } = useNotifications()
   const { data: notifications, refetch } = useApiData<NotificationDonneur[]>('/notifications', [refreshKey])
   const nonLues = (notifications ?? []).filter((n) => n.statut !== 'LUE').length
+
+  // Synchronise le badge de l'icône (façon WhatsApp) avec le nombre réel de non-lues
+  // dès que l'app est ouverte au premier plan — le service worker s'en charge déjà
+  // quand une notification arrive app fermée.
+  useEffect(() => {
+    if (!('setAppBadge' in navigator)) return
+    if (nonLues > 0) {
+      navigator.setAppBadge(nonLues).catch(() => undefined)
+    } else {
+      navigator.clearAppBadge().catch(() => undefined)
+    }
+  }, [nonLues])
 
   async function marquerLue(id: string) {
     await api.patch(`/notifications/${id}/lue`)
