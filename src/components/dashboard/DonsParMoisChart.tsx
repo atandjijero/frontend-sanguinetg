@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
+import { MoreHorizontalIcon } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui-shadcn/ui/chart'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
 import { SEQUENTIAL_BLUE } from '../../lib/chart-colors'
 import { T } from '../../context/LanguageContext'
 import type { CarnetDigital } from '../../lib/types'
@@ -30,21 +31,38 @@ export function DonsParMoisChart({ carnets }: { carnets: CarnetDigital[] }) {
     return buckets
   }, [carnets])
 
+  const total = data.reduce((sum, d) => sum + d.dons, 0)
+  const maxDons = Math.max(0, ...data.map((d) => d.dons))
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>
-          <T>Dons enregistrés — 6 derniers mois</T>
-        </CardTitle>
+      <CardHeader className="flex-row items-start justify-between space-y-0">
+        <div className="space-y-1.5">
+          <CardTitle>
+            <T>Dons enregistrés — 6 derniers mois</T>
+          </CardTitle>
+          <CardDescription>
+            {total} <T>dons sur la période</T>
+          </CardDescription>
+        </div>
+        <MoreHorizontalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
           <BarChart data={data} margin={{ left: -12 }}>
-            <CartesianGrid vertical={false} stroke="#e1e0d9" />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="mois" tickLine={false} axisLine={false} tickMargin={8} />
             <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} width={28} />
             <ChartTooltip content={<ChartTooltipContent hideLabel={false} labelKey="mois" />} />
-            <Bar dataKey="dons" fill="var(--color-dons)" radius={[4, 4, 0, 0]} maxBarSize={24} />
+            <Bar dataKey="dons" radius={[8, 8, 3, 3]} maxBarSize={28}>
+              {data.map((entry) => (
+                <Cell
+                  key={entry.key}
+                  fill="var(--color-dons)"
+                  fillOpacity={entry.dons === maxDons && maxDons > 0 ? 1 : 0.3}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>

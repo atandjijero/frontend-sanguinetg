@@ -3,6 +3,8 @@ import { BookHeartIcon, MegaphoneIcon, RssIcon, TimerIcon, UsersIcon } from 'luc
 import { StatCard } from '../../../components/dashboard/StatCard'
 import { DonneurGroupeDonut } from '../../../components/dashboard/DonneurGroupeDonut'
 import { DonsParMoisChart } from '../../../components/dashboard/DonsParMoisChart'
+import { TauxCouvertureGauge } from '../../../components/dashboard/TauxCouvertureGauge'
+import { DernieresAlertesTable } from '../../../components/dashboard/DernieresAlertesTable'
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { T } from '../../../context/LanguageContext'
@@ -19,12 +21,20 @@ export default function StaffHomePage() {
   const { data: mobilisation } = useApiData<StatistiquesMobilisation>('/alertes/statistiques/mobilisation')
   const { data: abonnes } = useApiData<AbonneNewsletter[]>(estSuperadmin ? '/newsletter' : null)
 
+  const now = new Date()
   const donsCeMois =
     carnets?.filter((c) => {
       const date = new Date(c.dateDon)
-      const now = new Date()
       return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
     }).length ?? 0
+  const moisDernier = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const donsMoisDernier =
+    carnets?.filter((c) => {
+      const date = new Date(c.dateDon)
+      return date.getMonth() === moisDernier.getMonth() && date.getFullYear() === moisDernier.getFullYear()
+    }).length ?? 0
+  const variationDons =
+    donsMoisDernier > 0 ? Math.round(((donsCeMois - donsMoisDernier) / donsMoisDernier) * 100) : null
 
   return (
     <div className="space-y-6">
@@ -36,12 +46,22 @@ export default function StaffHomePage() {
           <T>Vue d'ensemble de la mobilisation des donneurs à Lomé.</T>
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {peutVoirDonneurs && (
           <StatCard label={<T>Donneurs inscrits</T>} value={donneurs?.length ?? '—'} icon={UsersIcon} />
         )}
         <StatCard label={<T>Alertes ouvertes</T>} value={alertesOuvertes?.length ?? '—'} icon={MegaphoneIcon} />
-        <StatCard label={<T>Dons enregistrés ce mois-ci</T>} value={donsCeMois} icon={BookHeartIcon} />
+        <StatCard
+          label={<T>Dons enregistrés ce mois-ci</T>}
+          value={donsCeMois}
+          icon={BookHeartIcon}
+          delta={
+            variationDons !== null
+              ? { direction: variationDons >= 0 ? 'up' : 'down', label: `${Math.abs(variationDons)}%` }
+              : undefined
+          }
+          hint={variationDons !== null ? <T>vs mois dernier</T> : undefined}
+        />
         <StatCard
           label={<T>Délai moyen de mobilisation</T>}
           value={mobilisation?.delaiMoyenMinutes != null ? `${mobilisation.delaiMoyenMinutes} min` : '—'}
@@ -65,9 +85,15 @@ export default function StaffHomePage() {
           />
         )}
       </div>
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         {peutVoirDonneurs && <DonneurGroupeDonut donneurs={donneurs ?? []} />}
         <DonsParMoisChart carnets={carnets ?? []} />
+      </div>
+      <div className="grid gap-5 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <DernieresAlertesTable alertes={alertesOuvertes ?? []} />
+        </div>
+        <TauxCouvertureGauge taux={mobilisation?.tauxCouvertureUneHeure ?? null} />
       </div>
     </div>
   )

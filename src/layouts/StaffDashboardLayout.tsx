@@ -46,9 +46,9 @@ export default function StaffDashboardLayout() {
           </Badge>
         }
       />
-      <SidebarInset>
+      <SidebarInset className="bg-surface-alt dark:bg-[oklch(0.145_0_0)]">
         <SiteHeader title={<T>{user.role === 'SUPERADMIN' ? 'Espace superadmin' : 'Espace CNTS'}</T>} />
-        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+        <div className="flex flex-1 flex-col gap-5 p-4 md:p-6">
           <Outlet />
         </div>
       </SidebarInset>

@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { MoreHorizontalIcon } from 'lucide-react'
 import { Cell, Pie, PieChart } from 'recharts'
 import {
   ChartContainer,
@@ -54,10 +55,11 @@ export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-start justify-between space-y-0">
         <CardTitle>
           <T>Répartition des donneurs par groupe sanguin</T>
         </CardTitle>
+        <MoreHorizontalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="flex flex-col sm:flex-row items-center gap-6">
@@ -68,11 +70,12 @@ export function DonneurGroupeDonut({ donneurs }: { donneurs: Utilisateur[] }) {
                 data={data}
                 dataKey="value"
                 nameKey="groupe"
-                innerRadius={62}
+                innerRadius={58}
                 outerRadius={90}
-                paddingAngle={2}
-                strokeWidth={2}
-                stroke="#ffffff"
+                paddingAngle={3}
+                cornerRadius={6}
+                strokeWidth={3}
+                stroke="var(--card)"
               >
                 {data.map((entry) => (
                   <Cell key={entry.groupe} fill={entry.fill} />
