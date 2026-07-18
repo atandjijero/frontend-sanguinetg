@@ -36,7 +36,7 @@ export default defineConfig({
         short_name: 'Sanguine TG',
         description: 'Plateforme du CNTS pour la mobilisation des donneurs de sang au Togo',
         lang: 'fr',
-        theme_color: '#9e0027',
+        theme_color: '#00583e',
         background_color: '#faf9f7',
         display: 'standalone',
         start_url: '/',

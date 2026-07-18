@@ -1,11 +1,12 @@
 import React from 'react'
+import { Reveal } from '../ui/Reveal'
 import { T } from '../../context/LanguageContext'
 
 export function StatsSection() {
   return (
     <section className="py-20 bg-surface-container-lowest border-y border-surface-container-highest">
       <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <h2 className="font-headline-lg text-headline-lg mb-4">
             <T>Urgence &amp; Impact en Temps Réel</T>
           </h2>
@@ -15,52 +16,58 @@ export function StatsSection() {
               intervention immédiate.
             </T>
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-          <div className="bg-surface p-8 rounded-2xl border border-outline-variant soft-shadow col-span-1 md:col-span-2">
-            <h3 className="font-headline-md mb-8">
-              <T>Délai de mobilisation moyen</T>
-            </h3>
-            <div className="space-y-8">
-              <div className="relative">
-                <div className="flex justify-between mb-2">
-                  <span className="text-label-md text-secondary">
-                    <T>Délai Actuel (Traditionnel)</T>
-                  </span>
-                  <span className="font-bold text-on-surface">3h+</span>
+          <Reveal delay={100} className="col-span-1 md:col-span-2">
+            <div className="bg-surface p-8 rounded-2xl border border-outline-variant soft-shadow h-full">
+              <h3 className="font-headline-md mb-8">
+                <T>Délai de mobilisation moyen</T>
+              </h3>
+              <div className="space-y-8">
+                <div className="relative">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-label-md text-secondary">
+                      <T>Délai Actuel (Traditionnel)</T>
+                    </span>
+                    <span className="font-bold text-on-surface">3h+</span>
+                  </div>
+                  <div className="w-full h-4 bg-surface-container rounded-full overflow-hidden">
+                    <div className="h-full bg-secondary transition-all duration-1000 w-full" />
+                  </div>
                 </div>
-                <div className="w-full h-4 bg-surface-container rounded-full overflow-hidden">
-                  <div className="h-full bg-secondary transition-all duration-1000 w-full" />
-                </div>
-              </div>
-              <div className="relative">
-                <div className="flex justify-between mb-2">
-                  <span className="text-label-md text-success-mint font-bold">
-                    <T>Objectif Plateforme Sanguine</T>
-                  </span>
-                  <span className="font-bold text-success-mint">-30 min</span>
-                </div>
-                <div className="w-full h-4 bg-surface-container rounded-full overflow-hidden">
-                  <div className="h-full bg-success-mint animate-progress" style={{ '--progress-width': '15%' } as React.CSSProperties} />
+                <div className="relative">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-label-md text-success-mint font-bold">
+                      <T>Objectif Plateforme Sanguine</T>
+                    </span>
+                    <span className="font-bold text-success-mint">-30 min</span>
+                  </div>
+                  <div className="w-full h-4 bg-surface-container rounded-full overflow-hidden">
+                    <div className="h-full bg-success-mint animate-progress" style={{ '--progress-width': '15%' } as React.CSSProperties} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </Reveal>
 
           <div className="grid grid-cols-1 gap-4">
-            <div className="bg-surface p-6 rounded-2xl border border-outline-variant flex flex-col items-center justify-center text-center">
-              <span className="text-display-lg text-primary font-bold">12,500</span>
-              <p className="text-label-md text-secondary uppercase tracking-tight">
-                <T>Donneurs Actifs</T>
-              </p>
-            </div>
-            <div className="bg-tertiary/10 p-6 rounded-2xl border border-tertiary-fixed-dim/50 flex flex-col items-center justify-center text-center">
-              <span className="text-display-lg text-tertiary font-bold">98%</span>
-              <p className="text-label-md text-tertiary uppercase tracking-tight">
-                <T>Réussite Urgence</T>
-              </p>
-            </div>
+            <Reveal delay={200}>
+              <div className="bg-primary p-6 rounded-2xl soft-shadow flex flex-col items-center justify-center text-center">
+                <span className="text-display-lg text-on-primary font-bold">12,500</span>
+                <p className="text-label-md text-primary-fixed uppercase tracking-tight">
+                  <T>Donneurs Actifs</T>
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={300}>
+              <div className="bg-tertiary/10 p-6 rounded-2xl border border-tertiary-fixed-dim/50 flex flex-col items-center justify-center text-center">
+                <span className="text-display-lg text-tertiary font-bold">98%</span>
+                <p className="text-label-md text-tertiary uppercase tracking-tight">
+                  <T>Réussite Urgence</T>
+                </p>
+              </div>
+            </Reveal>
           </div>
         </div>
       </div>
