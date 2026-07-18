@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MegaphoneIcon, PlusIcon, Trash2Icon } from 'lucide-react'
+import { Loader2Icon, MegaphoneIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useConfirm } from '../../../context/ConfirmContext'
 import { Button } from '../../../components/ui-shadcn/ui/button'
@@ -225,8 +225,15 @@ export default function AlertesPage() {
             )}
 
             <div className="flex items-center gap-4">
-              <Button type="submit" disabled={submitting || nbCombinaisons === 0}>
-                <T>{nbCombinaisons > 1 ? `Envoyer ${nbCombinaisons} alertes` : "Envoyer l'alerte"}</T>
+              <Button type="submit" disabled={submitting || nbCombinaisons === 0} className="min-w-40">
+                {submitting ? (
+                  <>
+                    <Loader2Icon className="h-4 w-4 animate-spin" />
+                    <T>Envoi en cours...</T>
+                  </>
+                ) : (
+                  <T>{nbCombinaisons > 1 ? `Envoyer ${nbCombinaisons} alertes` : "Envoyer l'alerte"}</T>
+                )}
               </Button>
             </div>
             {formError && (

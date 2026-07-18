@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BellIcon, MailIcon, SmartphoneIcon } from 'lucide-react'
+import { BellIcon, MailIcon } from 'lucide-react'
 import { Button } from '../ui-shadcn/ui/button'
 import {
   DropdownMenu,
@@ -88,12 +88,6 @@ export function NotificationBell() {
                   title={n.emailEnvoye ? 'Email envoyé' : 'Email non envoyé'}
                 >
                   <MailIcon className="h-3 w-3" /> {n.emailEnvoye ? 'Email' : '—'}
-                </span>
-                <span
-                  className={`flex items-center gap-1 text-[11px] ${n.smsEnvoye ? 'text-tertiary' : ''}`}
-                  title={n.smsEnvoye ? 'SMS envoyé' : 'SMS non envoyé'}
-                >
-                  <SmartphoneIcon className="h-3 w-3" /> {n.smsEnvoye ? 'SMS' : '—'}
                 </span>
                 <span className="ml-auto text-[11px]">{new Date(n.dateEnvoi).toLocaleDateString('fr-FR')}</span>
               </div>

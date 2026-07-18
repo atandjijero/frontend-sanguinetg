@@ -185,7 +185,7 @@ export interface MessageContact {
   repondPar?: { id: string; nom: string; prenom: string } | null
 }
 
-export type TypeNotification = 'SMS' | 'EMAIL' | 'PUSH'
+export type TypeNotification = 'EMAIL' | 'PUSH'
 export type StatutNotification = 'ENVOYEE' | 'RECUE' | 'LUE'
 
 export interface NotificationDonneur {
@@ -194,7 +194,6 @@ export interface NotificationDonneur {
   statut: StatutNotification
   contenu: string | null
   emailEnvoye: boolean
-  smsEnvoye: boolean
   dateEnvoi: string
   alerteId: string | null
   alerte?: { id: string; quartier?: { nom: string } | null; centreDon?: { nom: string } | null } | null

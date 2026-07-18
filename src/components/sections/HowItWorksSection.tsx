@@ -32,13 +32,13 @@ export function HowItWorksSection() {
                   <CardDescription className="mt-4 text-justify">
                     <T>
                       Dès qu'un besoin urgent se présente, notre système identifie les donneurs compatibles les plus
-                      proches et envoie une notification SMS et Push instantanée.
+                      proches et envoie une notification Push et Email instantanée.
                     </T>
                   </CardDescription>
                 </div>
                 <div className="mt-12 flex flex-wrap gap-2">
                   <Badge variant="outline">
-                    <T>SMS Prioritaire</T>
+                    <T>Push Instantané</T>
                   </Badge>
                   <Badge variant="outline">
                     <T>Géo-localisation</T>
