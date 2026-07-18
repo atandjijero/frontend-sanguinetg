@@ -5,7 +5,7 @@ function urlBase64ToUint8Array(base64: string) {
   const padding = '='.repeat((4 - (base64.length % 4)) % 4)
   const base64Safe = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/')
   const rawData = window.atob(base64Safe)
-  return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)))
+  return Uint8Array.from(rawData.split('').map((char) => char.charCodeAt(0)))
 }
 
 function estSupporte() {
@@ -15,15 +15,24 @@ function estSupporte() {
 /** Abonnement aux notifications push (Web Push) pour le donneur connecté, appareil courant. */
 export function usePushSubscription() {
   const [abonne, setAbonne] = useState(false)
+  // Tant que `pret` est faux, on ne sait pas encore si cet appareil est déjà abonné : le
+  // vérifier prend un instant (le service worker doit être prêt). Sans ça, un appelant qui
+  // décide d'afficher une invite d'activation dès le montage se basait sur `abonne = false`
+  // par défaut et re-proposait l'activation à chaque connexion, même déjà abonné.
+  const [pret, setPret] = useState(false)
   const [enCours, setEnCours] = useState(false)
   const [erreur, setErreur] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!estSupporte()) return
+    if (!estSupporte()) {
+      setPret(true)
+      return
+    }
     navigator.serviceWorker.ready
       .then((registration) => registration.pushManager.getSubscription())
       .then((subscription) => setAbonne(!!subscription))
       .catch(() => undefined)
+      .finally(() => setPret(true))
   }, [])
 
   const abonner = useCallback(async () => {
@@ -79,5 +88,5 @@ export function usePushSubscription() {
     }
   }, [])
 
-  return { supporte: estSupporte(), abonne, enCours, erreur, abonner, desabonner }
+  return { supporte: estSupporte(), pret, abonne, enCours, erreur, abonner, desabonner }
 }

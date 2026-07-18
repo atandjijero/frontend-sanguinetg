@@ -20,7 +20,7 @@ const CLE_REFUS_NOTIFICATIONS = 'sanguine-tg-notifications-refusees'
 export default function DonneurDashboardLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const { supporte, abonne, abonner } = usePushSubscription()
+  const { supporte, pret, abonne, abonner } = usePushSubscription()
   const confirm = useConfirm()
   const titre = useTraduction('Activer les notifications')
   const description = useTraduction(
@@ -34,7 +34,7 @@ export default function DonneurDashboardLayout() {
   // navigateur afficher sa popup native sans contexte. Cette popup native ne s'affiche
   // ensuite que si le donneur accepte ; un refus de la carte n'est pas re-proposé.
   useEffect(() => {
-    if (!supporte || abonne) return
+    if (!pret || !supporte || abonne) return
     if (typeof Notification !== 'undefined' && Notification.permission === 'denied') return
     if (localStorage.getItem(CLE_REFUS_NOTIFICATIONS) === '1') return
 
@@ -59,7 +59,7 @@ export default function DonneurDashboardLayout() {
       annule = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supporte, abonne])
+  }, [pret, supporte, abonne])
 
   if (!user) return null
 

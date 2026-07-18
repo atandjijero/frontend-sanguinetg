@@ -21,6 +21,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-[oklch(0.205_0_0)] group-[.toast]:text-[oklch(0.985_0_0)] dark:group-[.toast]:bg-[oklch(0.922_0_0)] dark:group-[.toast]:text-[oklch(0.205_0_0)]",
           cancelButton:
             "group-[.toast]:bg-[oklch(0.97_0_0)] group-[.toast]:text-[oklch(0.556_0_0)] dark:group-[.toast]:bg-[oklch(0.269_0_0)] dark:group-[.toast]:text-[oklch(0.708_0_0)]",
+          success: "group-[.toaster]:!bg-tertiary/10 group-[.toaster]:!text-tertiary group-[.toaster]:!border-tertiary/30",
+          error: "group-[.toaster]:!bg-destructive/10 group-[.toaster]:!text-destructive group-[.toaster]:!border-destructive/30",
         },
       }}
       {...props}

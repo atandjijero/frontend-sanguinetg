@@ -38,9 +38,9 @@ export default function AlertesPage() {
   const [quartierIds, setQuartierIds] = useState<string[]>([])
   const [centreDonIds, setCentreDonIds] = useState<string[]>([])
   const [nombreDonneursMaxParQuartier, setNombreDonneursMaxParQuartier] = useState<Record<string, string>>({})
+  const [rayonKm, setRayonKm] = useState('10')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
-  const [succes, setSucces] = useState<string | null>(null)
 
   const nbCombinaisons = groupes.length * quartierIds.length * centreDonIds.length
   const quartiersParId = new Map((quartiers ?? []).map((q) => [q.id, q.nom]))
@@ -51,7 +51,6 @@ export default function AlertesPage() {
     if (groupes.length === 0 || quartierIds.length === 0 || centreDonIds.length === 0) return
     setSubmitting(true)
     setFormError(null)
-    setSucces(null)
     try {
       const nombreDonneursMaxNumerique: Record<string, number> = {}
       for (const qId of quartierIds) {
@@ -62,17 +61,21 @@ export default function AlertesPage() {
         groupesSanguinsRequis: groupes,
         quartierIds,
         centreDonIds,
+        rayonKm: rayonKm ? Number(rayonKm) : undefined,
         nombreDonneursMaxParQuartier: Object.keys(nombreDonneursMaxNumerique).length ? nombreDonneursMaxNumerique : undefined,
       })
       const totalNotifies = crees.reduce((total, a) => total + (a.donneursNotifies ?? 0), 0)
-      setSucces(`${crees.length} alerte(s) créée(s), ${totalNotifies} donneur(s) notifié(s) au total.`)
+      toast.success(`${crees.length} alerte(s) créée(s), ${totalNotifies} donneur(s) notifié(s) au total.`)
       setGroupes([])
       setQuartierIds([])
       setCentreDonIds([])
       setNombreDonneursMaxParQuartier({})
+      setRayonKm('10')
       await refetch()
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : "Impossible de créer les alertes")
+      const message = err instanceof ApiError ? err.message : "Impossible de créer les alertes"
+      setFormError(message)
+      toast.error(message)
     } finally {
       setSubmitting(false)
     }
@@ -158,6 +161,22 @@ export default function AlertesPage() {
               </div>
             </div>
 
+            <div className="space-y-2 sm:max-w-xs">
+              <Label>
+                <T>Rayon autour du centre le plus proche (km)</T>
+              </Label>
+              <Input
+                type="number"
+                min={1}
+                max={50}
+                value={rayonKm}
+                onChange={(e) => setRayonKm(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                <T>Seuls les donneurs géolocalisés dans ce rayon sont ciblés (les autres restent inclus par défaut).</T>
+              </p>
+            </div>
+
             {quartierIds.length > 0 && (
               <div className="space-y-2">
                 <Label>
@@ -213,11 +232,6 @@ export default function AlertesPage() {
             {formError && (
               <p className="text-sm text-destructive">
                 <T>{formError}</T>
-              </p>
-            )}
-            {succes && (
-              <p className="text-sm text-tertiary">
-                <T>{succes}</T>
               </p>
             )}
           </form>
