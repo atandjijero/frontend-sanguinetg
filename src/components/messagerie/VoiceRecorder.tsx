@@ -34,10 +34,16 @@ function messageErreurMicro(error: unknown): string {
 export function VoiceRecorder({
   onSend,
   onActifChange,
+  onRecordingChange,
   disabled,
 }: {
   onSend: (blob: Blob, dureeSecondes: number) => void
   onActifChange?: (actif: boolean) => void
+  /** Signale à l'autre partie « X enregistre un message vocal » — réémis à chaque seconde
+   * tant que l'enregistrement est en cours, pour que le filet de sécurité côté réception
+   * (qui efface l'indicateur après quelques secondes d'inactivité) ne l'efface pas à tort
+   * pendant un enregistrement qui peut durer plusieurs minutes. */
+  onRecordingChange?: (enregistrement: boolean) => void
   disabled?: boolean
 }) {
   const [etat, setEtat] = useState<'idle' | 'recording' | 'preview'>('idle')
@@ -91,7 +97,11 @@ export function VoiceRecorder({
       recorder.start()
       setDureeEcoulee(0)
       setEtat('recording')
-      intervalRef.current = setInterval(() => setDureeEcoulee((d) => d + 1), 1000)
+      onRecordingChange?.(true)
+      intervalRef.current = setInterval(() => {
+        setDureeEcoulee((d) => d + 1)
+        onRecordingChange?.(true)
+      }, 1000)
     } catch (error) {
       console.error('Erreur accès micro :', error)
       toast.error(messageErreurMicro(error))
@@ -102,12 +112,14 @@ export function VoiceRecorder({
     mediaRecorderRef.current?.stop()
     streamRef.current?.getTracks().forEach((t) => t.stop())
     if (intervalRef.current) clearInterval(intervalRef.current)
+    onRecordingChange?.(false)
   }
 
   function annuler() {
     if (etat === 'recording') {
       mediaRecorderRef.current?.stop()
       streamRef.current?.getTracks().forEach((t) => t.stop())
+      onRecordingChange?.(false)
     }
     if (intervalRef.current) clearInterval(intervalRef.current)
     if (audioUrl) URL.revokeObjectURL(audioUrl)

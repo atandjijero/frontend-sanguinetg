@@ -27,6 +27,7 @@ interface FrappeEvent {
   donneurId: string
   auteurRole: string
   enTrainDecrire: boolean
+  type: 'texte' | 'vocal'
 }
 
 const DELAI_ARRET_FRAPPE_MS = 2500
@@ -39,7 +40,7 @@ export default function MessagerieDonneurPage() {
   const [contenu, setContenu] = useState('')
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
-  const [medecinEcrit, setMedecinEcrit] = useState(false)
+  const [activiteMedecin, setActiviteMedecin] = useState<'texte' | 'vocal' | null>(null)
   const [enregistrementActif, setEnregistrementActif] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
@@ -73,10 +74,10 @@ export default function MessagerieDonneurPage() {
       setMessages((prev) => prev?.map((m) => (m.id === message.id ? message : m)) ?? prev)
     })
     socket.on('frappe', (event: FrappeEvent) => {
-      setMedecinEcrit(event.enTrainDecrire)
+      setActiviteMedecin(event.enTrainDecrire ? event.type : null)
       if (filetSecuriteRef.current) clearTimeout(filetSecuriteRef.current)
       if (event.enTrainDecrire) {
-        filetSecuriteRef.current = setTimeout(() => setMedecinEcrit(false), DELAI_FILET_SECURITE_MS)
+        filetSecuriteRef.current = setTimeout(() => setActiviteMedecin(null), DELAI_FILET_SECURITE_MS)
       }
     })
 
@@ -142,6 +143,10 @@ export default function MessagerieDonneurPage() {
     })
   }
 
+  function handleRecordingChange(enregistrement: boolean) {
+    socketRef.current?.emit(enregistrement ? 'typing_start' : 'typing_stop', { type: 'vocal' })
+  }
+
   async function handleEnvoyerVocal(blob: Blob, dureeSecondes: number) {
     try {
       const formData = new FormData()
@@ -184,7 +189,12 @@ export default function MessagerieDonneurPage() {
             <div ref={finDuFilRef} />
           </div>
         </DataState>
-        {medecinEcrit && <TypingIndicator label="Un médecin est en train d'écrire…" />}
+        {activiteMedecin && (
+          <TypingIndicator
+            label={activiteMedecin === 'vocal' ? 'Un médecin enregistre un message vocal…' : "Un médecin est en train d'écrire…"}
+            vocal={activiteMedecin === 'vocal'}
+          />
+        )}
         {messageEnEdition && (
           <div className="mt-3 flex items-center justify-between rounded-md bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
             <T>Modification du message…</T>
@@ -206,7 +216,12 @@ export default function MessagerieDonneurPage() {
               />
             </>
           )}
-          <VoiceRecorder onSend={handleEnvoyerVocal} onActifChange={setEnregistrementActif} disabled={!connecte} />
+          <VoiceRecorder
+            onSend={handleEnvoyerVocal}
+            onActifChange={setEnregistrementActif}
+            onRecordingChange={handleRecordingChange}
+            disabled={!connecte}
+          />
           {!enregistrementActif && (
             <Button type="submit" disabled={!connecte || !contenu.trim()}>
               <SendIcon className="h-4 w-4" />

@@ -31,6 +31,7 @@ interface FrappeEvent {
   donneurId: string
   auteurRole: string
   enTrainDecrire: boolean
+  type: 'texte' | 'vocal'
 }
 
 const DELAI_ARRET_FRAPPE_MS = 2500
@@ -55,7 +56,7 @@ export default function MessagerieMedecinPage() {
   const [contenu, setContenu] = useState('')
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
-  const [conversationsQuiEcrivent, setConversationsQuiEcrivent] = useState<Set<string>>(new Set())
+  const [conversationsQuiEcrivent, setConversationsQuiEcrivent] = useState<Map<string, 'texte' | 'vocal'>>(new Map())
   const [enregistrementActif, setEnregistrementActif] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
@@ -99,8 +100,8 @@ export default function MessagerieMedecinPage() {
       if (existant) clearTimeout(existant)
 
       setConversationsQuiEcrivent((prev) => {
-        const next = new Set(prev)
-        if (event.enTrainDecrire) next.add(event.conversationId)
+        const next = new Map(prev)
+        if (event.enTrainDecrire) next.set(event.conversationId, event.type)
         else next.delete(event.conversationId)
         return next
       })
@@ -110,7 +111,7 @@ export default function MessagerieMedecinPage() {
           event.conversationId,
           setTimeout(() => {
             setConversationsQuiEcrivent((prev) => {
-              const next = new Set(prev)
+              const next = new Map(prev)
               next.delete(event.conversationId)
               return next
             })
@@ -181,6 +182,11 @@ export default function MessagerieMedecinPage() {
     })
   }
 
+  function handleRecordingChange(enregistrement: boolean) {
+    if (!selectionId) return
+    socketRef.current?.emit(enregistrement ? 'typing_start' : 'typing_stop', { conversationId: selectionId, type: 'vocal' })
+  }
+
   async function handleEnvoyerVocal(blob: Blob, dureeSecondes: number) {
     if (!selectionId) return
     try {
@@ -228,7 +234,7 @@ export default function MessagerieMedecinPage() {
                   )}
                   {conversationsQuiEcrivent.has(conv.id) ? (
                     <span className="truncate text-xs italic text-primary">
-                      <T>en train d'écrire…</T>
+                      <T>{conversationsQuiEcrivent.get(conv.id) === 'vocal' ? 'enregistre un message vocal…' : "en train d'écrire…"}</T>
                     </span>
                   ) : (
                     <span className="truncate text-xs text-muted-foreground">
@@ -269,7 +275,14 @@ export default function MessagerieMedecinPage() {
                 </div>
               </DataState>
               {conversationsQuiEcrivent.has(selectionId) && (
-                <TypingIndicator label="Le donneur est en train d'écrire…" />
+                <TypingIndicator
+                  label={
+                    conversationsQuiEcrivent.get(selectionId) === 'vocal'
+                      ? 'Le donneur enregistre un message vocal…'
+                      : "Le donneur est en train d'écrire…"
+                  }
+                  vocal={conversationsQuiEcrivent.get(selectionId) === 'vocal'}
+                />
               )}
               {peutRepondre ? (
                 <>
@@ -294,7 +307,12 @@ export default function MessagerieMedecinPage() {
                         />
                       </>
                     )}
-                    <VoiceRecorder onSend={handleEnvoyerVocal} onActifChange={setEnregistrementActif} disabled={!connecte} />
+                    <VoiceRecorder
+                      onSend={handleEnvoyerVocal}
+                      onActifChange={setEnregistrementActif}
+                      onRecordingChange={handleRecordingChange}
+                      disabled={!connecte}
+                    />
                     {!enregistrementActif && (
                       <Button type="submit" disabled={!connecte || !contenu.trim()}>
                         <SendIcon className="h-4 w-4" />
