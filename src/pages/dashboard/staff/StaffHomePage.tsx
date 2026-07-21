@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { BookHeartIcon, MegaphoneIcon, RssIcon, TimerIcon, UsersIcon } from 'lucide-react'
+import { BookHeartIcon, HeartHandshakeIcon, MegaphoneIcon, RepeatIcon, RssIcon, SmileIcon, TimerIcon, UsersIcon } from 'lucide-react'
 import { StatCard } from '../../../components/dashboard/StatCard'
 import { DonneurGroupeDonut } from '../../../components/dashboard/DonneurGroupeDonut'
 import { DonsParMoisChart } from '../../../components/dashboard/DonsParMoisChart'
@@ -8,7 +8,15 @@ import { DernieresAlertesTable } from '../../../components/dashboard/DernieresAl
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { T } from '../../../context/LanguageContext'
-import type { AbonneNewsletter, Alerte, CarnetDigital, StatistiquesMobilisation, Utilisateur } from '../../../lib/types'
+import type {
+  AbonneNewsletter,
+  Alerte,
+  CarnetDigital,
+  StatistiquesFidelisation,
+  StatistiquesMobilisation,
+  StatistiquesSatisfaction,
+  Utilisateur,
+} from '../../../lib/types'
 
 export default function StaffHomePage() {
   const { user } = useAuth()
@@ -20,6 +28,8 @@ export default function StaffHomePage() {
   const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
   const { data: mobilisation } = useApiData<StatistiquesMobilisation>('/alertes/statistiques/mobilisation')
   const { data: abonnes } = useApiData<AbonneNewsletter[]>(estSuperadmin ? '/newsletter' : null)
+  const { data: fidelisation } = useApiData<StatistiquesFidelisation>('/carnets/statistiques/fidelisation')
+  const { data: satisfaction } = useApiData<StatistiquesSatisfaction>('/avis/statistiques')
 
   const now = new Date()
   const donsCeMois =
@@ -46,7 +56,7 @@ export default function StaffHomePage() {
           <T>Vue d'ensemble de la mobilisation des donneurs à Lomé.</T>
         </p>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         {peutVoirDonneurs && (
           <StatCard label={<T>Donneurs inscrits</T>} value={donneurs?.length ?? '—'} icon={UsersIcon} />
         )}
@@ -85,10 +95,49 @@ export default function StaffHomePage() {
           />
         )}
       </div>
-      <div className="grid gap-5 lg:grid-cols-2">
-        {peutVoirDonneurs && <DonneurGroupeDonut donneurs={donneurs ?? []} />}
-        <DonsParMoisChart carnets={carnets ?? []} />
+      <div>
+        <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight mb-3">
+          <HeartHandshakeIcon className="h-4 w-4 text-primary" /> <T>Fidélisation des donneurs</T>
+        </h3>
+        <div className="grid gap-5 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
+          <StatCard
+            label={<T>Donneurs mobilisés dans l'heure</T>}
+            value={mobilisation?.donneursMobilisesUneHeure ?? '—'}
+            icon={HeartHandshakeIcon}
+            hint={<T>par appel, en moyenne</T>}
+          />
+          <StatCard
+            label={<T>Taux de dons répétés</T>}
+            value={fidelisation?.tauxDonsRepetes != null ? `${fidelisation.tauxDonsRepetes}%` : '—'}
+            icon={RepeatIcon}
+            hint={<T>donneurs récurrents / total inscrits</T>}
+          />
+          <StatCard
+            label={<T>Taux de rétention</T>}
+            value={fidelisation?.tauxRetention != null ? `${fidelisation.tauxRetention}%` : '—'}
+            icon={UsersIcon}
+            hint={
+              fidelisation ? (
+                <T>{`sur ${fidelisation.donneursEligiblesRetention} donneur(s) inscrit(s) depuis + de ${fidelisation.joursPeriode}j`}</T>
+              ) : undefined
+            }
+          />
+          <StatCard
+            label={<T>Taux de satisfaction</T>}
+            value={satisfaction?.tauxSatisfaction != null ? `${satisfaction.tauxSatisfaction}%` : '—'}
+            icon={SmileIcon}
+            hint={satisfaction?.totalAvis ? <T>{`sur ${satisfaction.totalAvis} avis`}</T> : undefined}
+          />
+        </div>
       </div>
+      {peutVoirDonneurs ? (
+        <div className="grid gap-5 lg:grid-cols-2">
+          <DonneurGroupeDonut donneurs={donneurs ?? []} />
+          <DonsParMoisChart carnets={carnets ?? []} />
+        </div>
+      ) : (
+        <DonsParMoisChart carnets={carnets ?? []} />
+      )}
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <DernieresAlertesTable alertes={alertesOuvertes ?? []} />

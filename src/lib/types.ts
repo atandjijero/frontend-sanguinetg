@@ -123,6 +123,30 @@ export interface StatistiquesMobilisation {
   delaiMoyenMinutes: number | null
   tauxCouvertureUneHeure: number | null
   donneursMobilisesParAlerte: number | null
+  donneursMobilisesUneHeure: number | null
+}
+
+export interface StatistiquesFidelisation {
+  totalDonneurs: number
+  donneursRecurrents: number
+  tauxDonsRepetes: number | null
+  donneursEligiblesRetention: number
+  tauxRetention: number | null
+  joursPeriode: number
+}
+
+export interface AvisDonneur {
+  id: string
+  donneurId: string
+  note: number
+  commentaire: string | null
+  dateCreation: string
+}
+
+export interface StatistiquesSatisfaction {
+  totalAvis: number
+  moyenneNote: number | null
+  tauxSatisfaction: number | null
 }
 
 export interface AbonneNewsletter {
@@ -130,6 +154,39 @@ export interface AbonneNewsletter {
   nom: string
   email: string
   dateAbonnement: string
+}
+
+export interface ChatMessage {
+  id: string
+  conversationId: string
+  auteurId: string
+  contenu: string
+  lu: boolean
+  dateEnvoi: string
+  edite: boolean
+  dateModification: string | null
+  supprime: boolean
+  auteur: { id: string; nom: string; prenom: string; role: Role }
+}
+
+export interface Conversation {
+  id: string
+  donneurId: string
+  dateCreation: string
+  dernierMessageAt: string
+}
+
+export interface ConversationAvecMessages {
+  conversation: Conversation
+  messages: ChatMessage[]
+}
+
+export interface ConversationResume {
+  id: string
+  donneur: { id: string; nom: string; prenom: string; groupeSanguin: GroupeSanguin | null }
+  dernierMessageAt: string
+  dernierMessage: ChatMessage | null
+  messagesNonLus: number
 }
 
 export type TypeAlerteSecurite = 'BRUTE_FORCE' | 'CSP_VIOLATION' | 'SQL_INJECTION' | 'XSS_ATTEMPT'

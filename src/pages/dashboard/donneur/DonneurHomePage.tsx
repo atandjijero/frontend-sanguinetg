@@ -29,7 +29,7 @@ export default function DonneurHomePage() {
         <StatCard label={<T>Dons effectués</T>} value={carnets?.length ?? '—'} icon={BookHeartIcon} />
         <StatCard label={<T>Récompenses reçues</T>} value={recompenses?.length ?? '—'} icon={GiftIcon} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="max-w-sm">
         <ProchainDonMeter carnets={carnets ?? []} />
       </div>
     </div>

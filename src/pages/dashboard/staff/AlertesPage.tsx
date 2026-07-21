@@ -81,10 +81,19 @@ export default function AlertesPage() {
     }
   }
 
-  async function toggleStatut(alerte: Alerte) {
-    const nouveauStatut = alerte.statut === 'OUVERTE' ? 'FERMEE' : 'OUVERTE'
-    await api.patch(`/alertes/${alerte.id}/statut`, { statut: nouveauStatut })
+  async function fermer(alerte: Alerte) {
+    await api.patch(`/alertes/${alerte.id}/statut`, { statut: 'FERMEE' })
     refetch()
+  }
+
+  async function relancer(alerte: Alerte) {
+    try {
+      const relancee = await api.post<Alerte>(`/alertes/${alerte.id}/relancer`)
+      toast.success(`Alerte relancée, ${relancee.donneursNotifies ?? 0} donneur(s) renotifié(s).`)
+      await refetch()
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Relance impossible')
+    }
   }
 
   async function handleDelete(id: string) {
@@ -308,9 +317,14 @@ export default function AlertesPage() {
                           <T>Voir les réponses</T>
                         </Link>
                       </Button>
-                      {peutLancerAlertes && (
-                        <Button variant="outline" size="sm" onClick={() => toggleStatut(alerte)}>
-                          <T>{alerte.statut === 'OUVERTE' ? 'Fermer' : 'Rouvrir'}</T>
+                      {peutLancerAlertes && alerte.statut === 'OUVERTE' && (
+                        <Button variant="outline" size="sm" onClick={() => fermer(alerte)}>
+                          <T>Fermer</T>
+                        </Button>
+                      )}
+                      {peutLancerAlertes && alerte.statut === 'FERMEE' && (
+                        <Button variant="outline" size="sm" onClick={() => relancer(alerte)}>
+                          <T>Relancer</T>
                         </Button>
                       )}
                       {peutLancerAlertes && (

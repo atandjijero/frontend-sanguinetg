@@ -20,7 +20,6 @@ export function NavMain({ items, compact = false }: { items: NavItem[]; compact?
                       : undefined
                   }
                 >
-                  <item.icon className={compact ? 'h-4 w-4' : 'h-5 w-5'} />
                   <span>
                     <T>{item.title}</T>
                   </span>

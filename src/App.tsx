@@ -29,6 +29,7 @@ import QuartiersPage from './pages/dashboard/staff/QuartiersPage';
 import CentresDonPage from './pages/dashboard/staff/CentresDonPage';
 import EquipePage from './pages/dashboard/staff/EquipePage';
 import MessagesPage from './pages/dashboard/staff/MessagesPage';
+import MessagerieMedecinPage from './pages/dashboard/staff/MessagerieMedecinPage';
 import AbonnesPage from './pages/dashboard/staff/AbonnesPage';
 import SecurityPage from './pages/dashboard/staff/SecurityPage';
 import ImagesPage from './pages/dashboard/staff/ImagesPage';
@@ -38,6 +39,7 @@ import CentresPage from './pages/dashboard/donneur/CentresPage';
 import MonCarnetPage from './pages/dashboard/donneur/MonCarnetPage';
 import MesRecompensesPage from './pages/dashboard/donneur/MesRecompensesPage';
 import ConseilsSantePage from './pages/dashboard/donneur/ConseilsSantePage';
+import MessagerieDonneurPage from './pages/dashboard/donneur/MessagerieDonneurPage';
 
 function App() {
   return (
@@ -76,6 +78,9 @@ function App() {
                 <Route path="images" element={<ImagesPage />} />
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="profil" element={<ProfilPage />} />
+                <Route element={<ProtectedRoute roles={['SUPERADMIN', 'ADMIN', 'MEDECIN']} />}>
+                  <Route path="messagerie" element={<MessagerieMedecinPage />} />
+                </Route>
                 <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>
                   <Route path="abonnes" element={<AbonnesPage />} />
                   <Route path="securite" element={<SecurityPage />} />
@@ -92,6 +97,7 @@ function App() {
                 <Route path="carnet" element={<MonCarnetPage />} />
                 <Route path="recompenses" element={<MesRecompensesPage />} />
                 <Route path="conseils" element={<ConseilsSantePage />} />
+                <Route path="messagerie" element={<MessagerieDonneurPage />} />
                 <Route path="profil" element={<ProfilPage />} />
               </Route>
             </Route>

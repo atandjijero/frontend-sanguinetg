@@ -8,6 +8,7 @@ import {
   MailIcon,
   MapPinIcon,
   MegaphoneIcon,
+  MessageCircleIcon,
   RssIcon,
   ShieldAlertIcon,
   StethoscopeIcon,
@@ -76,6 +77,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS'],
   },
   {
+    title: 'Messagerie',
+    to: '/admin/messagerie',
+    icon: MessageCircleIcon,
+    roles: ['SUPERADMIN', 'ADMIN', 'MEDECIN'],
+  },
+  {
     title: 'Équipe CNTS',
     to: '/admin/equipe',
     icon: UsersIcon,
@@ -108,6 +115,7 @@ export const DONNEUR_NAV_ITEMS: NavItem[] = [
   { title: 'Mon carnet de don', to: '/espace-donneur/carnet', icon: BookHeartIcon },
   { title: 'Mes récompenses', to: '/espace-donneur/recompenses', icon: GiftIcon },
   { title: 'Conseils santé', to: '/espace-donneur/conseils', icon: StethoscopeIcon },
+  { title: 'Messagerie', to: '/espace-donneur/messagerie', icon: MessageCircleIcon },
 ]
 
 export function filtrerParRole(items: NavItem[], role: Role): NavItem[] {
