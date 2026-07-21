@@ -15,6 +15,7 @@ const CONTENT_SECURITY_POLICY = [
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
   `img-src 'self' data: https:`,
+  `media-src 'self' blob: https:`,
   `connect-src 'self' ${API_URL} https://fonts.googleapis.com https://maps.googleapis.com ws:`,
   // La page Contact embarque un iframe Google Maps (maps/embed) pour localiser le CNTS.
   `frame-src 'self' https://www.google.com`,

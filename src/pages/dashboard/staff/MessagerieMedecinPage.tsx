@@ -9,10 +9,12 @@ import { DataState } from '../../../components/dashboard/DataState'
 import { MessageBubble } from '../../../components/messagerie/MessageBubble'
 import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
 import { EmojiPicker } from '../../../components/messagerie/EmojiPicker'
+import { VoiceRecorder } from '../../../components/messagerie/VoiceRecorder'
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import { toast } from 'sonner'
+import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS } from '../../../lib/constants'
 import { connecterMessagerie } from '../../../lib/socket'
 import { cn } from '@/lib/shadcn-utils'
@@ -54,6 +56,7 @@ export default function MessagerieMedecinPage() {
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
   const [conversationsQuiEcrivent, setConversationsQuiEcrivent] = useState<Set<string>>(new Set())
+  const [enregistrementActif, setEnregistrementActif] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
   const arretFrappeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -178,6 +181,19 @@ export default function MessagerieMedecinPage() {
     })
   }
 
+  async function handleEnvoyerVocal(blob: Blob, dureeSecondes: number) {
+    if (!selectionId) return
+    try {
+      const formData = new FormData()
+      formData.append('file', blob, 'message-vocal.webm')
+      formData.append('dureeSecondes', String(dureeSecondes))
+      formData.append('conversationId', selectionId)
+      await api.upload('/messagerie/messages/vocal', formData)
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Impossible d'envoyer le message vocal")
+    }
+  }
+
   return (
     <div className="grid h-[75vh] gap-5 lg:grid-cols-3">
       <Card className="flex flex-col overflow-hidden lg:col-span-1">
@@ -216,7 +232,11 @@ export default function MessagerieMedecinPage() {
                     </span>
                   ) : (
                     <span className="truncate text-xs text-muted-foreground">
-                      {conv.dernierMessage?.contenu ?? '—'}
+                      {conv.dernierMessage?.supprime
+                        ? 'Message supprimé'
+                        : conv.dernierMessage?.type === 'AUDIO'
+                          ? '🎤 Message vocal'
+                          : conv.dernierMessage?.contenu || '—'}
                     </span>
                   )}
                 </div>
@@ -262,17 +282,24 @@ export default function MessagerieMedecinPage() {
                     </div>
                   )}
                   <form onSubmit={handleSubmit} className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-                    <EmojiPicker onSelect={(emoji) => handleInputChange(contenu + emoji)} />
-                    <Input
-                      value={contenu}
-                      onChange={(e) => handleInputChange(e.target.value)}
-                      placeholder={placeholder}
-                      maxLength={2000}
-                      disabled={!connecte}
-                    />
-                    <Button type="submit" disabled={!connecte || !contenu.trim()}>
-                      <SendIcon className="h-4 w-4" />
-                    </Button>
+                    {!enregistrementActif && (
+                      <>
+                        <EmojiPicker onSelect={(emoji) => handleInputChange(contenu + emoji)} />
+                        <Input
+                          value={contenu}
+                          onChange={(e) => handleInputChange(e.target.value)}
+                          placeholder={placeholder}
+                          maxLength={2000}
+                          disabled={!connecte}
+                        />
+                      </>
+                    )}
+                    <VoiceRecorder onSend={handleEnvoyerVocal} onActifChange={setEnregistrementActif} disabled={!connecte} />
+                    {!enregistrementActif && (
+                      <Button type="submit" disabled={!connecte || !contenu.trim()}>
+                        <SendIcon className="h-4 w-4" />
+                      </Button>
+                    )}
                   </form>
                 </>
               ) : (

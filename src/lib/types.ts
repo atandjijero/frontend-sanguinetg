@@ -156,11 +156,16 @@ export interface AbonneNewsletter {
   dateAbonnement: string
 }
 
+export type TypeMessageChat = 'TEXTE' | 'AUDIO'
+
 export interface ChatMessage {
   id: string
   conversationId: string
   auteurId: string
   contenu: string
+  type: TypeMessageChat
+  audioUrl: string | null
+  audioDureeSecondes: number | null
   lu: boolean
   dateEnvoi: string
   edite: boolean

@@ -8,6 +8,7 @@ import { DataState } from '../../../components/dashboard/DataState'
 import { MessageBubble } from '../../../components/messagerie/MessageBubble'
 import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
 import { EmojiPicker } from '../../../components/messagerie/EmojiPicker'
+import { VoiceRecorder } from '../../../components/messagerie/VoiceRecorder'
 import { useAuth } from '../../../context/AuthContext'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import { toast } from 'sonner'
@@ -39,6 +40,7 @@ export default function MessagerieDonneurPage() {
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
   const [medecinEcrit, setMedecinEcrit] = useState(false)
+  const [enregistrementActif, setEnregistrementActif] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
   const arretFrappeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -140,6 +142,17 @@ export default function MessagerieDonneurPage() {
     })
   }
 
+  async function handleEnvoyerVocal(blob: Blob, dureeSecondes: number) {
+    try {
+      const formData = new FormData()
+      formData.append('file', blob, 'message-vocal.webm')
+      formData.append('dureeSecondes', String(dureeSecondes))
+      await api.upload('/messagerie/messages/vocal', formData)
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Impossible d'envoyer le message vocal")
+    }
+  }
+
   return (
     <Card className="flex h-[75vh] flex-col">
       <CardHeader>
@@ -181,17 +194,24 @@ export default function MessagerieDonneurPage() {
           </div>
         )}
         <form onSubmit={handleSubmit} className="mt-3 flex items-center gap-2 border-t border-border pt-3">
-          <EmojiPicker onSelect={(emoji) => handleInputChange(contenu + emoji)} />
-          <Input
-            value={contenu}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder={placeholder}
-            maxLength={2000}
-            disabled={!connecte}
-          />
-          <Button type="submit" disabled={!connecte || !contenu.trim()}>
-            <SendIcon className="h-4 w-4" />
-          </Button>
+          {!enregistrementActif && (
+            <>
+              <EmojiPicker onSelect={(emoji) => handleInputChange(contenu + emoji)} />
+              <Input
+                value={contenu}
+                onChange={(e) => handleInputChange(e.target.value)}
+                placeholder={placeholder}
+                maxLength={2000}
+                disabled={!connecte}
+              />
+            </>
+          )}
+          <VoiceRecorder onSend={handleEnvoyerVocal} onActifChange={setEnregistrementActif} disabled={!connecte} />
+          {!enregistrementActif && (
+            <Button type="submit" disabled={!connecte || !contenu.trim()}>
+              <SendIcon className="h-4 w-4" />
+            </Button>
+          )}
         </form>
         {!connecte && (
           <p className="mt-1 text-xs text-muted-foreground">
