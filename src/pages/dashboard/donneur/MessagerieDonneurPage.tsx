@@ -7,6 +7,7 @@ import { Input } from '../../../components/ui-shadcn/ui/input'
 import { DataState } from '../../../components/dashboard/DataState'
 import { MessageBubble } from '../../../components/messagerie/MessageBubble'
 import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
+import { EmojiPicker } from '../../../components/messagerie/EmojiPicker'
 import { useAuth } from '../../../context/AuthContext'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import { toast } from 'sonner'
@@ -180,6 +181,7 @@ export default function MessagerieDonneurPage() {
           </div>
         )}
         <form onSubmit={handleSubmit} className="mt-3 flex items-center gap-2 border-t border-border pt-3">
+          <EmojiPicker onSelect={(emoji) => handleInputChange(contenu + emoji)} />
           <Input
             value={contenu}
             onChange={(e) => handleInputChange(e.target.value)}
