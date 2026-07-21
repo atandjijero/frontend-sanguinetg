@@ -6,6 +6,7 @@ import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Input } from '../../../components/ui-shadcn/ui/input'
 import { DataState } from '../../../components/dashboard/DataState'
 import { MessageBubble } from '../../../components/messagerie/MessageBubble'
+import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
 import { useAuth } from '../../../context/AuthContext'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import { toast } from 'sonner'
@@ -19,6 +20,16 @@ interface AckReponse {
   error?: string
 }
 
+interface FrappeEvent {
+  conversationId: string
+  donneurId: string
+  auteurRole: string
+  enTrainDecrire: boolean
+}
+
+const DELAI_ARRET_FRAPPE_MS = 2500
+const DELAI_FILET_SECURITE_MS = 4000
+
 export default function MessagerieDonneurPage() {
   const { user } = useAuth()
   const [messages, setMessages] = useState<ChatMessage[] | null>(null)
@@ -26,8 +37,11 @@ export default function MessagerieDonneurPage() {
   const [contenu, setContenu] = useState('')
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
+  const [medecinEcrit, setMedecinEcrit] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
+  const arretFrappeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const filetSecuriteRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const placeholder = useTraduction('Écrivez votre message…')
 
   useEffect(() => {
@@ -55,10 +69,19 @@ export default function MessagerieDonneurPage() {
     socket.on('message_mis_a_jour', (message: ChatMessage) => {
       setMessages((prev) => prev?.map((m) => (m.id === message.id ? message : m)) ?? prev)
     })
+    socket.on('frappe', (event: FrappeEvent) => {
+      setMedecinEcrit(event.enTrainDecrire)
+      if (filetSecuriteRef.current) clearTimeout(filetSecuriteRef.current)
+      if (event.enTrainDecrire) {
+        filetSecuriteRef.current = setTimeout(() => setMedecinEcrit(false), DELAI_FILET_SECURITE_MS)
+      }
+    })
 
     return () => {
       annule = true
       socket.disconnect()
+      if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+      if (filetSecuriteRef.current) clearTimeout(filetSecuriteRef.current)
     }
   }, [])
 
@@ -66,10 +89,24 @@ export default function MessagerieDonneurPage() {
     finDuFilRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  function handleInputChange(valeur: string) {
+    setContenu(valeur)
+    if (!socketRef.current) return
+
+    socketRef.current.emit('typing_start', {})
+    if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+    arretFrappeRef.current = setTimeout(() => {
+      socketRef.current?.emit('typing_stop', {})
+    }, DELAI_ARRET_FRAPPE_MS)
+  }
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     const texte = contenu.trim()
     if (!texte || !socketRef.current) return
+
+    if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+    socketRef.current.emit('typing_stop', {})
 
     if (messageEnEdition) {
       socketRef.current.emit(
@@ -133,6 +170,7 @@ export default function MessagerieDonneurPage() {
             <div ref={finDuFilRef} />
           </div>
         </DataState>
+        {medecinEcrit && <TypingIndicator label="Un médecin est en train d'écrire…" />}
         {messageEnEdition && (
           <div className="mt-3 flex items-center justify-between rounded-md bg-muted/50 px-3 py-1.5 text-xs text-muted-foreground">
             <T>Modification du message…</T>
@@ -144,7 +182,7 @@ export default function MessagerieDonneurPage() {
         <form onSubmit={handleSubmit} className="mt-3 flex items-center gap-2 border-t border-border pt-3">
           <Input
             value={contenu}
-            onChange={(e) => setContenu(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value)}
             placeholder={placeholder}
             maxLength={2000}
             disabled={!connecte}

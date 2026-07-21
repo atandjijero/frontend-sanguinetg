@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Input } from '../../../components/ui-shadcn/ui/input'
 import { DataState } from '../../../components/dashboard/DataState'
 import { MessageBubble } from '../../../components/messagerie/MessageBubble'
+import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { T, useTraduction } from '../../../context/LanguageContext'
@@ -21,6 +22,16 @@ interface AckReponse {
   message?: ChatMessage
   error?: string
 }
+
+interface FrappeEvent {
+  conversationId: string
+  donneurId: string
+  auteurRole: string
+  enTrainDecrire: boolean
+}
+
+const DELAI_ARRET_FRAPPE_MS = 2500
+const DELAI_FILET_SECURITE_MS = 4000
 
 export default function MessagerieMedecinPage() {
   const { user } = useAuth()
@@ -41,8 +52,11 @@ export default function MessagerieMedecinPage() {
   const [contenu, setContenu] = useState('')
   const [messageEnEdition, setMessageEnEdition] = useState<ChatMessage | null>(null)
   const [connecte, setConnecte] = useState(false)
+  const [conversationsQuiEcrivent, setConversationsQuiEcrivent] = useState<Set<string>>(new Set())
   const socketRef = useRef<Socket | null>(null)
   const finDuFilRef = useRef<HTMLDivElement>(null)
+  const arretFrappeRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const filetsSecuriteRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
   const placeholder = useTraduction('Répondre au donneur…')
 
   // Lue par le handler socket ci-dessous sans recréer la connexion à chaque sélection de conversation.
@@ -73,9 +87,38 @@ export default function MessagerieMedecinPage() {
       refetchConversations()
       setMessages((prev) => (message.conversationId === selectionIdRef.current ? prev.map((m) => (m.id === message.id ? message : m)) : prev))
     })
+    socket.on('frappe', (event: FrappeEvent) => {
+      if (event.auteurRole !== 'DONNEUR') return
+
+      const timers = filetsSecuriteRef.current
+      const existant = timers.get(event.conversationId)
+      if (existant) clearTimeout(existant)
+
+      setConversationsQuiEcrivent((prev) => {
+        const next = new Set(prev)
+        if (event.enTrainDecrire) next.add(event.conversationId)
+        else next.delete(event.conversationId)
+        return next
+      })
+
+      if (event.enTrainDecrire) {
+        timers.set(
+          event.conversationId,
+          setTimeout(() => {
+            setConversationsQuiEcrivent((prev) => {
+              const next = new Set(prev)
+              next.delete(event.conversationId)
+              return next
+            })
+          }, DELAI_FILET_SECURITE_MS),
+        )
+      }
+    })
 
     return () => {
       socket.disconnect()
+      if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+      filetsSecuriteRef.current.forEach((timer) => clearTimeout(timer))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -84,10 +127,24 @@ export default function MessagerieMedecinPage() {
     finDuFilRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  function handleInputChange(valeur: string) {
+    setContenu(valeur)
+    if (!socketRef.current || !selectionId) return
+
+    socketRef.current.emit('typing_start', { conversationId: selectionId })
+    if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+    arretFrappeRef.current = setTimeout(() => {
+      socketRef.current?.emit('typing_stop', { conversationId: selectionId })
+    }, DELAI_ARRET_FRAPPE_MS)
+  }
+
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     const texte = contenu.trim()
     if (!texte || !socketRef.current || !selectionId) return
+
+    if (arretFrappeRef.current) clearTimeout(arretFrappeRef.current)
+    socketRef.current.emit('typing_stop', { conversationId: selectionId })
 
     if (messageEnEdition) {
       socketRef.current.emit(
@@ -152,9 +209,15 @@ export default function MessagerieMedecinPage() {
                       {GROUPE_SANGUIN_LABELS[conv.donneur.groupeSanguin]}
                     </Badge>
                   )}
-                  <span className="truncate text-xs text-muted-foreground">
-                    {conv.dernierMessage?.contenu ?? '—'}
-                  </span>
+                  {conversationsQuiEcrivent.has(conv.id) ? (
+                    <span className="truncate text-xs italic text-primary">
+                      <T>en train d'écrire…</T>
+                    </span>
+                  ) : (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {conv.dernierMessage?.contenu ?? '—'}
+                    </span>
+                  )}
                 </div>
               </button>
             ))}
@@ -184,6 +247,9 @@ export default function MessagerieMedecinPage() {
                   <div ref={finDuFilRef} />
                 </div>
               </DataState>
+              {conversationsQuiEcrivent.has(selectionId) && (
+                <TypingIndicator label="Le donneur est en train d'écrire…" />
+              )}
               {peutRepondre ? (
                 <>
                   {messageEnEdition && (
@@ -197,7 +263,7 @@ export default function MessagerieMedecinPage() {
                   <form onSubmit={handleSubmit} className="mt-3 flex items-center gap-2 border-t border-border pt-3">
                     <Input
                       value={contenu}
-                      onChange={(e) => setContenu(e.target.value)}
+                      onChange={(e) => handleInputChange(e.target.value)}
                       placeholder={placeholder}
                       maxLength={2000}
                       disabled={!connecte}
