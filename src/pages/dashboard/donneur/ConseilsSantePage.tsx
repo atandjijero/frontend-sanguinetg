@@ -1,6 +1,8 @@
-import { StethoscopeIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { MessageCircleQuestionIcon, StethoscopeIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
+import { Button } from '../../../components/ui-shadcn/ui/button'
 import { DataState } from '../../../components/dashboard/DataState'
 import { useApiData } from '../../../hooks/useApiData'
 import { CATEGORIE_CONSEIL_LABELS } from '../../../lib/constants'
@@ -12,10 +14,16 @@ export default function ConseilsSantePage() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
         <CardTitle className="flex items-center gap-2">
           <StethoscopeIcon className="h-4 w-4" /> <T>Conseils santé du CNTS</T>
         </CardTitle>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/espace-donneur/messagerie">
+            <MessageCircleQuestionIcon className="h-4 w-4" />
+            <T>Une question ?</T>
+          </Link>
+        </Button>
       </CardHeader>
       <CardContent>
         <DataState isLoading={isLoading} error={error} isEmpty={!conseils?.length} emptyLabel="Aucun conseil publié pour le moment.">
