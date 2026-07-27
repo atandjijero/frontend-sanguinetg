@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Building2Icon, NavigationIcon } from 'lucide-react'
+import { Building2Icon, LocateFixedIcon, NavigationIcon } from 'lucide-react'
+import { Button } from '../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui-shadcn/ui/card'
 import { DataState } from '../components/dashboard/DataState'
 import { CentresMap } from '../components/maps/CentresMap'
@@ -12,21 +13,44 @@ import type { CentreDon } from '../lib/types'
 
 type CentreGeolocalise = CentreDon & { latitude: number; longitude: number }
 
+const MESSAGE_ERREUR_POSITION: Record<number, string> = {
+  1: "Localisation refusée — autorisez-la dans les réglages de votre navigateur pour voir l'itinéraire.",
+  2: "Position indisponible pour le moment.",
+  3: "La localisation a pris trop de temps.",
+}
+
 export function CentresDonExplorer() {
   const { data: centres, isLoading, error } = useApiData<CentreDon[]>('/centres-don')
   const [searchParams] = useSearchParams()
   const [position, setPosition] = useState<Coordonnees | null>(null)
+  const [positionError, setPositionError] = useState<string | null>(null)
+  const [recherchePosition, setRecherchePosition] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get('centre'))
   const [itineraire, setItineraire] = useState<ItineraireInfo | null>(null)
 
-  useEffect(() => {
-    if (!navigator.geolocation) return
+  const demanderPosition = useCallback(() => {
+    if (!navigator.geolocation) {
+      setPositionError("Votre navigateur ne prend pas en charge la géolocalisation.")
+      return
+    }
+    setRecherchePosition(true)
+    setPositionError(null)
     navigator.geolocation.getCurrentPosition(
-      (pos) => setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => {},
+      (pos) => {
+        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setRecherchePosition(false)
+      },
+      (err) => {
+        setPositionError(MESSAGE_ERREUR_POSITION[err.code] ?? "Impossible de récupérer votre position.")
+        setRecherchePosition(false)
+      },
       { enableHighAccuracy: true, timeout: 10000 },
     )
   }, [])
+
+  useEffect(() => {
+    demanderPosition()
+  }, [demanderPosition])
 
   const centresGeolocalises = useMemo<CentreGeolocalise[]>(
     () => (centres ?? []).filter((c): c is CentreGeolocalise => c.latitude !== null && c.longitude !== null),
@@ -52,6 +76,16 @@ export function CentresDonExplorer() {
     <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
       <Card>
         <CardContent className="p-4">
+          {!position && positionError && (
+            <div className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+              <p className="text-secondary">
+                <T>{positionError}</T>
+              </p>
+              <Button size="sm" variant="outline" disabled={recherchePosition} onClick={demanderPosition} className="shrink-0">
+                <LocateFixedIcon className="h-4 w-4" /> <T>Réessayer</T>
+              </Button>
+            </div>
+          )}
           <DataState isLoading={isLoading} error={error} isEmpty={!centresGeolocalises.length}>
             {position && destination ? (
               <ItineraireMap
