@@ -21,10 +21,12 @@ export function ItineraireMap({ origine, destination, onItineraireCalcule, class
   })
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null)
   const [demandeEnvoyee, setDemandeEnvoyee] = useState(false)
+  const [erreur, setErreur] = useState<string | null>(null)
 
   useEffect(() => {
     setDirections(null)
     setDemandeEnvoyee(false)
+    setErreur(null)
   }, [origine.lat, origine.lng, destination.lat, destination.lng])
 
   const handleDirections = useCallback(
@@ -37,6 +39,7 @@ export function ItineraireMap({ origine, destination, onItineraireCalcule, class
           trajet ? { distanceTexte: trajet.distance?.text ?? '', dureeTexte: trajet.duration?.text ?? '' } : null,
         )
       } else {
+        setErreur("Impossible de calculer l'itinéraire pour le moment.")
         onItineraireCalcule?.(null)
       }
     },
@@ -60,14 +63,21 @@ export function ItineraireMap({ origine, destination, onItineraireCalcule, class
   }
 
   return (
-    <GoogleMap mapContainerClassName={className} center={origine} zoom={13}>
-      {!directions && !demandeEnvoyee && (
-        <DirectionsService
-          options={{ origin: origine, destination, travelMode: google.maps.TravelMode.DRIVING }}
-          callback={handleDirections}
-        />
+    <div className="relative">
+      <GoogleMap mapContainerClassName={className} center={origine} zoom={13}>
+        {!directions && !demandeEnvoyee && (
+          <DirectionsService
+            options={{ origin: origine, destination, travelMode: google.maps.TravelMode.DRIVING }}
+            callback={handleDirections}
+          />
+        )}
+        {directions && <DirectionsRenderer directions={directions} />}
+      </GoogleMap>
+      {erreur && (
+        <div className="absolute inset-x-3 bottom-3 rounded-lg bg-destructive/90 px-3 py-2 text-xs text-white shadow">
+          {erreur}
+        </div>
       )}
-      {directions && <DirectionsRenderer directions={directions} />}
-    </GoogleMap>
+    </div>
   )
 }
