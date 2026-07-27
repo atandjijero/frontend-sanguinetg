@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import {
   AlertOctagonIcon,
   DatabaseIcon,
@@ -155,8 +156,29 @@ export default function SecurityPage() {
         <h3 className="text-sm font-medium text-secondary mb-3 flex items-center gap-2">
           <RadioIcon className="h-4 w-4 text-tertiary" /> <T>Fréquentation en temps réel</T>
         </h3>
-        <div className="grid gap-4 grid-cols-3">
-          <StatCard label={<T>En ligne maintenant</T>} value={frequentation?.enLigne ?? '—'} icon={RadioIcon} />
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+          <Card className="transition-shadow hover:shadow-md">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-medium text-muted-foreground">
+                  <T>En ligne maintenant</T>
+                </p>
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <RadioIcon className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-3 text-3xl font-bold tracking-tight">{frequentation?.enLigne ?? '—'}</p>
+              {frequentation && frequentation.recents.length > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground truncate">
+                  {frequentation.recents.map((p) => `${p.prenom} ${p.nom}`).join(', ')}
+                  {' · '}
+                  <Link to="/admin/securite/connectes" className="font-medium text-secondary hover:text-primary">
+                    <T>Voir plus</T>
+                  </Link>
+                </p>
+              )}
+            </CardContent>
+          </Card>
           <StatCard label={<T>Visiteurs connectés</T>} value={frequentation?.connectes ?? '—'} icon={UserCheckIcon} />
           <StatCard label={<T>Visiteurs anonymes</T>} value={frequentation?.anonymes ?? '—'} icon={UserRoundIcon} />
         </div>

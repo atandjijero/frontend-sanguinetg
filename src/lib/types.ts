@@ -222,6 +222,15 @@ export interface FrequentationStats {
   enLigne: number
   connectes: number
   anonymes: number
+  recents: Array<{ id: string; nom: string; prenom: string }>
+}
+
+export interface VisiteurConnecte {
+  id: string
+  nom: string
+  prenom: string
+  role: Role
+  derniereActivite: string
 }
 
 export interface PageResultat<T> {
