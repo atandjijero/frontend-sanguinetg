@@ -13,11 +13,13 @@ export interface CarteMarqueur {
 interface CentresMapProps {
   marqueurs: CarteMarqueur[]
   selectedId?: string | null
+  /** Incrémenté à chaque clic pour forcer le recentrage même si selectedId ne change pas (ex. reclic sur le même centre). */
+  focusToken?: number
   className?: string
   zoom?: number
 }
 
-export function CentresMap({ marqueurs, selectedId = null, className = 'w-full h-full', zoom = 12 }: CentresMapProps) {
+export function CentresMap({ marqueurs, selectedId = null, focusToken, className = 'w-full h-full', zoom = 12 }: CentresMapProps) {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-maps-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string,
@@ -42,7 +44,8 @@ export function CentresMap({ marqueurs, selectedId = null, className = 'w-full h
     map.panTo({ lat: marqueur.latitude, lng: marqueur.longitude })
     map.setZoom(15)
     setOuvertId(selectedId)
-  }, [map, selectedId, marqueurs])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, selectedId, focusToken])
 
   if (loadError) {
     return (
@@ -69,6 +72,14 @@ export function CentresMap({ marqueurs, selectedId = null, className = 'w-full h
           title={m.nom}
           onClick={() => setOuvertId(m.id)}
           zIndex={m.id === selectedId ? 999 : undefined}
+          icon={
+            m.id === selectedId
+              ? {
+                  url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                  scaledSize: new google.maps.Size(44, 44),
+                }
+              : undefined
+          }
         >
           {ouvertId === m.id && (
             <InfoWindowF onCloseClick={() => setOuvertId(null)}>

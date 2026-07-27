@@ -26,7 +26,13 @@ export function CentresDonExplorer() {
   const [positionError, setPositionError] = useState<string | null>(null)
   const [recherchePosition, setRecherchePosition] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get('centre'))
+  const [focusTick, setFocusTick] = useState(0)
   const [itineraire, setItineraire] = useState<ItineraireInfo | null>(null)
+
+  function selectionnerCentre(id: string) {
+    setSelectedId(id)
+    setFocusTick((t) => t + 1)
+  }
 
   const demanderPosition = useCallback(() => {
     if (!navigator.geolocation) {
@@ -89,6 +95,7 @@ export function CentresDonExplorer() {
           <DataState isLoading={isLoading} error={error} isEmpty={!centresGeolocalises.length}>
             {position && destination ? (
               <ItineraireMap
+                key={destination.id}
                 className="w-full h-96 rounded-xl"
                 origine={position}
                 destination={{ lat: destination.latitude, lng: destination.longitude, nom: destination.nom }}
@@ -99,6 +106,7 @@ export function CentresDonExplorer() {
                 className="w-full h-96 rounded-xl"
                 marqueurs={centresGeolocalises.map((c) => ({ id: c.id, nom: c.nom, latitude: c.latitude, longitude: c.longitude }))}
                 selectedId={destination?.id ?? null}
+                focusToken={focusTick}
               />
             )}
           </DataState>
@@ -120,7 +128,7 @@ export function CentresDonExplorer() {
                 <button
                   key={c.id}
                   type="button"
-                  onClick={() => setSelectedId(c.id)}
+                  onClick={() => selectionnerCentre(c.id)}
                   className={`w-full text-left rounded-lg border p-3 transition ${
                     estSelectionne ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted/40'
                   }`}
