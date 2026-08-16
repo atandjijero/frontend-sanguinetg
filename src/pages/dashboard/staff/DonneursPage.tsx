@@ -15,7 +15,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS, GROUPES_SANGUINS } from '../../../lib/constants'
 import { T, useTraduction } from '../../../context/LanguageContext'
-import type { GroupeSanguin, Quartier, Utilisateur } from '../../../lib/types'
+import type { CarnetDigital, GroupeSanguin, Quartier, Utilisateur } from '../../../lib/types'
 
 const TOUS_GROUPES = '__tous__'
 const TOUS_QUARTIERS = '__tous__'
@@ -24,7 +24,18 @@ export default function DonneursPage() {
   const { user: moi } = useAuth()
   const { data: utilisateurs, isLoading, error, refetch } = useApiData<Utilisateur[]>('/users')
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
+  const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
   const peutGererStatut = moi?.role === 'ADMIN' || moi?.role === 'SUPERADMIN'
+
+  const historiqueParDonneur = useMemo(() => {
+    const map = new Map<string, { count: number; dernier: string }>()
+    for (const c of carnets ?? []) {
+      const existant = map.get(c.donneurId)
+      const dernier = existant && existant.dernier > c.dateDon ? existant.dernier : c.dateDon
+      map.set(c.donneurId, { count: (existant?.count ?? 0) + 1, dernier })
+    }
+    return map
+  }, [carnets])
 
   const [recherche, setRecherche] = useState('')
   const [groupeFiltre, setGroupeFiltre] = useState<GroupeSanguin | typeof TOUS_GROUPES>(TOUS_GROUPES)
@@ -124,6 +135,12 @@ export default function DonneursPage() {
                   <T>Quartier</T>
                 </TableHead>
                 <TableHead>
+                  <T>Dons</T>
+                </TableHead>
+                <TableHead>
+                  <T>Dernier don</T>
+                </TableHead>
+                <TableHead>
                   <T>Statut</T>
                 </TableHead>
                 {peutGererStatut && (
@@ -134,7 +151,9 @@ export default function DonneursPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pageItems.map((u) => (
+              {pageItems.map((u) => {
+                const historique = historiqueParDonneur.get(u.id)
+                return (
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
                     {u.prenom} {u.nom}
@@ -147,6 +166,19 @@ export default function DonneursPage() {
                     {u.quartierId ? quartierParId.get(u.quartierId)?.nom ?? '—' : '—'}
                   </TableCell>
                   <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      <span>{historique?.count ?? 0}</span>
+                      {historique && historique.count >= 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          <T>Fidèle</T>
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {historique ? new Date(historique.dernier).toLocaleDateString('fr-FR') : '—'}
+                  </TableCell>
+                  <TableCell>
                     <Badge variant={u.statut === 'ACTIF' ? 'default' : 'destructive'}>{u.statut}</Badge>
                   </TableCell>
                   {peutGererStatut && (
@@ -157,7 +189,8 @@ export default function DonneursPage() {
                     </TableCell>
                   )}
                 </TableRow>
-              ))}
+                )
+              })}
             </TableBody>
           </Table>
           <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} total={total} label="donneurs" />

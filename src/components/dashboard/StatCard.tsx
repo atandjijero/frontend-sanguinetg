@@ -22,8 +22,8 @@ export function StatCard({
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-3">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Icon className="h-4 w-4" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/70">
+            <Icon className="h-4 w-4" strokeWidth={1.75} />
           </span>
         </div>
         <div className="mt-3 flex items-baseline gap-2">

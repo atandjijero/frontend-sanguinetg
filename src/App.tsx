@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import MotDePasseOubliePage from './pages/MotDePasseOubliePage';
 import ReinitialiserMotDePassePage from './pages/ReinitialiserMotDePassePage';
+import VerifierEmailPage from './pages/VerifierEmailPage';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationsProvider } from './context/NotificationsContext';
 import { HeartbeatTracker } from './components/HeartbeatTracker';
@@ -61,6 +62,7 @@ function App() {
               <Route path="inscription" element={<RegisterPage />} />
               <Route path="mot-de-passe-oublie" element={<MotDePasseOubliePage />} />
               <Route path="reinitialiser-mot-de-passe" element={<ReinitialiserMotDePassePage />} />
+              <Route path="verifier-email" element={<VerifierEmailPage />} />
             </Route>
 
             {/* Espace CNTS : SUPERADMIN, ADMIN, AGENT_CNTS, MEDECIN (navigation masquée par rôle dans le sidebar) */}

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { GiftIcon, PlusIcon } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { DownloadIcon, GiftIcon, Loader2Icon, PlusIcon } from 'lucide-react'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
@@ -14,8 +14,9 @@ import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
 import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { genererRecompensePdf } from '../../../lib/recompensePdf'
 import { T, useTraduction } from '../../../context/LanguageContext'
-import type { Recompense, TypeRecompense, Utilisateur } from '../../../lib/types'
+import type { CarnetDigital, Recompense, TypeRecompense, Utilisateur } from '../../../lib/types'
 
 const STATUT_VARIANT: Record<Recompense['statut'], 'default' | 'secondary' | 'destructive'> = {
   ATTRIBUEE: 'default',
@@ -29,15 +30,31 @@ export default function RecompensesPage() {
 
   const { data: recompenses, isLoading, error, refetch } = useApiData<Recompense[]>('/recompenses')
   const { data: donneurs } = useApiData<Utilisateur[]>(peutAttribuer ? '/users?role=DONNEUR' : null)
+  const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(recompenses ?? [], 6)
+
+  const historiqueParDonneur = useMemo(() => {
+    const map = new Map<string, { count: number; dernier: string }>()
+    for (const c of carnets ?? []) {
+      const existant = map.get(c.donneurId)
+      const dernier = existant && existant.dernier > c.dateDon ? existant.dernier : c.dateDon
+      map.set(c.donneurId, { count: (existant?.count ?? 0) + 1, dernier })
+    }
+    return map
+  }, [carnets])
 
   const [donneurId, setDonneurId] = useState('')
   const [type, setType] = useState<TypeRecompense | ''>('')
   const [description, setDescription] = useState('')
+  const [critereAttribution, setCritereAttribution] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [telechargementId, setTelechargementId] = useState<string | null>(null)
   const placeholderSelectionner = useTraduction('Sélectionner')
   const placeholderDescription = useTraduction('Kit de vivres (riz, huile, conserves)')
+  const placeholderCritere = useTraduction('3 dons effectués en 2026')
+
+  const historiqueDonneurSelectionne = donneurId ? historiqueParDonneur.get(donneurId) : undefined
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -45,15 +62,27 @@ export default function RecompensesPage() {
     setSubmitting(true)
     setFormError(null)
     try {
-      await api.post('/recompenses', { donneurId, type, description })
+      const critere = critereAttribution.trim()
+      await api.post('/recompenses', { donneurId, type, description, ...(critere ? { critereAttribution: critere } : {}) })
       setDonneurId('')
       setType('')
       setDescription('')
+      setCritereAttribution('')
       await refetch()
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : 'Impossible d\'attribuer cette récompense')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  function handleTelecharger(r: Recompense) {
+    if (!r.donneur) return
+    setTelechargementId(r.id)
+    try {
+      genererRecompensePdf(r.donneur, r)
+    } finally {
+      setTelechargementId(null)
     }
   }
 
@@ -84,6 +113,16 @@ export default function RecompensesPage() {
                     ))}
                   </SelectContent>
                 </Select>
+                {historiqueDonneurSelectionne ? (
+                  <p className="text-xs text-muted-foreground">
+                    {historiqueDonneurSelectionne.count} <T>don(s) enregistré(s) · dernier don le</T>{' '}
+                    {new Date(historiqueDonneurSelectionne.dernier).toLocaleDateString('fr-FR')}
+                  </p>
+                ) : donneurId ? (
+                  <p className="text-xs text-muted-foreground">
+                    <T>Aucun don enregistré pour ce donneur.</T>
+                  </p>
+                ) : null}
               </div>
               <div className="space-y-1.5">
                 <Label>
@@ -112,6 +151,17 @@ export default function RecompensesPage() {
                   placeholder={placeholderDescription}
                   required
                   className="w-72"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>
+                  <T>Critère d'attribution (optionnel)</T>
+                </Label>
+                <Input
+                  value={critereAttribution}
+                  onChange={(e) => setCritereAttribution(e.target.value)}
+                  placeholder={placeholderCritere}
+                  className="w-60"
                 />
               </div>
               <Button type="submit" disabled={submitting}>
@@ -153,26 +203,50 @@ export default function RecompensesPage() {
                   <TableHead>
                     <T>Date</T>
                   </TableHead>
+                  <TableHead className="text-right">
+                    <T>Document</T>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pageItems.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell className="font-medium">
-                      {r.donneur ? `${r.donneur.prenom} ${r.donneur.nom}` : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <T>{TYPE_RECOMPENSE_LABELS[r.type]}</T>
-                    </TableCell>
-                    <TableCell>{r.description}</TableCell>
-                    <TableCell>
-                      <Badge variant={STATUT_VARIANT[r.statut]}>{r.statut}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(r.dateAttribution).toLocaleDateString('fr-FR')}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {pageItems.map((r) => {
+                  const telechargeable = (r.type === 'BADGE' || r.type === 'CERTIFICAT') && r.donneur
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-medium">
+                        {r.donneur ? `${r.donneur.prenom} ${r.donneur.nom}` : '—'}
+                      </TableCell>
+                      <TableCell>
+                        <T>{TYPE_RECOMPENSE_LABELS[r.type]}</T>
+                      </TableCell>
+                      <TableCell>
+                        {r.description}
+                        {r.critereAttribution && (
+                          <div className="text-xs text-muted-foreground">
+                            <T>Critère :</T> {r.critereAttribution}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={STATUT_VARIANT[r.statut]}>{r.statut}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(r.dateAttribution).toLocaleDateString('fr-FR')}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {telechargeable && (
+                          <Button variant="outline" size="sm" onClick={() => handleTelecharger(r)} disabled={telechargementId === r.id}>
+                            {telechargementId === r.id ? (
+                              <Loader2Icon className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <DownloadIcon className="h-4 w-4" />
+                            )}
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
             <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} total={total} label="récompenses" />

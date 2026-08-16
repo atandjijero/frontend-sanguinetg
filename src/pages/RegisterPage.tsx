@@ -69,13 +69,16 @@ export default function RegisterPage() {
             {submitted ? (
               <div className="text-center py-12">
                 <h2 className="font-headline-md text-headline-md text-primary mb-3">
-                  <T>Bienvenue dans le réseau !</T>
+                  <T>Vérifiez votre boîte mail</T>
                 </h2>
                 <p className="text-secondary text-justify mb-6">
-                  <T>Votre compte donneur a été créé. Vous pouvez dès maintenant accéder à votre espace personnel.</T>
+                  <T>
+                    Votre compte donneur a été créé. Nous vous avons envoyé un email de vérification : cliquez sur le
+                    lien qu'il contient pour activer votre compte avant de vous connecter.
+                  </T>
                 </p>
-                <Button variant="primary" size="lg" onClick={() => navigate('/espace-donneur')}>
-                  <T>Accéder à mon espace</T>
+                <Button variant="primary" size="lg" onClick={() => navigate('/connexion')}>
+                  <T>Retour à la connexion</T>
                 </Button>
               </div>
             ) : (

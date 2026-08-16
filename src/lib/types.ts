@@ -101,9 +101,11 @@ export interface Recompense {
   donneurId: string
   type: TypeRecompense
   description: string
+  critereAttribution?: string | null
   statut: StatutRecompense
   dateAttribution: string
-  donneur?: { id: string; nom: string; prenom: string }
+  donneur?: { id: string; nom: string; prenom: string; groupeSanguin?: GroupeSanguin | null }
+  attribuePar?: { id: string; nom: string; prenom: string } | null
 }
 
 export type CategorieConseil = 'AVANT_DON' | 'APRES_DON' | 'ELIGIBILITE'
@@ -231,6 +233,11 @@ export interface VisiteurConnecte {
   prenom: string
   role: Role
   derniereActivite: string
+}
+
+export interface SessionRecente {
+  premiereActivite: string
+  utilisateurId: string | null
 }
 
 export interface PageResultat<T> {

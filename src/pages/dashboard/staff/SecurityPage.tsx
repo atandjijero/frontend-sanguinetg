@@ -145,7 +145,7 @@ export default function SecurityPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2">
-          <ShieldAlertIcon className="h-5 w-5 text-primary" /> <T>Alertes de sécurité</T>
+          <ShieldAlertIcon className="h-5 w-5 text-foreground/70" strokeWidth={1.75} /> <T>Alertes de sécurité</T>
         </h2>
         <p className="text-sm text-muted-foreground">
           <T>Surveillance en temps réel des cyber-menaces et comportements suspects.</T>

@@ -37,7 +37,7 @@ export function ProchainDonMeter({ carnets }: { carnets: CarnetDigital[] }) {
       <CardContent className="flex flex-col items-center">
         {etat.statut === 'jamais-donne' && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <HeartHandshakeIcon className="h-10 w-10 text-primary" />
+            <HeartHandshakeIcon className="h-10 w-10 text-foreground/70" strokeWidth={1.75} />
             <p className="text-sm font-medium">
               <T>Prêt(e) pour votre premier don</T>
             </p>

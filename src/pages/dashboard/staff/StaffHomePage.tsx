@@ -1,10 +1,25 @@
 import { Link } from 'react-router-dom'
-import { BookHeartIcon, HeartHandshakeIcon, MegaphoneIcon, RepeatIcon, RssIcon, SmileIcon, TimerIcon, UsersIcon } from 'lucide-react'
+import {
+  BookHeartIcon,
+  HeartHandshakeIcon,
+  MegaphoneIcon,
+  RepeatIcon,
+  RssIcon,
+  SmileIcon,
+  TimerIcon,
+  TrendingUpIcon,
+  UsersIcon,
+} from 'lucide-react'
 import { StatCard } from '../../../components/dashboard/StatCard'
 import { DonneurGroupeDonut } from '../../../components/dashboard/DonneurGroupeDonut'
 import { DonsParMoisChart } from '../../../components/dashboard/DonsParMoisChart'
 import { TauxCouvertureGauge } from '../../../components/dashboard/TauxCouvertureGauge'
 import { DernieresAlertesTable } from '../../../components/dashboard/DernieresAlertesTable'
+import { AlertesTrendChart } from '../../../components/dashboard/AlertesTrendChart'
+import { ReponsesTrendChart } from '../../../components/dashboard/ReponsesTrendChart'
+import { DonneursTrendChart } from '../../../components/dashboard/DonneursTrendChart'
+import { DonsTrendChart } from '../../../components/dashboard/DonsTrendChart'
+import { VisiteursTrendChart } from '../../../components/dashboard/VisiteursTrendChart'
 import { useApiData } from '../../../hooks/useApiData'
 import { useAuth } from '../../../context/AuthContext'
 import { T } from '../../../context/LanguageContext'
@@ -12,6 +27,7 @@ import type {
   AbonneNewsletter,
   Alerte,
   CarnetDigital,
+  SessionRecente,
   StatistiquesFidelisation,
   StatistiquesMobilisation,
   StatistiquesSatisfaction,
@@ -25,11 +41,13 @@ export default function StaffHomePage() {
 
   const { data: donneurs } = useApiData<Utilisateur[]>(peutVoirDonneurs ? '/users?role=DONNEUR' : null)
   const { data: alertesOuvertes } = useApiData<Alerte[]>('/alertes?statut=OUVERTE')
+  const { data: toutesAlertes } = useApiData<Alerte[]>('/alertes')
   const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
   const { data: mobilisation } = useApiData<StatistiquesMobilisation>('/alertes/statistiques/mobilisation')
   const { data: abonnes } = useApiData<AbonneNewsletter[]>(estSuperadmin ? '/newsletter' : null)
   const { data: fidelisation } = useApiData<StatistiquesFidelisation>('/carnets/statistiques/fidelisation')
   const { data: satisfaction } = useApiData<StatistiquesSatisfaction>('/avis/statistiques')
+  const { data: sessionsRecentes } = useApiData<SessionRecente[]>(estSuperadmin ? '/analytics/sessions-recentes' : null)
 
   const now = new Date()
   const donsCeMois =
@@ -97,7 +115,7 @@ export default function StaffHomePage() {
       </div>
       <div>
         <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight mb-3">
-          <HeartHandshakeIcon className="h-4 w-4 text-primary" /> <T>Fidélisation des donneurs</T>
+          <HeartHandshakeIcon className="h-4 w-4 text-foreground/70" strokeWidth={1.75} /> <T>Fidélisation des donneurs</T>
         </h3>
         <div className="grid gap-5 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
           <StatCard
@@ -138,6 +156,22 @@ export default function StaffHomePage() {
       ) : (
         <DonsParMoisChart carnets={carnets ?? []} />
       )}
+      <div>
+        <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight mb-3">
+          <TrendingUpIcon className="h-4 w-4 text-foreground/70" strokeWidth={1.75} /> <T>Tendances — 14 derniers jours</T>
+        </h3>
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(260px,1fr))]">
+          <AlertesTrendChart alertes={toutesAlertes ?? []} />
+          <DonsTrendChart carnets={carnets ?? []} />
+          {peutVoirDonneurs && (
+            <>
+              <ReponsesTrendChart alertes={toutesAlertes ?? []} />
+              <DonneursTrendChart donneurs={donneurs ?? []} />
+            </>
+          )}
+          {estSuperadmin && <VisiteursTrendChart sessions={sessionsRecentes ?? []} />}
+        </div>
+      </div>
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <DernieresAlertesTable alertes={alertesOuvertes ?? []} />

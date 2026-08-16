@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { MoreHorizontalIcon } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '../ui-shadcn/ui/chart'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui-shadcn/ui/card'
@@ -36,20 +35,17 @@ export function DonsParMoisChart({ carnets }: { carnets: CarnetDigital[] }) {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-start justify-between space-y-0">
-        <div className="space-y-1.5">
-          <CardTitle>
-            <T>Dons enregistrés — 6 derniers mois</T>
-          </CardTitle>
-          <CardDescription>
-            {total} <T>dons sur la période</T>
-          </CardDescription>
-        </div>
-        <MoreHorizontalIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
+      <CardHeader className="p-4 pb-2">
+        <CardTitle className="text-sm font-semibold">
+          <T>Dons enregistrés — 6 derniers mois</T>
+        </CardTitle>
+        <CardDescription>
+          {total} <T>dons sur la période</T>
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 pt-0">
         <ChartContainer config={chartConfig} className="aspect-auto h-56 w-full">
-          <BarChart data={data} margin={{ left: -12 }}>
+          <BarChart data={data}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis dataKey="mois" tickLine={false} axisLine={false} tickMargin={8} />
             <YAxis tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} width={28} />
