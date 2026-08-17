@@ -12,6 +12,7 @@ interface RegisterPayload {
   confirmationMotDePasse: string
   groupeSanguin?: string
   quartierId?: string
+  consentement: boolean
 }
 
 interface AuthContextValue {

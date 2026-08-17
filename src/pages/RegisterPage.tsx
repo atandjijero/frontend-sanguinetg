@@ -41,6 +41,7 @@ export default function RegisterPage() {
         confirmationMotDePasse,
         groupeSanguin: groupeSanguin || undefined,
         quartierId: quartierId || undefined,
+        consentement: accepte,
       })
       setSubmitted(true)
     } catch (err) {
