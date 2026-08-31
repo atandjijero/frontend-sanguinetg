@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { HeartHandshakeIcon } from 'lucide-react'
+import { HeartHandshakeIcon, Trash2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
 import { Button } from '../../../components/ui-shadcn/ui/button'
@@ -12,6 +12,7 @@ import { PaginationControls } from '../../../components/dashboard/PaginationCont
 import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS, GROUPES_SANGUINS } from '../../../lib/constants'
 import { T, useTraduction } from '../../../context/LanguageContext'
@@ -22,10 +23,12 @@ const TOUS_QUARTIERS = '__tous__'
 
 export default function DonneursPage() {
   const { user: moi } = useAuth()
+  const confirm = useConfirm()
   const { data: utilisateurs, isLoading, error, refetch } = useApiData<Utilisateur[]>('/users')
   const { data: quartiers } = useApiData<Quartier[]>('/quartiers')
   const { data: carnets } = useApiData<CarnetDigital[]>('/carnets')
   const peutGererStatut = moi?.role === 'ADMIN' || moi?.role === 'SUPERADMIN'
+  const peutSupprimer = moi?.role === 'SUPERADMIN'
 
   const historiqueParDonneur = useMemo(() => {
     const map = new Map<string, { count: number; dernier: string }>()
@@ -69,6 +72,17 @@ export default function DonneursPage() {
       await refetch()
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : 'Impossible de modifier ce compte')
+    }
+  }
+
+  async function supprimerDonneur(u: Utilisateur) {
+    if (!(await confirm({ description: `Supprimer définitivement ${u.prenom} ${u.nom} ? Son carnet digital, ses réponses aux alertes et son historique seront aussi supprimés.` })))
+      return
+    try {
+      await api.delete(`/users/${u.id}`)
+      await refetch()
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Suppression impossible')
     }
   }
 
@@ -143,7 +157,7 @@ export default function DonneursPage() {
                 <TableHead>
                   <T>Statut</T>
                 </TableHead>
-                {peutGererStatut && (
+                {(peutGererStatut || peutSupprimer) && (
                   <TableHead className="text-right">
                     <T>Action</T>
                   </TableHead>
@@ -181,11 +195,20 @@ export default function DonneursPage() {
                   <TableCell>
                     <Badge variant={u.statut === 'ACTIF' ? 'default' : 'destructive'}>{u.statut}</Badge>
                   </TableCell>
-                  {peutGererStatut && (
+                  {(peutGererStatut || peutSupprimer) && (
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
-                        <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        {peutGererStatut && (
+                          <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
+                            <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
+                          </Button>
+                        )}
+                        {peutSupprimer && (
+                          <Button variant="destructive" size="sm" onClick={() => supprimerDonneur(u)}>
+                            <Trash2Icon className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   )}
                 </TableRow>
