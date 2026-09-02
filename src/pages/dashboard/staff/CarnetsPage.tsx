@@ -89,7 +89,14 @@ export default function CarnetsPage() {
                 <Label>
                   <T>Date du don</T>
                 </Label>
-                <Input type="date" value={dateDon} onChange={(e) => setDateDon(e.target.value)} required className="w-40" />
+                <Input
+                  type="date"
+                  value={dateDon}
+                  onChange={(e) => setDateDon(e.target.value)}
+                  max={new Date().toISOString().slice(0, 10)}
+                  required
+                  className="w-40"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>
