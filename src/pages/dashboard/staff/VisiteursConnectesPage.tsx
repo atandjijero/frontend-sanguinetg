@@ -6,7 +6,10 @@ import { DataState } from '../../../components/dashboard/DataState'
 import { PaginationControls } from '../../../components/dashboard/PaginationControls'
 import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
+import { useAuth } from '../../../context/AuthContext'
 import { T } from '../../../context/LanguageContext'
+import { cn } from '../../../lib/shadcn-utils'
+import { formatStatutActivite } from '../../../lib/date-format'
 import type { Role, VisiteurConnecte } from '../../../lib/types'
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -18,6 +21,7 @@ const ROLE_LABELS: Record<Role, string> = {
 }
 
 export default function VisiteursConnectesPage() {
+  const { user } = useAuth()
   const { data: visiteurs, isLoading, error } = useApiData<VisiteurConnecte[]>('/analytics/connectes')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(visiteurs ?? [], 10)
 
@@ -50,24 +54,35 @@ export default function VisiteursConnectesPage() {
                     <T>Rôle</T>
                   </TableHead>
                   <TableHead>
-                    <T>Dernière activité</T>
+                    <T>Statut</T>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pageItems.map((visiteur) => (
-                  <TableRow key={visiteur.id}>
-                    <TableCell className="font-medium">
-                      {visiteur.prenom} {visiteur.nom}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      <T>{ROLE_LABELS[visiteur.role]}</T>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {new Date(visiteur.derniereActivite).toLocaleString('fr-FR')}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {pageItems.map((visiteur) => {
+                  const statut = formatStatutActivite(new Date(visiteur.derniereActivite))
+                  return (
+                    <TableRow key={visiteur.id}>
+                      <TableCell className="font-medium">
+                        {visiteur.id === user?.id ? <T>Vous</T> : `${visiteur.prenom} ${visiteur.nom}`}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        <T>{ROLE_LABELS[visiteur.role]}</T>
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1.5',
+                            statut.enLigne ? 'text-green-600 dark:text-green-500' : 'text-muted-foreground',
+                          )}
+                        >
+                          {statut.enLigne && <span className="h-2 w-2 rounded-full bg-green-500" />}
+                          {statut.label}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
             <PaginationControls page={page} totalPages={totalPages} onPageChange={setPage} total={total} label="connectés" />

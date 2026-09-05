@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui-shadcn/ui/table'
 import { DataState } from '../../../components/dashboard/DataState'
 import { StatCard } from '../../../components/dashboard/StatCard'
+import { useAuth } from '../../../context/AuthContext'
 import { useConfirm } from '../../../context/ConfirmContext'
 import { useApiData } from '../../../hooks/useApiData'
 import { api, ApiError } from '../../../lib/api'
@@ -64,6 +65,7 @@ function Champ({ label, children }: { label: ReactNode; children: ReactNode }) {
 }
 
 export default function SecurityPage() {
+  const { user } = useAuth()
   const confirm = useConfirm()
   const { data: stats, refetch: refetchStats } = useApiData<AlertesSecuriteStats>('/security/stats')
   const { data: frequentation, refetch: refetchFrequentation } = useApiData<FrequentationStats>('/analytics/stats')
@@ -72,6 +74,13 @@ export default function SecurityPage() {
     const interval = setInterval(() => refetchFrequentation(), 30_000)
     return () => clearInterval(interval)
   }, [refetchFrequentation])
+
+  const nomsRecents = useMemo(() => {
+    if (!frequentation) return []
+    return [...frequentation.recents]
+      .map((p) => ({ id: p.id, label: p.id === user?.id ? 'Vous' : `${p.prenom} ${p.nom}` }))
+      .sort((a, b) => Number(b.id === user?.id) - Number(a.id === user?.id))
+  }, [frequentation, user?.id])
 
   const [type, setType] = useState<TypeAlerteSecurite | typeof TOUS>(TOUS)
   const [gravite, setGravite] = useState<GraviteAlerteSecurite | typeof TOUS>(TOUS)
@@ -168,9 +177,9 @@ export default function SecurityPage() {
                 </span>
               </div>
               <p className="mt-3 text-3xl font-bold tracking-tight">{frequentation?.enLigne ?? '—'}</p>
-              {frequentation && frequentation.recents.length > 0 && (
+              {nomsRecents.length > 0 && (
                 <p className="mt-1 text-xs text-muted-foreground truncate">
-                  {frequentation.recents.map((p) => `${p.prenom} ${p.nom}`).join(', ')}
+                  {nomsRecents.map((p) => p.label).join(', ')}
                   {' · '}
                   <Link to="/admin/securite/connectes" className="font-medium text-secondary hover:text-primary">
                     <T>Voir plus</T>
