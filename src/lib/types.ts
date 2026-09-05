@@ -233,6 +233,7 @@ export interface VisiteurConnecte {
   prenom: string
   role: Role
   derniereActivite: string
+  enLigne: boolean
 }
 
 export interface SessionRecente {

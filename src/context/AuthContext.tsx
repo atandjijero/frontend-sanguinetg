@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { api, setAccessToken } from '../lib/api'
+import { signalerDeconnexion } from '../components/HeartbeatTracker'
 import type { Utilisateur } from '../lib/types'
 
 interface RegisterPayload {
@@ -65,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
+    signalerDeconnexion()
     try {
       await api.post('/auth/logout')
     } finally {

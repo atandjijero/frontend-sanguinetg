@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, RadioIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
@@ -23,7 +24,11 @@ const ROLE_LABELS: Record<Role, string> = {
 export default function VisiteursConnectesPage() {
   const { user } = useAuth()
   const { data: visiteurs, isLoading, error } = useApiData<VisiteurConnecte[]>('/analytics/connectes')
-  const { page, setPage, totalPages, pageItems, total } = useClientPagination(visiteurs ?? [], 10)
+  const visiteursTries = useMemo(
+    () => [...(visiteurs ?? [])].sort((a, b) => Number(b.id === user?.id) - Number(a.id === user?.id)),
+    [visiteurs, user?.id],
+  )
+  const { page, setPage, totalPages, pageItems, total } = useClientPagination(visiteursTries, 10)
 
   return (
     <div className="space-y-6">
@@ -60,7 +65,7 @@ export default function VisiteursConnectesPage() {
               </TableHeader>
               <TableBody>
                 {pageItems.map((visiteur) => {
-                  const statut = formatStatutActivite(new Date(visiteur.derniereActivite))
+                  const statut = formatStatutActivite(new Date(visiteur.derniereActivite), visiteur.enLigne)
                   return (
                     <TableRow key={visiteur.id}>
                       <TableCell className="font-medium">

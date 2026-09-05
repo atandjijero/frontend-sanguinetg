@@ -14,6 +14,15 @@ function getOrCreateSessionId(): string {
   return sessionId
 }
 
+/** Signale une déconnexion explicite, pour un statut hors-ligne immédiat côté SUPERADMIN. */
+export function signalerDeconnexion() {
+  const sessionId = localStorage.getItem(SESSION_STORAGE_KEY)
+  if (!sessionId) return
+  api.post('/analytics/heartbeat/deconnexion', { sessionId }).catch(() => {
+    // best-effort : le statut hors-ligne se corrigera de toute façon après 5 min sans heartbeat
+  })
+}
+
 /**
  * Signale la présence du visiteur (connecté ou non) toutes les 60s et à chaque
  * changement de page, pour alimenter les statistiques de fréquentation en temps

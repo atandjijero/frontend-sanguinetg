@@ -1,6 +1,3 @@
-// Même seuil que le backend (SEUIL_EN_LIGNE_MS dans analytics.service.ts).
-const SEUIL_EN_LIGNE_MS = 5 * 60 * 1000
-
 function joursEcoulesDepuis(date: Date): number {
   const maintenant = new Date()
   const debutJour = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
@@ -25,9 +22,13 @@ export function formatSeparateurDateMessage(date: Date): string {
   })
 }
 
-/** Statut façon WhatsApp : « En ligne » si actif dans les 5 dernières minutes, sinon « Vu ... ». */
-export function formatStatutActivite(date: Date): { enLigne: boolean; label: string } {
-  if (Date.now() - date.getTime() < SEUIL_EN_LIGNE_MS) {
+/**
+ * Statut façon WhatsApp : « En ligne » si actif dans les 5 dernières minutes, sinon « Vu ... ».
+ * enLigne vient du backend (pas recalculé ici) : une déconnexion explicite doit apparaître
+ * immédiatement hors-ligne, même si `date` est encore récente.
+ */
+export function formatStatutActivite(date: Date, enLigne: boolean): { enLigne: boolean; label: string } {
+  if (enLigne) {
     return { enLigne: true, label: 'En ligne' }
   }
 
