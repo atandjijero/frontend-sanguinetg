@@ -6,9 +6,15 @@ import { T } from '../../context/LanguageContext'
 
 export function HeroSection({ imageUrl }: { imageUrl?: string }) {
   return (
-    <section className="relative overflow-hidden py-24 md:py-36 min-h-[560px] flex items-center">
+    <section className="relative overflow-hidden py-16 md:py-36 min-h-[420px] md:min-h-[560px] flex items-center">
       <img
-        className="absolute inset-0 w-full h-full object-cover"
+        // Sur mobile, la section est haute et étroite (peu large) par rapport à l'image
+        // (souvent au format paysage) : un recadrage centré par défaut atterrit dans la
+        // zone vide entre les sujets. object-position décale le cadrage vers la gauche
+        // (là où se trouve généralement le sujet principal de la photo) sur petit écran ;
+        // le centrage par défaut est conservé à partir de md, où l'image est assez large
+        // pour montrer l'ensemble de la scène.
+        className="absolute inset-0 w-full h-full object-cover object-[25%_30%] md:object-center"
         alt="Prise en charge d'un donneur avant son don de sang"
         src={imageUrl ?? '/images/donor-care.jpg'}
       />
