@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Input } from '../../../components/ui-shadcn/ui/input'
 import { DataState } from '../../../components/dashboard/DataState'
-import { MessageBubble } from '../../../components/messagerie/MessageBubble'
+import { MessageListe } from '../../../components/messagerie/MessageListe'
 import { TypingIndicator } from '../../../components/messagerie/TypingIndicator'
 import { EmojiPicker } from '../../../components/messagerie/EmojiPicker'
 import { VoiceRecorder } from '../../../components/messagerie/VoiceRecorder'
@@ -177,16 +177,13 @@ export default function MessagerieDonneurPage() {
                 <T>Aucun message pour le moment. Posez votre première question !</T>
               </p>
             )}
-            {messages?.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                estMoi={message.auteurId === user?.id}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-            <div ref={finDuFilRef} />
+            <MessageListe
+              messages={messages ?? []}
+              currentUserId={user?.id}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              finDuFilRef={finDuFilRef}
+            />
           </div>
         </DataState>
         {activiteMedecin && (
