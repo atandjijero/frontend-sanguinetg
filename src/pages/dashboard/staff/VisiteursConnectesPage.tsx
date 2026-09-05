@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, RadioIcon } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
@@ -23,7 +23,13 @@ const ROLE_LABELS: Record<Role, string> = {
 
 export default function VisiteursConnectesPage() {
   const { user } = useAuth()
-  const { data: visiteurs, isLoading, error } = useApiData<VisiteurConnecte[]>('/analytics/connectes')
+  const { data: visiteurs, isLoading, error, refetch } = useApiData<VisiteurConnecte[]>('/analytics/connectes')
+
+  useEffect(() => {
+    const interval = setInterval(() => refetch({ silencieux: true }), 30_000)
+    return () => clearInterval(interval)
+  }, [refetch])
+
   const visiteursTries = useMemo(
     () => [...(visiteurs ?? [])].sort((a, b) => Number(b.id === user?.id) - Number(a.id === user?.id)),
     [visiteurs, user?.id],

@@ -6,20 +6,27 @@ export function useApiData<T>(path: string | null, deps: unknown[] = []) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const refetch = useCallback(async () => {
+  // silencieux=true : pour un rafraîchissement périodique en arrière-plan qui ne doit pas
+  // remplacer le contenu déjà affiché par un spinner ni un message d'erreur transitoire.
+  const refetch = useCallback(async (options?: { silencieux?: boolean }) => {
     if (!path) {
       setIsLoading(false)
       return
     }
-    setIsLoading(true)
-    setError(null)
+    if (!options?.silencieux) {
+      setIsLoading(true)
+      setError(null)
+    }
     try {
       const result = await api.get<T>(path)
       setData(result)
+      if (!options?.silencieux) setError(null)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
+      if (!options?.silencieux) {
+        setError(err instanceof ApiError ? err.message : 'Une erreur est survenue')
+      }
     } finally {
-      setIsLoading(false)
+      if (!options?.silencieux) setIsLoading(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [path, ...deps])
