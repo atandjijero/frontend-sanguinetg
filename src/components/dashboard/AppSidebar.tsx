@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import { HeartPulseIcon } from 'lucide-react'
+import { DropletIcon } from 'lucide-react'
 import { NavUser } from '@/components/ui-shadcn/nav-user'
 import {
   Sidebar,
@@ -45,7 +45,7 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <Link to={brandHref}>
-                <HeartPulseIcon className="h-5 w-5 text-primary" />
+                <DropletIcon className="h-5 w-5 text-primary" fill="currentColor" />
                 <span className="text-base font-semibold">{brandLabel}</span>
               </Link>
             </SidebarMenuButton>
