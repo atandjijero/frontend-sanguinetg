@@ -192,7 +192,7 @@ export default function SecurityPage() {
           <StatCard label={<T>Visiteurs anonymes</T>} value={frequentation?.anonymes ?? '—'} icon={UserRoundIcon} />
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          <T>Actualisé toutes les 30 secondes — présence détectée sur les 5 dernières minutes.</T>
+          <T>Présence détectée sur les 5 dernières minutes.</T>
         </p>
       </div>
 
