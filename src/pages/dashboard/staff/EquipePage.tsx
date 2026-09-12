@@ -103,7 +103,7 @@ export default function EquipePage() {
                 </SelectTrigger>
                 <SelectContent>
                   {rolesCreables.map((r) => (
-                    <SelectItem key={r} value={r}>
+                    <SelectItem key={r} value={r} disabled={r === 'SUPERADMIN'}>
                       <T>{ROLE_LABELS[r]}</T>
                     </SelectItem>
                   ))}

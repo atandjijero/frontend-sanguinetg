@@ -145,7 +145,7 @@ export default function ReponseAlertePage() {
                       onClick={() => repondre('JE_VIENS')}
                       autoFocus={statutSuggere === 'JE_VIENS'}
                     >
-                      ✅ <T>Je viens</T>
+                       <T>Je viens</T>
                     </Button>
                     <Button
                       variant="secondary"
