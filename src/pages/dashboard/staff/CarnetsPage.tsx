@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookHeartIcon, PlusIcon } from 'lucide-react'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
@@ -40,6 +40,14 @@ export default function CarnetsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const placeholderSelectionner = useTraduction('Sélectionner')
+  const donneurSelectionne = (donneurs ?? []).find((donneur) => donneur.id === donneurId)
+  const centreAssocie = donneurSelectionne?.quartierId
+    ? (centres ?? []).find((centre) => centre.quartierId === donneurSelectionne.quartierId)
+    : undefined
+
+  useEffect(() => {
+    setCentreDonId(centreAssocie?.id ?? '')
+  }, [centreAssocie?.id])
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
@@ -100,22 +108,13 @@ export default function CarnetsPage() {
               </div>
               <div className="space-y-1.5">
                 <Label>
-                  <T>Centre de don</T>
+                  <T>Centre de don associé</T>
                 </Label>
-                <Select value={centreDonId} onValueChange={setCentreDonId}>
-                  <SelectTrigger className="w-64">
-                    <SelectValue placeholder={placeholderSelectionner} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(centres ?? []).map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        {c.nom}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex h-10 w-64 items-center rounded-md border border-input bg-muted px-3 text-sm">
+                  {centreAssocie?.nom ?? <T>Sélectionnez d'abord un donneur avec un quartier associé</T>}
+                </div>
               </div>
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting || !centreDonId}>
                 <T>Enregistrer</T>
               </Button>
               {formError && (
