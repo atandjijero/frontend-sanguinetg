@@ -4,6 +4,7 @@ export class ApiError extends Error {
   constructor(
     public statusCode: number,
     message: string,
+    public fieldErrors: Record<string, string[]> = {},
   ) {
     super(message)
     this.name = 'ApiError'
@@ -20,15 +21,20 @@ export function getAccessToken() {
   return accessToken
 }
 
-async function parseError(response: Response): Promise<string> {
+async function parseError(response: Response): Promise<{ message: string; fieldErrors: Record<string, string[]> }> {
   try {
     const body = await response.json()
-    if (Array.isArray(body.message)) return body.message.join(', ')
-    if (typeof body.message === 'string') return body.message
+    const message = Array.isArray(body.message) ? body.message.join(', ') : body.message
+    if (typeof message === 'string') {
+      return {
+        message,
+        fieldErrors: body.errors && typeof body.errors === 'object' ? body.errors : {},
+      }
+    }
   } catch {
     // ignore, on retombe sur le message générique
   }
-  return `Erreur ${response.status}`
+  return { message: `Erreur ${response.status}`, fieldErrors: {} }
 }
 
 interface RequestOptions extends Omit<RequestInit, 'body'> {
@@ -58,7 +64,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   if (!response.ok) {
-    throw new ApiError(response.status, await parseError(response))
+    const error = await parseError(response)
+    throw new ApiError(response.status, error.message, error.fieldErrors)
   }
 
   if (response.status === 204) {
@@ -84,7 +91,8 @@ async function upload<T>(path: string, formData: FormData, skipAuthRetry = false
   }
 
   if (!response.ok) {
-    throw new ApiError(response.status, await parseError(response))
+    const error = await parseError(response)
+    throw new ApiError(response.status, error.message, error.fieldErrors)
   }
 
   return response.json() as Promise<T>

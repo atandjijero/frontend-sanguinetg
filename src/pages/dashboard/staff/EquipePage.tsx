@@ -25,6 +25,8 @@ const ROLE_LABELS: Record<Role, string> = {
   DONNEUR: 'Donneur',
 }
 
+type StaffField = 'nom' | 'prenom' | 'email' | 'telephone' | 'motDePasse' | 'role'
+
 export default function EquipePage() {
   const { user: moi } = useAuth()
   const confirm = useConfirm()
@@ -61,6 +63,7 @@ export default function EquipePage() {
   const [role, setRole] = useState<Role | ''>('')
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<StaffField, string[]>>>({})
   const placeholderSelectionner = useTraduction('Sélectionner')
 
   async function handleCreate(event: React.FormEvent) {
@@ -68,6 +71,7 @@ export default function EquipePage() {
     if (!nom || !prenom || !email || !telephone || !motDePasse || !role) return
     setSubmitting(true)
     setFormError(null)
+    setFieldErrors({})
     try {
       await api.post('/users/staff', { nom, prenom, email, telephone, motDePasse, role })
       setNom('')
@@ -78,7 +82,12 @@ export default function EquipePage() {
       setRole('')
       await refetch()
     } catch (err) {
-      setFormError(err instanceof ApiError ? err.message : 'Impossible de créer ce compte')
+      if (err instanceof ApiError) {
+        setFieldErrors(err.fieldErrors as Partial<Record<StaffField, string[]>>)
+        setFormError(Object.keys(err.fieldErrors).length ? null : err.message)
+      } else {
+        setFormError('Impossible de créer ce compte')
+      }
     } finally {
       setSubmitting(false)
     }
@@ -98,13 +107,15 @@ export default function EquipePage() {
               <Label>
                 <T>Nom</T>
               </Label>
-              <Input value={nom} onChange={(e) => setNom(e.target.value)} required minLength={2} />
+              <Input value={nom} onChange={(e) => setNom(e.target.value)} required minLength={2} aria-invalid={Boolean(fieldErrors.nom?.length)} />
+              {fieldErrors.nom?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="space-y-1.5">
               <Label>
                 <T>Prénom</T>
               </Label>
-              <Input value={prenom} onChange={(e) => setPrenom(e.target.value)} required minLength={2} />
+              <Input value={prenom} onChange={(e) => setPrenom(e.target.value)} required minLength={2} aria-invalid={Boolean(fieldErrors.prenom?.length)} />
+              {fieldErrors.prenom?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="space-y-1.5">
               <Label>
@@ -125,13 +136,15 @@ export default function EquipePage() {
             </div>
             <div className="space-y-1.5">
               <Label>Email</Label>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required aria-invalid={Boolean(fieldErrors.email?.length)} />
+              {fieldErrors.email?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="space-y-1.5">
               <Label>
                 <T>Téléphone</T>
               </Label>
-              <Input value={telephone} onChange={(e) => setTelephone(e.target.value)} required placeholder="+22890123456" />
+              <Input value={telephone} onChange={(e) => setTelephone(e.target.value)} required placeholder="+22890123456" aria-invalid={Boolean(fieldErrors.telephone?.length)} />
+              {fieldErrors.telephone?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="space-y-1.5">
               <Label>
@@ -143,7 +156,9 @@ export default function EquipePage() {
                 onChange={(e) => setMotDePasse(e.target.value)}
                 required
                 minLength={8}
+                aria-invalid={Boolean(fieldErrors.motDePasse?.length)}
               />
+              {fieldErrors.motDePasse?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="sm:col-span-2 lg:col-span-3 flex items-center gap-4">
               <Button type="submit" disabled={submitting}>

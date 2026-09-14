@@ -9,6 +9,33 @@ import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../lib/constants'
 import { T } from '../context/LanguageContext'
 import type { Quartier } from '../lib/types'
 
+type RegisterField = 'nom' | 'prenom' | 'email' | 'telephone' | 'motDePasse' | 'confirmationMotDePasse' | 'consentement'
+
+function validerInscription(values: Record<RegisterField, string | boolean>) {
+  const errors: Partial<Record<RegisterField, string[]>> = {}
+  const ajouter = (field: RegisterField, message: string) => {
+    errors[field] = [...(errors[field] ?? []), message]
+  }
+
+  if (!/^(?=.*\p{L})[\p{L} .'-]+$/u.test(String(values.nom))) {
+    ajouter('nom', 'Le nom doit contenir uniquement des lettres, espaces, apostrophes ou tirets')
+  }
+  if (!/^(?=.*\p{L})[\p{L} .'-]+$/u.test(String(values.prenom))) {
+    ajouter('prenom', 'Le prénom doit contenir uniquement des lettres, espaces, apostrophes ou tirets')
+  }
+  if (!/^(\+228)?[0-9]{8}$/.test(String(values.telephone))) {
+    ajouter('telephone', 'Le numéro de téléphone doit être un numéro togolais valide (8 chiffres, préfixe +228 optionnel)')
+  }
+  if (String(values.motDePasse).length < 8 || !/[A-Za-z]/.test(String(values.motDePasse)) || !/\d/.test(String(values.motDePasse))) {
+    ajouter('motDePasse', 'Le mot de passe doit contenir au moins une lettre et un chiffre')
+  }
+  if (values.motDePasse !== values.confirmationMotDePasse) {
+    ajouter('confirmationMotDePasse', 'La confirmation ne correspond pas au mot de passe')
+  }
+  if (!values.consentement) ajouter('consentement', "Vous devez accepter l'utilisation de vos informations pour vous inscrire.")
+  return errors
+}
+
 export default function RegisterPage() {
   const { register } = useAuth()
   const navigate = useNavigate()
@@ -24,12 +51,16 @@ export default function RegisterPage() {
   const [confirmationMotDePasse, setConfirmationMotDePasse] = useState('')
   const [accepte, setAccepte] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<RegisterField, string[]>>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setError(null)
+    const localErrors = validerInscription({ nom, prenom, email, telephone, motDePasse, confirmationMotDePasse, consentement: accepte })
+    setFieldErrors(localErrors)
+    if (Object.keys(localErrors).length > 0) return
     setSubmitting(true)
     try {
       await register({
@@ -45,7 +76,12 @@ export default function RegisterPage() {
       })
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Impossible de créer votre compte, réessayez.")
+      if (err instanceof ApiError) {
+        setFieldErrors(err.fieldErrors as Partial<Record<RegisterField, string[]>>)
+        setError(Object.keys(err.fieldErrors).length ? null : err.message)
+      } else {
+        setError("Impossible de créer votre compte, réessayez.")
+      }
     } finally {
       setSubmitting(false)
     }
@@ -94,8 +130,10 @@ export default function RegisterPage() {
                       type="text"
                       value={nom}
                       onChange={(e) => setNom(e.target.value)}
+                      aria-invalid={Boolean(fieldErrors.nom?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.nom?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                   <label className="block">
                     <span className="text-label-md text-on-surface mb-2 block">
@@ -106,8 +144,10 @@ export default function RegisterPage() {
                       type="text"
                       value={prenom}
                       onChange={(e) => setPrenom(e.target.value)}
+                      aria-invalid={Boolean(fieldErrors.prenom?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.prenom?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                 </div>
 
@@ -119,8 +159,10 @@ export default function RegisterPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      aria-invalid={Boolean(fieldErrors.email?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.email?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                   <label className="block">
                     <span className="text-label-md text-on-surface mb-2 block">
@@ -132,8 +174,10 @@ export default function RegisterPage() {
                       value={telephone}
                       onChange={(e) => setTelephone(e.target.value)}
                       placeholder="+22890123456"
+                      aria-invalid={Boolean(fieldErrors.telephone?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.telephone?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                 </div>
 
@@ -189,8 +233,10 @@ export default function RegisterPage() {
                       value={motDePasse}
                       onChange={(e) => setMotDePasse(e.target.value)}
                       minLength={8}
+                      aria-invalid={Boolean(fieldErrors.motDePasse?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.motDePasse?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                   <label className="block">
                     <span className="text-label-md text-on-surface mb-2 block">
@@ -201,8 +247,10 @@ export default function RegisterPage() {
                       type="password"
                       value={confirmationMotDePasse}
                       onChange={(e) => setConfirmationMotDePasse(e.target.value)}
+                      aria-invalid={Boolean(fieldErrors.confirmationMotDePasse?.length)}
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
+                    {fieldErrors.confirmationMotDePasse?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                 </div>
 
@@ -220,6 +268,7 @@ export default function RegisterPage() {
                       de don de sang compatibles avec mon profil.
                     </T>
                   </span>
+                  {fieldErrors.consentement?.map((message) => <p key={message} className="text-sm text-error"><T>{message}</T></p>)}
                 </label>
 
                 {error && (
