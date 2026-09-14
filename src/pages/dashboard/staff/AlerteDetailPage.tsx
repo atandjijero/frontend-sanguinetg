@@ -17,6 +17,8 @@ import type { Alerte, CarnetDigital, CentreDon, ReponseAvecDonneur, TypeRecompen
 
 type FormulaireOuvert = { type: 'don'; reponseId: string } | { type: 'recompense'; carnetId: string; donneurId: string } | null
 
+const DELAI_MINIMAL_ENTRE_DONS_JOURS = 90
+
 export default function AlerteDetailPage() {
   const { user } = useAuth()
   const peutAttribuerRecompense = user?.role !== 'SUPERADMIN'
@@ -31,6 +33,17 @@ export default function AlerteDetailPage() {
     const map = new Map<string, CarnetDigital>()
     for (const c of carnets ?? []) {
       if (c.reponseId) map.set(c.reponseId, c)
+    }
+    return map
+  }, [carnets])
+
+  const dernierDonParDonneur = useMemo(() => {
+    const map = new Map<string, CarnetDigital>()
+    for (const carnet of carnets ?? []) {
+      const precedent = map.get(carnet.donneurId)
+      if (!precedent || new Date(carnet.dateDon).getTime() > new Date(precedent.dateDon).getTime()) {
+        map.set(carnet.donneurId, carnet)
+      }
     }
     return map
   }, [carnets])
@@ -89,6 +102,12 @@ export default function AlerteDetailPage() {
             <div className="space-y-3">
               {reponses?.map((reponse) => {
                 const carnet = carnetParReponse.get(reponse.id)
+                const dernierDon = dernierDonParDonneur.get(reponse.donneur.id)
+                const prochaineDatePossible = dernierDon
+                  ? new Date(new Date(dernierDon.dateDon).getTime() + DELAI_MINIMAL_ENTRE_DONS_JOURS * 24 * 60 * 60 * 1000)
+                  : null
+                const donBloqueParDelai = Boolean(prochaineDatePossible && prochaineDatePossible.getTime() > Date.now())
+                const donDejaEnregistre = Boolean(carnet)
                 return (
                   <div key={reponse.id} className="rounded-lg border border-border p-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -114,7 +133,7 @@ export default function AlerteDetailPage() {
                         {reponse.statut === 'JE_VIENS' && (
                           <Button
                             size="sm"
-                            disabled={Boolean(carnet)}
+                            disabled={donDejaEnregistre || donBloqueParDelai}
                             onClick={() => setFormulaire({ type: 'don', reponseId: reponse.id })}
                           >
                             <T>Enregistrer le don</T>
@@ -124,6 +143,13 @@ export default function AlerteDetailPage() {
                         {carnet && (
                           <span className="inline-flex items-center gap-1 text-sm text-tertiary">
                             <CheckCircle2Icon className="h-4 w-4" /> <T>Don enregistré</T>
+                          </span>
+                        )}
+
+                        {donBloqueParDelai && !carnet && (
+                          <span className="text-sm text-destructive">
+                            <T>Don impossible avant le</T>{' '}
+                            {prochaineDatePossible?.toLocaleDateString('fr-FR')}
                           </span>
                         )}
 
