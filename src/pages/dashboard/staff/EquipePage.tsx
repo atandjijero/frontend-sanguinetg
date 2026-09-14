@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { PlusIcon, UsersIcon } from 'lucide-react'
+import { PlusIcon, Trash2Icon, UsersIcon } from 'lucide-react'
 import { Button } from '../../../components/ui-shadcn/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui-shadcn/ui/card'
 import { Badge } from '../../../components/ui-shadcn/ui/badge'
@@ -12,6 +12,7 @@ import { PaginationControls } from '../../../components/dashboard/PaginationCont
 import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
+import { useConfirm } from '../../../context/ConfirmContext'
 import { api, ApiError } from '../../../lib/api'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Role, Utilisateur } from '../../../lib/types'
@@ -26,10 +27,12 @@ const ROLE_LABELS: Record<Role, string> = {
 
 export default function EquipePage() {
   const { user: moi } = useAuth()
+  const confirm = useConfirm()
   const { data: utilisateurs, isLoading, error, refetch } = useApiData<Utilisateur[]>('/users')
   const equipe = useMemo(() => utilisateurs?.filter((u) => u.role !== 'DONNEUR') ?? [], [utilisateurs])
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(equipe, 6)
   const peutGererStatut = moi?.role === 'ADMIN' || moi?.role === 'SUPERADMIN'
+  const peutSupprimerEquipe = moi?.role === 'SUPERADMIN'
 
   const rolesCreables: Role[] =
     moi?.role === 'SUPERADMIN' ? ['SUPERADMIN', 'ADMIN', 'MEDECIN', 'AGENT_CNTS'] : ['MEDECIN', 'AGENT_CNTS']
@@ -38,6 +41,16 @@ export default function EquipePage() {
     const nouveauStatut = u.statut === 'ACTIF' ? 'INACTIF' : 'ACTIF'
     await api.patch(`/users/${u.id}/statut`, { statut: nouveauStatut })
     refetch()
+  }
+
+  async function supprimerMembre(u: Utilisateur) {
+    if (!(await confirm({ description: `Supprimer définitivement ${u.prenom} ${u.nom} de l’équipe CNTS ?` }))) return
+    try {
+      await api.delete(`/users/staff/${u.id}`)
+      await refetch()
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : 'Impossible de supprimer ce membre')
+    }
   }
 
   const [nom, setNom] = useState('')
@@ -167,7 +180,7 @@ export default function EquipePage() {
                   <TableHead>
                     <T>Statut</T>
                   </TableHead>
-                  {peutGererStatut && (
+                  {(peutGererStatut || peutSupprimerEquipe) && (
                     <TableHead className="text-right">
                       <T>Action</T>
                     </TableHead>
@@ -187,12 +200,22 @@ export default function EquipePage() {
                     <TableCell>
                       <Badge variant={u.statut === 'ACTIF' ? 'default' : 'destructive'}>{u.statut}</Badge>
                     </TableCell>
-                    {peutGererStatut && (
+                    {(peutGererStatut || peutSupprimerEquipe) && (
                       <TableCell className="text-right">
                         {u.id !== moi?.id && (
-                          <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
-                            <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            {peutGererStatut && (
+                              <Button variant="outline" size="sm" onClick={() => toggleStatut(u)}>
+                                <T>{u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}</T>
+                              </Button>
+                            )}
+                            {peutSupprimerEquipe && u.role !== 'SUPERADMIN' && (
+                              <Button variant="destructive" size="sm" onClick={() => supprimerMembre(u)}>
+                                <Trash2Icon />
+                                <T>Supprimer</T>
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </TableCell>
                     )}

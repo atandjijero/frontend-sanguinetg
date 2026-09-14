@@ -111,8 +111,12 @@ export default function AlerteDetailPage() {
                           <T>{reponse.statut === 'JE_VIENS' ? 'Vient' : 'Indisponible'}</T>
                         </Badge>
 
-                        {reponse.statut === 'JE_VIENS' && !carnet && (
-                          <Button size="sm" onClick={() => setFormulaire({ type: 'don', reponseId: reponse.id })}>
+                        {reponse.statut === 'JE_VIENS' && (
+                          <Button
+                            size="sm"
+                            disabled={Boolean(carnet)}
+                            onClick={() => setFormulaire({ type: 'don', reponseId: reponse.id })}
+                          >
                             <T>Enregistrer le don</T>
                           </Button>
                         )}
