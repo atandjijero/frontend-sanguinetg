@@ -47,8 +47,14 @@ export default function EquipePage() {
 
   async function supprimerMembre(u: Utilisateur) {
     if (!(await confirm({ description: `Supprimer définitivement ${u.prenom} ${u.nom} de l’équipe CNTS ?` }))) return
+    const raison = window.prompt('Raison obligatoire de la suppression (10 caractères minimum) :', '')?.trim()
+    if (!raison) return
+    if (raison.length < 10) {
+      setFormError('La raison de suppression doit contenir au moins 10 caractères')
+      return
+    }
     try {
-      await api.delete(`/users/staff/${u.id}`)
+      await api.delete(`/users/staff/${u.id}`, { raison })
       await refetch()
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : 'Impossible de supprimer ce membre')
