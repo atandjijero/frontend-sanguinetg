@@ -158,6 +158,7 @@ export default function EquipePage() {
               </Label>
               <Input
                 type="password"
+                autoComplete="new-password"
                 value={motDePasse}
                 onChange={(e) => setMotDePasse(e.target.value)}
                 required
