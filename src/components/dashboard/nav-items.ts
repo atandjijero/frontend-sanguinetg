@@ -4,6 +4,7 @@ import {
   GaugeIcon,
   GiftIcon,
   HeartHandshakeIcon,
+  HistoryIcon,
   ImageIcon,
   MailIcon,
   MapPinIcon,
@@ -85,6 +86,12 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     title: 'Équipe CNTS',
     to: '/admin/equipe',
     icon: UsersIcon,
+    roles: ['SUPERADMIN', 'ADMIN'],
+  },
+  {
+    title: 'Historique',
+    to: '/admin/historique',
+    icon: HistoryIcon,
     roles: ['SUPERADMIN', 'ADMIN'],
   },
   {

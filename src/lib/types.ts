@@ -292,3 +292,21 @@ export interface NotificationDonneur {
   alerteId: string | null
   alerte?: { id: string; quartier?: { nom: string } | null; centreDon?: { nom: string } | null } | null
 }
+
+export interface EntreeHistorique {
+  id: string
+  utilisateurId: string | null
+  utilisateurNom: string | null
+  role: Role | null
+  action: string
+  description: string | null
+  methode: string
+  route: string
+  cible: string | null
+  succes: boolean
+  codeHttp: number
+  ip: string | null
+  userAgent: string | null
+  details: Record<string, string> | null
+  dateCreation: string
+}

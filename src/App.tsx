@@ -33,6 +33,7 @@ import MessagesPage from './pages/dashboard/staff/MessagesPage';
 import MessagerieMedecinPage from './pages/dashboard/staff/MessagerieMedecinPage';
 import AbonnesPage from './pages/dashboard/staff/AbonnesPage';
 import SecurityPage from './pages/dashboard/staff/SecurityPage';
+import HistoriquePage from './pages/dashboard/staff/HistoriquePage';
 import VisiteursConnectesPage from './pages/dashboard/staff/VisiteursConnectesPage';
 import ImagesPage from './pages/dashboard/staff/ImagesPage';
 import DonneurHomePage from './pages/dashboard/donneur/DonneurHomePage';
@@ -83,6 +84,9 @@ function App() {
                 <Route path="profil" element={<ProfilPage />} />
                 <Route element={<ProtectedRoute roles={['SUPERADMIN', 'ADMIN', 'MEDECIN']} />}>
                   <Route path="messagerie" element={<MessagerieMedecinPage />} />
+                </Route>
+                <Route element={<ProtectedRoute roles={['SUPERADMIN', 'ADMIN']} />}>
+                  <Route path="historique" element={<HistoriquePage />} />
                 </Route>
                 <Route element={<ProtectedRoute roles={['SUPERADMIN']} />}>
                   <Route path="abonnes" element={<AbonnesPage />} />
