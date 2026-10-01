@@ -104,7 +104,6 @@ export function useLangue() {
   return ctx
 }
 
-/** Traduit `texte` (français) à la volée via DeepL quand la langue active est l'anglais. */
 export function useTraduction(texte: string): string {
   const { langue } = useLangue()
   const [valeur, setValeur] = useState(texte)
@@ -126,7 +125,6 @@ export function useTraduction(texte: string): string {
   return langue === 'fr' ? texte : valeur
 }
 
-/** Wrapper ergonomique : `<T>Accueil</T>` traduit le texte français passé en enfant. */
 export function T({ children }: { children: string }) {
   return <>{useTraduction(children)}</>
 }

@@ -16,6 +16,7 @@ export interface Utilisateur {
   id: string
   nom: string
   prenom: string
+  dateNaissance?: string | null
   email: string | null
   telephone: string | null
   role: Role

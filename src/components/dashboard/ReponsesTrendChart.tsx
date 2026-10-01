@@ -5,10 +5,6 @@ import { derniersJours, cleJour } from '../../lib/trend'
 import { T } from '../../context/LanguageContext'
 import type { Alerte } from '../../lib/types'
 
-/**
- * Réponses cumulées des alertes créées chaque jour (les réponses individuelles ne sont
- * pas exposées globalement à l'admin — seul `resume` par alerte l'est).
- */
 export function ReponsesTrendChart({ alertes }: { alertes: Alerte[] }) {
   const data = useMemo(() => {
     const jours = derniersJours(14)

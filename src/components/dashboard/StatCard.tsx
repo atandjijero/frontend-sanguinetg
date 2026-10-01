@@ -14,7 +14,6 @@ export function StatCard({
   value: string | number
   icon: LucideIcon
   hint?: ReactNode
-  /** Variation affichée en pastille à côté de la valeur, façon tableau de bord (ex: +15,5%). */
   delta?: { direction: 'up' | 'down'; label: string }
 }) {
   return (

@@ -13,10 +13,6 @@ import { T, useTraduction } from '../context/LanguageContext'
 
 const CLE_REFUS_NOTIFICATIONS = 'sanguine-tg-notifications-refusees'
 
-/**
- * Sidebar donneur volontairement distincte du sidebar CNTS : accent vert (marque "santé/don")
- * au lieu du rouge institutionnel, et navigation propre au parcours donneur.
- */
 export default function DonneurDashboardLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()

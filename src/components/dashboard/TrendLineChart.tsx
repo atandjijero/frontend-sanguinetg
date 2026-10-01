@@ -9,11 +9,6 @@ export interface TrendSeries {
   color: string
 }
 
-/**
- * Petit panneau de tendance façon grille de monitoring : titre à gauche, légende
- * inline à droite (carrés colorés), courbe fine sans axe X visible. Une seule
- * série n'affiche pas de légende (le titre suffit à la nommer).
- */
 export function TrendLineChart({
   title,
   data,

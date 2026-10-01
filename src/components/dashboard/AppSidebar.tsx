@@ -23,7 +23,6 @@ interface AppSidebarProps extends ComponentProps<typeof Sidebar> {
   profilPath: string
   onLogout: () => void
   roleBadge?: ReactNode
-  /** Resserre l'espacement des items du menu — utile quand la liste est longue (espace CNTS). */
   compact?: boolean
 }
 

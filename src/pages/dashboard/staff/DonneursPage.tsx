@@ -75,6 +75,21 @@ export default function DonneursPage() {
     }
   }
 
+  async function changerGroupeSanguin(u: Utilisateur, groupeSanguin: GroupeSanguin) {
+    if (groupeSanguin === u.groupeSanguin) return
+    const description = u.groupeSanguin
+      ? `Corriger le groupe sanguin de ${u.prenom} ${u.nom} : ${GROUPE_SANGUIN_LABELS[u.groupeSanguin]} → ${GROUPE_SANGUIN_LABELS[groupeSanguin]} ? Ce groupe détermine les alertes qu'il recevra.`
+      : `Renseigner le groupe sanguin ${GROUPE_SANGUIN_LABELS[groupeSanguin]} pour ${u.prenom} ${u.nom} ? Ce groupe détermine les alertes qu'il recevra.`
+    if (!(await confirm({ description }))) return
+    try {
+      await api.patch(`/users/${u.id}/groupe-sanguin`, { groupeSanguin })
+      toast.success('Groupe sanguin enregistré')
+      await refetch()
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Impossible de modifier le groupe sanguin')
+    }
+  }
+
   async function supprimerDonneur(u: Utilisateur) {
     if (!(await confirm({ description: `Supprimer définitivement ${u.prenom} ${u.nom} ? Son carnet digital, ses réponses aux alertes et son historique seront aussi supprimés.` })))
       return
@@ -173,7 +188,18 @@ export default function DonneursPage() {
                     {u.prenom} {u.nom}
                   </TableCell>
                   <TableCell>
-                    {u.groupeSanguin ? <Badge variant="outline">{GROUPE_SANGUIN_LABELS[u.groupeSanguin]}</Badge> : '—'}
+                    <Select value={u.groupeSanguin ?? ''} onValueChange={(v) => changerGroupeSanguin(u, v as GroupeSanguin)}>
+                      <SelectTrigger className="h-8 w-24" aria-label={`Groupe sanguin de ${u.prenom} ${u.nom}`}>
+                        <SelectValue placeholder="—" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GROUPES_SANGUINS.map((g) => (
+                          <SelectItem key={g} value={g}>
+                            {GROUPE_SANGUIN_LABELS[g]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{u.telephone ?? '—'}</TableCell>
                   <TableCell className="text-muted-foreground">

@@ -13,11 +13,6 @@ function estIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
 }
 
-/**
- * Expose l'invite d'installation PWA native (Chrome/Edge/Android). Cet évènement n'existe
- * pas sur iOS/Safari (pas d'API d'installation programmable) : `estIos` permet d'afficher
- * une instruction manuelle à la place d'un bouton non fonctionnel.
- */
 export function usePwaInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [installee, setInstallee] = useState(estDejaInstallee)

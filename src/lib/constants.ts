@@ -49,3 +49,6 @@ export const GRAVITE_ALERTE_SECURITE_LABELS: Record<GraviteAlerteSecurite, strin
   ELEVE: 'Élevé',
   CRITIQUE: 'Critique',
 }
+
+export const AGE_MIN_DON = 18
+export const AGE_MAX_DON = 65

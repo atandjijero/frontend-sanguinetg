@@ -7,6 +7,7 @@ import type { Utilisateur } from '../lib/types'
 interface RegisterPayload {
   nom: string
   prenom: string
+  dateNaissance: string
   email: string
   telephone: string
   motDePasse: string

@@ -13,7 +13,6 @@ export interface CarteMarqueur {
 interface CentresMapProps {
   marqueurs: CarteMarqueur[]
   selectedId?: string | null
-  /** Incrémenté à chaque clic pour forcer le recentrage même si selectedId ne change pas (ex. reclic sur le même centre). */
   focusToken?: number
   className?: string
   zoom?: number

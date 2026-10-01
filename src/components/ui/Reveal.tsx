@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 
-/** Fait apparaître son contenu en fondu/translation dès qu'il entre dans le viewport (une seule fois). */
 export function Reveal({
   children,
   delay = 0,

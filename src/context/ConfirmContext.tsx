@@ -16,7 +16,6 @@ interface ConfirmOptions {
   description: string
   confirmLabel?: string
   cancelLabel?: string
-  /** Action destructrice (ex. suppression) : bouton de confirmation en rouge. Par défaut true. */
   destructive?: boolean
 }
 

@@ -21,7 +21,6 @@ export interface NavItem {
   title: string
   to: string
   icon: LucideIcon
-  /** Rôles autorisés à voir cet item. Omis = visible par tous les rôles du sidebar concerné. */
   roles?: Role[]
   end?: boolean
 }
@@ -38,7 +37,7 @@ export const STAFF_NAV_ITEMS: NavItem[] = [
     title: 'Donneurs',
     to: '/admin/donneurs',
     icon: HeartHandshakeIcon,
-    roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS'],
+    roles: ['SUPERADMIN', 'ADMIN', 'AGENT_CNTS', 'MEDECIN'],
   },
   {
     title: 'Carnets de don',

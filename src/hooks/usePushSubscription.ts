@@ -12,7 +12,6 @@ function estSupporte() {
   return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
 }
 
-/** Abonnement aux notifications push (Web Push) pour le donneur connecté, appareil courant. */
 export function usePushSubscription() {
   const [abonne, setAbonne] = useState(false)
   // Tant que `pret` est faux, on ne sait pas encore si cet appareil est déjà abonné : le

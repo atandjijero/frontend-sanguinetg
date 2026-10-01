@@ -16,6 +16,7 @@ import { useConfirm } from '../../../context/ConfirmContext'
 import { api, ApiError } from '../../../lib/api'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Role, Utilisateur } from '../../../lib/types'
+import { dateIlYA } from '../../../lib/date-format'
 
 const ROLE_LABELS: Record<Role, string> = {
   SUPERADMIN: 'Super administrateur',
@@ -25,7 +26,7 @@ const ROLE_LABELS: Record<Role, string> = {
   DONNEUR: 'Donneur',
 }
 
-type StaffField = 'nom' | 'prenom' | 'email' | 'telephone' | 'motDePasse' | 'role'
+type StaffField = 'nom' | 'prenom' | 'dateNaissance' | 'email' | 'telephone' | 'motDePasse' | 'role'
 
 export default function EquipePage() {
   const { user: moi } = useAuth()
@@ -63,6 +64,7 @@ export default function EquipePage() {
 
   const [nom, setNom] = useState('')
   const [prenom, setPrenom] = useState('')
+  const [dateNaissance, setDateNaissance] = useState('')
   const [email, setEmail] = useState('')
   const [telephone, setTelephone] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
@@ -74,14 +76,15 @@ export default function EquipePage() {
 
   async function handleCreate(event: React.FormEvent) {
     event.preventDefault()
-    if (!nom || !prenom || !email || !telephone || !motDePasse || !role) return
+    if (!nom || !prenom || !dateNaissance || !email || !telephone || !motDePasse || !role) return
     setSubmitting(true)
     setFormError(null)
     setFieldErrors({})
     try {
-      await api.post('/users/staff', { nom, prenom, email, telephone, motDePasse, role })
+      await api.post('/users/staff', { nom, prenom, dateNaissance, email, telephone, motDePasse, role })
       setNom('')
       setPrenom('')
+      setDateNaissance('')
       setEmail('')
       setTelephone('')
       setMotDePasse('')
@@ -122,6 +125,20 @@ export default function EquipePage() {
               </Label>
               <Input value={prenom} onChange={(e) => setPrenom(e.target.value)} required minLength={2} aria-invalid={Boolean(fieldErrors.prenom?.length)} />
               {fieldErrors.prenom?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                <T>Date de naissance</T>
+              </Label>
+              <Input
+                type="date"
+                value={dateNaissance}
+                onChange={(e) => setDateNaissance(e.target.value)}
+                required
+                max={dateIlYA(18)}
+                aria-invalid={Boolean(fieldErrors.dateNaissance?.length)}
+              />
+              {fieldErrors.dateNaissance?.map((message) => <p key={message} className="text-sm text-destructive"><T>{message}</T></p>)}
             </div>
             <div className="space-y-1.5">
               <Label>

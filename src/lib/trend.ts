@@ -1,4 +1,3 @@
-/** Fenêtre glissante de N jours (aujourd'hui inclus), pour les petits graphiques de tendance du dashboard. */
 export function derniersJours(n: number): { cle: string; label: string }[] {
   const jours: { cle: string; label: string }[] = []
   const aujourdhui = new Date()

@@ -1,7 +1,3 @@
-/**
- * Palette de dataviz validée (8 teintes catégorielles, CVD-safe — voir la skill dataviz).
- * Ordre fixe, jamais recalculé par valeur : l'ordre est le mécanisme de sécurité CVD.
- */
 export const CATEGORICAL_LIGHT = [
   '#2a78d6', // 1 blue
   '#1baf7a', // 2 aqua

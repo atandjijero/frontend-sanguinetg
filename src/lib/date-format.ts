@@ -22,11 +22,6 @@ export function formatSeparateurDateMessage(date: Date): string {
   })
 }
 
-/**
- * Statut façon WhatsApp : « En ligne » si actif dans les 5 dernières minutes, sinon « Vu ... ».
- * enLigne vient du backend (pas recalculé ici) : une déconnexion explicite doit apparaître
- * immédiatement hors-ligne, même si `date` est encore récente.
- */
 export function formatStatutActivite(date: Date, enLigne: boolean): { enLigne: boolean; label: string } {
   if (enLigne) {
     return { enLigne: true, label: 'En ligne' }
@@ -49,4 +44,20 @@ export function formatStatutActivite(date: Date, enLigne: boolean): { enLigne: b
     year: memeAnnee ? undefined : 'numeric',
   })
   return { enLigne: false, label: `Vu le ${dateTexte} à ${heure}` }
+}
+
+export function calculerAge(dateNaissance: string, maintenant = new Date()): number {
+  const naissance = new Date(dateNaissance)
+  let age = maintenant.getFullYear() - naissance.getFullYear()
+  const anniversairePasse =
+    maintenant.getMonth() > naissance.getMonth() ||
+    (maintenant.getMonth() === naissance.getMonth() && maintenant.getDate() >= naissance.getDate())
+  if (!anniversairePasse) age -= 1
+  return age
+}
+
+export function dateIlYA(annees: number): string {
+  const date = new Date()
+  date.setFullYear(date.getFullYear() - annees)
+  return date.toISOString().slice(0, 10)
 }

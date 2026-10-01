@@ -10,7 +10,6 @@ function formatDuree(secondes: number): string {
   return `${minutes}:${reste.toString().padStart(2, '0')}`
 }
 
-/** Message précis selon la cause réelle du refus, plutôt qu'un « impossible d'accéder » générique. */
 function messageErreurMicro(error: unknown): string {
   if (!(error instanceof DOMException)) return "Impossible d'accéder au microphone."
 
@@ -39,10 +38,6 @@ export function VoiceRecorder({
 }: {
   onSend: (blob: Blob, dureeSecondes: number) => void
   onActifChange?: (actif: boolean) => void
-  /** Signale à l'autre partie « X enregistre un message vocal » — réémis à chaque seconde
-   * tant que l'enregistrement est en cours, pour que le filet de sécurité côté réception
-   * (qui efface l'indicateur après quelques secondes d'inactivité) ne l'efface pas à tort
-   * pendant un enregistrement qui peut durer plusieurs minutes. */
   onRecordingChange?: (enregistrement: boolean) => void
   disabled?: boolean
 }) {

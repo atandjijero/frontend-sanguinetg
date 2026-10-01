@@ -5,11 +5,12 @@ import Button from '../components/ui/Button'
 import { useAuth } from '../context/AuthContext'
 import { useApiData } from '../hooks/useApiData'
 import { ApiError } from '../lib/api'
-import { GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../lib/constants'
+import { AGE_MAX_DON, AGE_MIN_DON, GROUPES_SANGUINS, GROUPE_SANGUIN_LABELS } from '../lib/constants'
+import { calculerAge, dateIlYA } from '../lib/date-format'
 import { T } from '../context/LanguageContext'
 import type { Quartier } from '../lib/types'
 
-type RegisterField = 'nom' | 'prenom' | 'email' | 'telephone' | 'motDePasse' | 'confirmationMotDePasse' | 'consentement'
+type RegisterField = 'nom' | 'prenom' | 'dateNaissance' | 'email' | 'telephone' | 'motDePasse' | 'confirmationMotDePasse' | 'consentement'
 
 function validerInscription(values: Record<RegisterField, string | boolean>) {
   const errors: Partial<Record<RegisterField, string[]>> = {}
@@ -22,6 +23,14 @@ function validerInscription(values: Record<RegisterField, string | boolean>) {
   }
   if (!/^(?=.*\p{L})[\p{L} .'-]+$/u.test(String(values.prenom))) {
     ajouter('prenom', 'Le prénom doit contenir uniquement des lettres, espaces, apostrophes ou tirets')
+  }
+  if (!values.dateNaissance) {
+    ajouter('dateNaissance', 'La date de naissance est obligatoire')
+  } else {
+    const age = calculerAge(String(values.dateNaissance))
+    if (Number.isNaN(age) || age < AGE_MIN_DON || age > AGE_MAX_DON) {
+      ajouter('dateNaissance', `Le don de sang est ouvert aux personnes de ${AGE_MIN_DON} à ${AGE_MAX_DON} ans`)
+    }
   }
   if (!/^(\+228)?[0-9]{8}$/.test(String(values.telephone))) {
     ajouter('telephone', 'Le numéro de téléphone doit être un numéro togolais valide (8 chiffres, préfixe +228 optionnel)')
@@ -43,6 +52,7 @@ export default function RegisterPage() {
 
   const [nom, setNom] = useState('')
   const [prenom, setPrenom] = useState('')
+  const [dateNaissance, setDateNaissance] = useState('')
   const [email, setEmail] = useState('')
   const [telephone, setTelephone] = useState('')
   const [groupeSanguin, setGroupeSanguin] = useState('')
@@ -58,7 +68,7 @@ export default function RegisterPage() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setError(null)
-    const localErrors = validerInscription({ nom, prenom, email, telephone, motDePasse, confirmationMotDePasse, consentement: accepte })
+    const localErrors = validerInscription({ nom, prenom, dateNaissance, email, telephone, motDePasse, confirmationMotDePasse, consentement: accepte })
     setFieldErrors(localErrors)
     if (Object.keys(localErrors).length > 0) return
     setSubmitting(true)
@@ -66,6 +76,7 @@ export default function RegisterPage() {
       await register({
         nom,
         prenom,
+        dateNaissance,
         email,
         telephone,
         motDePasse,
@@ -148,6 +159,25 @@ export default function RegisterPage() {
                       className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     {fieldErrors.prenom?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
+                  </label>
+                </div>
+
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-label-md text-on-surface mb-2 block">
+                      <T>Date de naissance</T>
+                    </span>
+                    <input
+                      required
+                      type="date"
+                      value={dateNaissance}
+                      onChange={(e) => setDateNaissance(e.target.value)}
+                      min={dateIlYA(AGE_MAX_DON + 1)}
+                      max={dateIlYA(AGE_MIN_DON)}
+                      aria-invalid={Boolean(fieldErrors.dateNaissance?.length)}
+                      className="w-full rounded-xl border border-outline-variant bg-surface px-4 py-3 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    {fieldErrors.dateNaissance?.map((message) => <p key={message} className="mt-1 text-sm text-error"><T>{message}</T></p>)}
                   </label>
                 </div>
 
