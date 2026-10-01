@@ -16,7 +16,7 @@ import { useConfirm } from '../../../context/ConfirmContext'
 import { api, ApiError } from '../../../lib/api'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import type { Role, Utilisateur } from '../../../lib/types'
-import { dateIlYA } from '../../../lib/date-format'
+import { calculerAge, dateIlYA } from '../../../lib/date-format'
 
 const ROLE_LABELS: Record<Role, string> = {
   SUPERADMIN: 'Super administrateur',
@@ -213,6 +213,9 @@ export default function EquipePage() {
                     <T>Nom</T>
                   </TableHead>
                   <TableHead>
+                    <T>Âge</T>
+                  </TableHead>
+                  <TableHead>
                     <T>Rôle</T>
                   </TableHead>
                   <TableHead>Email</TableHead>
@@ -231,6 +234,9 @@ export default function EquipePage() {
                   <TableRow key={u.id}>
                     <TableCell className="font-medium">
                       {u.prenom} {u.nom}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                      {u.dateNaissance ? `${calculerAge(u.dateNaissance)} ans` : '—'}
                     </TableCell>
                     <TableCell>
                       <T>{ROLE_LABELS[u.role]}</T>

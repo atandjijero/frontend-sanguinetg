@@ -15,6 +15,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { useConfirm } from '../../../context/ConfirmContext'
 import { api, ApiError } from '../../../lib/api'
 import { GROUPE_SANGUIN_LABELS, GROUPES_SANGUINS } from '../../../lib/constants'
+import { calculerAge } from '../../../lib/date-format'
 import { T, useTraduction } from '../../../context/LanguageContext'
 import type { CarnetDigital, GroupeSanguin, Quartier, Utilisateur } from '../../../lib/types'
 
@@ -155,6 +156,9 @@ export default function DonneursPage() {
                   <T>Nom</T>
                 </TableHead>
                 <TableHead>
+                  <T>Âge</T>
+                </TableHead>
+                <TableHead>
                   <T>Groupe sanguin</T>
                 </TableHead>
                 <TableHead>
@@ -186,6 +190,9 @@ export default function DonneursPage() {
                 <TableRow key={u.id}>
                   <TableCell className="font-medium">
                     {u.prenom} {u.nom}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground whitespace-nowrap">
+                    {u.dateNaissance ? `${calculerAge(u.dateNaissance)} ans` : '—'}
                   </TableCell>
                   <TableCell>
                     <Select value={u.groupeSanguin ?? ''} onValueChange={(v) => changerGroupeSanguin(u, v as GroupeSanguin)}>

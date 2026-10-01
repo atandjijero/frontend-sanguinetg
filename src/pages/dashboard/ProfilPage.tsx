@@ -32,7 +32,7 @@ export default function ProfilPage() {
           <CardTitle>
             <T>Mon profil</T>
           </CardTitle>
-          {estDonneur && !edition && (
+          {!edition && (
             <Button variant="outline" size="sm" onClick={() => setEdition(true)}>
               <PencilIcon />
               <T>Modifier</T>
@@ -41,7 +41,7 @@ export default function ProfilPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {edition ? (
-            <ModifierProfilForm user={user} quartiers={quartiers ?? []} onTermine={() => setEdition(false)} />
+            <ModifierProfilForm user={user} estDonneur={estDonneur} quartiers={quartiers ?? []} onTermine={() => setEdition(false)} />
           ) : (
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
@@ -121,10 +121,12 @@ type ProfilField = 'nom' | 'prenom' | 'telephone' | 'dateNaissance' | 'quartierI
 
 function ModifierProfilForm({
   user,
+  estDonneur,
   quartiers,
   onTermine,
 }: {
   user: Utilisateur
+  estDonneur: boolean
   quartiers: Quartier[]
   onTermine: () => void
 }) {
@@ -148,7 +150,9 @@ function ModifierProfilForm({
       erreurs.dateNaissance = ['La date de naissance est obligatoire']
     } else {
       const age = calculerAge(dateNaissance)
-      if (Number.isNaN(age) || age < AGE_MIN_DON || age > AGE_MAX_DON) {
+      if (Number.isNaN(age) || age < AGE_MIN_DON) {
+        erreurs.dateNaissance = [`Vous devez avoir au moins ${AGE_MIN_DON} ans`]
+      } else if (estDonneur && age > AGE_MAX_DON) {
         erreurs.dateNaissance = [`Le don de sang est ouvert aux personnes de ${AGE_MIN_DON} à ${AGE_MAX_DON} ans`]
       }
     }
@@ -165,7 +169,7 @@ function ModifierProfilForm({
         prenom,
         telephone,
         dateNaissance,
-        quartierId: quartierId || undefined,
+        quartierId: estDonneur ? quartierId || undefined : undefined,
       })
       await refreshUser()
       toast.success('Profil mis à jour')
@@ -228,32 +232,38 @@ function ModifierProfilForm({
           value={dateNaissance}
           onChange={(e) => setDateNaissance(e.target.value)}
           required
-          min={dateIlYA(AGE_MAX_DON + 1)}
+          min={estDonneur ? dateIlYA(AGE_MAX_DON + 1) : undefined}
           max={dateIlYA(AGE_MIN_DON)}
           aria-invalid={Boolean(fieldErrors.dateNaissance?.length)}
         />
         {erreursDe('dateNaissance')}
       </div>
-      <div className="space-y-1.5">
-        <Label>
-          <T>Zone à Lomé</T>
-        </Label>
-        <Select value={quartierId} onValueChange={setQuartierId}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={placeholderSelectionner} />
-          </SelectTrigger>
-          <SelectContent>
-            {quartiers.map((q) => (
-              <SelectItem key={q.id} value={q.id}>
-                {q.nom}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {erreursDe('quartierId')}
-      </div>
+      {estDonneur && (
+        <div className="space-y-1.5">
+          <Label>
+            <T>Zone à Lomé</T>
+          </Label>
+          <Select value={quartierId} onValueChange={setQuartierId}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={placeholderSelectionner} />
+            </SelectTrigger>
+            <SelectContent>
+              {quartiers.map((q) => (
+                <SelectItem key={q.id} value={q.id}>
+                  {q.nom}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {erreursDe('quartierId')}
+        </div>
+      )}
       <p className="sm:col-span-2 text-xs text-muted-foreground">
-        <T>L'adresse email et le groupe sanguin ne peuvent pas être modifiés ici.</T>
+        <T>
+          {estDonneur
+            ? "L'adresse email et le groupe sanguin ne peuvent pas être modifiés ici."
+            : "L'adresse email et le rôle ne peuvent pas être modifiés ici."}
+        </T>
       </p>
       <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={submitting}>
