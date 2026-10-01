@@ -80,6 +80,20 @@ export interface ReponseAvecDonneur {
   donneur: { id: string; nom: string; prenom: string; telephone: string | null; groupeSanguin: GroupeSanguin | null }
 }
 
+export interface ReponseEnAttente {
+  id: string
+  dateReponse: string
+  alerte: {
+    id: string
+    statut: StatutAlerte
+    dateCreation: string
+    groupeSanguinRequis: GroupeSanguin
+    centreDonId: string | null
+    centreDon: { id: string; nom: string } | null
+    quartier: { nom: string } | null
+  }
+}
+
 export interface CarnetDigital {
   id: string
   donneurId: string

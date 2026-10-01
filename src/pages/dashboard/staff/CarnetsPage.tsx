@@ -13,13 +13,16 @@ import { useApiData } from '../../../hooks/useApiData'
 import { useClientPagination } from '../../../hooks/useClientPagination'
 import { useAuth } from '../../../context/AuthContext'
 import { api, ApiError } from '../../../lib/api'
-import { TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
+import { GROUPE_SANGUIN_LABELS, TYPE_RECOMPENSE_LABELS } from '../../../lib/constants'
 import { T, useTraduction } from '../../../context/LanguageContext'
-import type { CarnetDigital, CentreDon, Recompense, Utilisateur } from '../../../lib/types'
+import type { CarnetDigital, CentreDon, Recompense, ReponseEnAttente, Utilisateur } from '../../../lib/types'
+
+const SANS_ALERTE = '__sans_alerte__'
 
 export default function CarnetsPage() {
   const { user } = useAuth()
-  const peutVoirDonneurs = user?.role === 'SUPERADMIN' || user?.role === 'ADMIN' || user?.role === 'AGENT_CNTS'
+  const peutVoirDonneurs =
+    user?.role === 'SUPERADMIN' || user?.role === 'ADMIN' || user?.role === 'AGENT_CNTS' || user?.role === 'MEDECIN'
 
   const { data: carnets, isLoading, error, refetch } = useApiData<CarnetDigital[]>('/carnets')
   const { page, setPage, totalPages, pageItems, total } = useClientPagination(carnets ?? [], 6)
@@ -37,13 +40,26 @@ export default function CarnetsPage() {
   const [donneurId, setDonneurId] = useState('')
   const [dateDon, setDateDon] = useState(() => new Date().toISOString().slice(0, 10))
   const [centreDonId, setCentreDonId] = useState('')
+  const [reponseId, setReponseId] = useState(SANS_ALERTE)
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const placeholderSelectionner = useTraduction('Sélectionner')
   const donneurSelectionne = (donneurs ?? []).find((donneur) => donneur.id === donneurId)
-  const centreAssocie = donneurSelectionne?.quartierId
+  const { data: reponsesEnAttente, refetch: refetchReponses } = useApiData<ReponseEnAttente[]>(
+    donneurId ? `/alertes/donneurs/${donneurId}/reponses-en-attente` : null,
+  )
+  const reponsesDuDonneur = donneurId ? reponsesEnAttente ?? [] : []
+  const reponseSelectionnee = reponsesDuDonneur.find((r) => r.id === reponseId)
+
+  const centreDuQuartier = donneurSelectionne?.quartierId
     ? (centres ?? []).find((centre) => centre.quartierId === donneurSelectionne.quartierId)
     : undefined
+  const centreAssocie = reponseSelectionnee?.alerte.centreDon ?? centreDuQuartier
+
+  useEffect(() => {
+    setReponseId(reponsesDuDonneur[0]?.id ?? SANS_ALERTE)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [donneurId, reponsesEnAttente])
 
   useEffect(() => {
     setCentreDonId(centreAssocie?.id ?? '')
@@ -55,9 +71,14 @@ export default function CarnetsPage() {
     setSubmitting(true)
     setFormError(null)
     try {
-      await api.post('/carnets', { donneurId, dateDon, centreDonId })
+      await api.post('/carnets', {
+        donneurId,
+        dateDon,
+        centreDonId,
+        reponseId: reponseSelectionnee?.id,
+      })
       setDonneurId('')
-      await refetch()
+      await Promise.all([refetch(), refetchReponses()])
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Impossible d'enregistrer ce don")
     } finally {
@@ -71,7 +92,7 @@ export default function CarnetsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PlusIcon className="h-4 w-4" /> <T>Enregistrer un don (sans alerte préalable)</T>
+              <PlusIcon className="h-4 w-4" /> <T>Enregistrer un don</T>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -93,6 +114,29 @@ export default function CarnetsPage() {
                   </SelectContent>
                 </Select>
               </div>
+              {reponsesDuDonneur.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label>
+                    <T>Alerte concernée</T>
+                  </Label>
+                  <Select value={reponseId} onValueChange={setReponseId}>
+                    <SelectTrigger className="w-72">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reponsesDuDonneur.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {GROUPE_SANGUIN_LABELS[r.alerte.groupeSanguinRequis]} · {r.alerte.centreDon?.nom ?? r.alerte.quartier?.nom ?? '—'} ·{' '}
+                          {new Date(r.alerte.dateCreation).toLocaleDateString('fr-FR')}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value={SANS_ALERTE}>
+                        <T>Aucune (don spontané)</T>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label>
                   <T>Date du don</T>
@@ -125,8 +169,8 @@ export default function CarnetsPage() {
             </form>
             <p className="mt-3 text-xs text-muted-foreground">
               <T>
-                Pour un don faisant suite à une alerte, préférez « Enregistrer le don » depuis le détail de l'alerte
-                (page Alertes) : il relie automatiquement la réponse du donneur au carnet.
+                Si le donneur a répondu « Je viens » à une alerte, elle est sélectionnée automatiquement : le centre de
+                l'alerte est repris et le don est relié à sa réponse. Sinon, le centre de son quartier est utilisé.
               </T>
             </p>
           </CardContent>
