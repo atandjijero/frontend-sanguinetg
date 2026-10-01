@@ -48,7 +48,7 @@ export default function HistoriquePage() {
   }, [rechercheInput])
 
   const path = useMemo(() => {
-    const params = new URLSearchParams({ page: String(page), pageSize: '20' })
+    const params = new URLSearchParams({ page: String(page), pageSize: '10' })
     if (role !== TOUS) params.set('role', role)
     if (succes !== TOUS) params.set('succes', succes)
     if (dateDebut) params.set('dateDebut', dateDebut)
